@@ -76,6 +76,6 @@ theme: next
 deploy:
   type: git
   repo: https://github.com/scorpioxiatian/Pirates.git
-  branch: master
+  branch: gh-pages
 
 avatar: /images/avatar.jpg
