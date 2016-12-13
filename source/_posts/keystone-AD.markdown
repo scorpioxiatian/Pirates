@@ -3,6 +3,7 @@ layout: post
 title:  "Keystone对接ActiveDirectory"
 date:   2016-06-02 09:00:13
 categories: openstack
+tags: openstack
 ---
 keystone对接AD(ActiveDirectory)，本文记录对接配置过程
 ## 简介
