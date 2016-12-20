@@ -79,3 +79,7 @@ deploy:
   branch: gh-pages
 
 avatar: /images/avatar.jpg
+
+search:
+  path: search.xml
+  field: all

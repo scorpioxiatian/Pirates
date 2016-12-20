@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /archives/
+Allow: /categories/
+Allow: /about/
+Allow: /page/
+Allow: /tags/
+Allow: /2016/
+Allow: /images/
+
+Disallow: /css/
+Disallow: /js/
+Disallow: /lib/
+
+Sitemap: http://www.pisces.ml/sitemap.xml
