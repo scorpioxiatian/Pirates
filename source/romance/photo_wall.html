@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Forever Love</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        #screen {
+          position: absolute;
+          left: 20%;
+          top: 11%;
+          width: 60%;
+          height: 80%;
+          background: #3e495d;
+        }
+        #screen img {
+          position: absolute;
+          cursor: pointer;
+          visibility: hidden;
+          width: 0px;
+          height: 0px;
+        }
+        #screen .tvover {
+          border: solid #876;
+          opacity: 1;
+          filter: alpha(opacity=100);
+        }
+        #screen .tvout {
+          border: solid #fff;
+          opacity: 0.7;
+        }
+        #bankImages {
+          display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="screen">
+    <div id="bankImages">
+      <img alt="" src="../images/love/1.jpg">
+      <img alt="" src="../images/love/2.jpg">
+      <img alt="" src="../images/love/3.jpg">
+      <img alt="" src="../images/love/4.jpg">
+      <img alt="" src="../images/love/5.jpg">
+      <img alt="" src="../images/love/6.jpg">
+      <img alt="" src="../images/love/7.jpg">
+      <img alt="" src="../images/love/8.jpg">
+      <img alt="" src="../images/love/1.jpg">
+      <img alt="" src="../images/love/2.jpg">
+      <img alt="" src="../images/love/3.jpg">
+      <img alt="" src="../images/love/4.jpg">
+      <img alt="" src="../images/love/5.jpg">
+      <img alt="" src="../images/love/6.jpg">
+      <img alt="" src="../images/love/7.jpg">
+      <img alt="" src="../images/love/8.jpg">
+    </div>
+</div>
+
+<!-- JavaScript Includes -->
+<script src="../js/src/private/love.js"></script>
+<script src="../js/src/private/3d-tv.js" type="text/javascript"></script>
+<script type="text/javascript">
+  /* ==== start script ==== */
+  onresize = tv.resize;
+  tv.init();
+</script>
+
+</body>
+</html>
