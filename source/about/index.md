@@ -23,3 +23,4 @@ comments: false
 
 ### 开发工具
 1. [tmux: Productive Mouse-Free Development](http://www.kancloud.cn/kancloud/tmux/62459)
+2. [Installing Tomcat on macOS 10.12 Sierra](https://wolfpaulus.com/mac/tomcat/)

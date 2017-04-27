@@ -75,8 +75,9 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/scorpioxiatian/Pirates.git
-  branch: gh-pages
+  repo:
+    github: https://github.com/scorpioxiatian/Pirates.git,gh-pages
+    gitcafe: git@git.coding.net:Scorpio_Summer/Pirates.git,coding-pages
 
 avatar: /images/avatar.jpg
 
