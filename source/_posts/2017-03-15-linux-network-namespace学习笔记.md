@@ -47,7 +47,7 @@ ip netns add nstest
 # list all namespaces
 ip netns list
 #will show the namespace from above
- 
+
 nstest
 ```
 
@@ -71,7 +71,7 @@ ip netns exec nstest ip addr
 展示了在此network namespace中的所有的ip interface
 
 ```
-lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT 
+lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 ```
 
@@ -90,7 +90,7 @@ ip netns exec <network namespace name> bash
 ```
 # set the link of lo in the namespace to up
 ip netns exec nstest ip link set dev lo up
-# list all interfaces and the state in the namespace 
+# list all interfaces and the state in the namespace
 ip netns exec nstest ip link
 ```
 
@@ -125,8 +125,8 @@ ip link set veth-b netns nstest
 ```
 # list all interfaces in the namespace nstest
 ip netns exec nstest ip link
- 
-lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT 
+
+lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT
  link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 veth-b: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000
  link/ether 72:01:ad:c5:67:84 brd ff:ff:ff:ff:ff:ff
@@ -174,7 +174,7 @@ PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
 ## Demo
 
 下面一起来实现一个demo，最终实现如下的case：
-![img](https://segmentfault.com/img/bVrcbl)
+![img](https://sfault-image.b0.upaiyun.com/236/693/2366931023-565947f5ddd8d_articlex)
 
 首先，先建立对应的namespace：
 
@@ -287,4 +287,4 @@ PING 192.168.100.1 (192.168.100.1) from 10.0.100.1 : 56(84) bytes of data.
 3 packets transmitted, 3 received, 0% packet loss, time 1999ms
 rtt min/avg/max/mdev = 0.050/0.077/0.106/0.024 ms
 ```
-原文转发自：https://segmentfault.com/a/1190000004059167。仅供个人学习使用！
+原文转发自：https://segmentfault.com/a/1190000004059167
