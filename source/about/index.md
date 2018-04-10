@@ -3,10 +3,6 @@ title: about
 date: 2016-11-29 01:12:07
 comments: false
 ---
-## 定个小目标：
-1. COA
-2. CCIE
-
 ## 知识整理
 ### zabbix
 1. [zabbix自定义脚本实现短信报警提醒](https://www.zifangsky.cn/627.html)
@@ -24,3 +20,4 @@ comments: false
 ### 开发工具
 1. [tmux: Productive Mouse-Free Development](http://www.kancloud.cn/kancloud/tmux/62459)
 2. [Installing Tomcat on macOS 10.12 Sierra](https://wolfpaulus.com/mac/tomcat/)
+3. [smartdraw](https://cloud.smartdraw.com/)  推荐指数：✨✨✨✨✨
