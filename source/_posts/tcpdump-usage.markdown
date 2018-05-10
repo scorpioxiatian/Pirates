@@ -2,8 +2,8 @@
 layout: post
 title:  "tcpdump命令详解"
 date:   2016-05-22 09:00:13
-categories: linux
-tags: network
+categories: Network
+tags: tcpdump
 ---
 这篇文章主要是记录关于tcpdump的使用，tcpdump是常用的抓包工具，该工具可以灵活的抓取在网络中包传输。
 （操作系统：ubuntu 15.04）

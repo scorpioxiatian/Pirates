@@ -1,6 +1,7 @@
 ---
 title: Iterm2 快捷键大全
 date: 2016-12-13 18:16:52
+categories: Mac
 tags: Iterm2
 ---
 

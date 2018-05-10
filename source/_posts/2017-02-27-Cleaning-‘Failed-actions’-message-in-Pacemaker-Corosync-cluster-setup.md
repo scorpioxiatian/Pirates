@@ -1,7 +1,8 @@
 ---
 title: Cleaning ‘Failed actions’ message in Pacemaker/Corosync cluster setup
 date: 2017-02-27 18:10:18
-tags: [mysql,Pacemaker]
+categories: Soft
+tags: Pacemaker
 ---
 
 Sometimes when using [Pacemaker](http://www.clusterlabs.org/)/[Corosync](http://www.corosync.org/doku.php?id=welcome)-based cluster you can see warning message in **crm_mon** output:

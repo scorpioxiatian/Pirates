@@ -2,8 +2,8 @@
 layout: post
 title:  "keystone架构和功能分析"
 date:   2016-04-24 09:00:13
-categories: openstack
-tags: openstack
+categories: Openstack
+tags: keystone
 ---
 ## 简介
 Keystone(OpenStack Identity Service)是 OpenStack 框架中负责管理身份验证、服务规则和服务令牌功能等的模块。用户访问资源需要验证用户的身份与权限，服务执行操作也需要进行权限检测，这些都需要通过 Keystone 来处理。目前Keystone同时支持V2和V3版本．Keystone V3 版本做出了许多变化和改进，引入了 Domain 和 Group 等新概念．

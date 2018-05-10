@@ -1,7 +1,8 @@
 ---
 title: Memcache 篇
 date: 2016-12-14 13:52:51
-tags: [Memcache, Distribution]
+categories: Cache
+tags: Memcache
 ---
 
 <img src='https://memcached.org/images/memcached_banner75.jpg'/>

@@ -2,8 +2,8 @@
 layout: post
 title:  "Vim快捷键整理"
 date:   2016-10-14 09:00:13
-categories: linux
-tags: linux
+categories: Linux
+tags: vim
 ---
 > Vim是Mac OS和Linux里内置的一款强大的文本编辑器，能够和Shell无缝交互。同时也是SSH远程登录VPS时编辑文件的唯一选择。因此掌握Vim对于做服务器运维和Web后端开发的重要性不言而喻。
 > 本文对Vim的快捷键操作进行了简单整理。

@@ -1,7 +1,8 @@
 ---
 title: Mac命令行终端下使用shadowsocks翻墙（转）
 date: 2017-08-22 16:19:30
-tags: shadowsocks
+categories: Mac
+tags: [shadowsocks, privoxy]
 ---
 
 原文转自：http://www.cashqian.net/blog/001486989831982332565298e4942a2bb8f56b08f9d2475000 仅供学习使用

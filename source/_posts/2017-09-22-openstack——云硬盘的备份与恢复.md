@@ -1,7 +1,8 @@
 ---
 title: openstack——云硬盘的备份与恢复
 date: 2017-09-22 14:51:35
-tags: [openstack, cinder]
+categories: Openstack
+tags: cinder
 ---
 
 本文会讲述如何进行跨平台云硬盘的备份与恢复，cinder提供的backup功能目前支持多种后端driver备份，比如：nfs、swift、ceph、tsm等等，可见目前常见的存储后端都是支持的。cinder在很早就已经支持备份，主要有以下优势：

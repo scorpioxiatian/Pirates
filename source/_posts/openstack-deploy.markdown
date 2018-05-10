@@ -2,7 +2,7 @@
 layout: post
 title:  "openstack 多节点安装"
 date:   2016-03-27 09:00:13
-categories: openstack
+categories: Openstack
 tags: openstack
 ---
 本文记录双节点openstack部署流程,根据[官方文档](http://docs.openstack.org/liberty/install-guide-ubuntu/),一步一步搭建openstack,并且记录搭建过程遇到的坑。

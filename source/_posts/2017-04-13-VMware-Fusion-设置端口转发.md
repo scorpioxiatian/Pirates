@@ -1,7 +1,8 @@
 ---
 title: VMware Fusion 设置端口转发
 date: 2017-04-13 16:06:00
-tags: [VMware Fusion,NAT,network]
+categories: Mac
+tags: [VMware Fusion,NAT]
 ---
 
 # 背景

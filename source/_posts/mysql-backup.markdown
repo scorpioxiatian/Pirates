@@ -2,7 +2,7 @@
 layout: post
 title:  "mysql数据库备份与恢复"
 date:   2016-11-15 09:00:13
-categories: mysql
+categories: Database
 tags: mysql
 ---
 工作当中有时需要对数据库进行备份与恢复，其实数据库对备份与恢复很简单，几条命令就搞定。

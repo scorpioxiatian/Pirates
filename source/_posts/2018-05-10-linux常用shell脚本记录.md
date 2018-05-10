@@ -1,6 +1,7 @@
 ---
 title: linux常用shell脚本记录（附带脚本解析）
 date: 2018-05-10 16:09:08
+categories: Shell
 tags: shell
 ---
 

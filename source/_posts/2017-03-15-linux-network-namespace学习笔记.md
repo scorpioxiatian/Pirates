@@ -1,7 +1,8 @@
 ---
 title: linux network namespace学习笔记
 date: 2017-03-15 23:21:24
-tags: [linux,network,VRF]
+categories: Network
+tags: [namespace,VRF]
 ---
 
 ## 介绍
