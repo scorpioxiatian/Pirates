@@ -1,0 +1,1269 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="openstack," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Pirates" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文记录双节点openstack部署流程,根据官方文档,一步一步搭建openstack,并且记录搭建过程遇到的坑。 概要openstack是一个开源社区，提供IAAS解决方案，我们首先来了解下基础服务：  Horizon:面板服务，直接面向用户，为用户提供可视操作。 Nova:计算服务，提供计算机生命周期管理，如新建虚拟机等。 Neutron:网络服务，提供云计算环境下的虚拟网络功能。 Keyst">
+<meta name="keywords" content="openstack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="openstack 多节点安装">
+<meta property="og:url" content="http://www.pisces.ml/2016/03/27/openstack-deploy/index.html">
+<meta property="og:site_name" content="Pirates">
+<meta property="og:description" content="本文记录双节点openstack部署流程,根据官方文档,一步一步搭建openstack,并且记录搭建过程遇到的坑。 概要openstack是一个开源社区，提供IAAS解决方案，我们首先来了解下基础服务：  Horizon:面板服务，直接面向用户，为用户提供可视操作。 Nova:计算服务，提供计算机生命周期管理，如新建虚拟机等。 Neutron:网络服务，提供云计算环境下的虚拟网络功能。 Keyst">
+<meta property="og:image" content="http://www.pisces.ml/images/hwreqs.png">
+<meta property="og:image" content="http://www.pisces.ml/images/network2-services.png">
+<meta property="og:image" content="http://www.pisces.ml/images/networklayout.png">
+<meta property="og:image" content="http://www.pisces.ml/images/topology.png">
+<meta property="og:updated_time" content="2018-05-10T10:21:24.250Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="openstack 多节点安装">
+<meta name="twitter:description" content="本文记录双节点openstack部署流程,根据官方文档,一步一步搭建openstack,并且记录搭建过程遇到的坑。 概要openstack是一个开源社区，提供IAAS解决方案，我们首先来了解下基础服务：  Horizon:面板服务，直接面向用户，为用户提供可视操作。 Nova:计算服务，提供计算机生命周期管理，如新建虚拟机等。 Neutron:网络服务，提供云计算环境下的虚拟网络功能。 Keyst">
+<meta name="twitter:image" content="http://www.pisces.ml/images/hwreqs.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.pisces.ml/2016/03/27/openstack-deploy/"/>
+
+
+
+
+
+  <title> openstack 多节点安装 | Pirates </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-89244963-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?72c93c3a5a0145d3a078592d8b7af890";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Pirates</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-love">
+          <a href="/romance/love.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br />
+            
+            爱之篇章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://www.pisces.ml/2016/03/27/openstack-deploy/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Summer Smith">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Pirates">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Pirates" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                openstack 多节点安装
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-03-27T09:00:13+08:00">
+                2016-03-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Openstack/" itemprop="url" rel="index">
+                    <span itemprop="name">Openstack</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <a href="/2016/03/27/openstack-deploy/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/03/27/openstack-deploy/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/03/27/openstack-deploy/" class="leancloud_visitors" data-flag-title="openstack 多节点安装">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文记录双节点openstack部署流程,根据<a href="http://docs.openstack.org/liberty/install-guide-ubuntu/" target="_blank" rel="external">官方文档</a>,一步一步搭建openstack,并且记录搭建过程遇到的坑。</p>
+<h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><p>openstack是一个开源社区，提供IAAS解决方案，我们首先来了解下基础服务：</p>
+<ul>
+<li><a href="http://docs.openstack.org/developer/horizon/" target="_blank" rel="external">Horizon</a>:面板服务，直接面向用户，为用户提供可视操作。</li>
+<li><a href="http://docs.openstack.org/developer/nova/" target="_blank" rel="external">Nova</a>:计算服务，提供计算机生命周期管理，如新建虚拟机等。</li>
+<li><a href="http://docs.openstack.org/developer/neutron/" target="_blank" rel="external">Neutron</a>:网络服务，提供云计算环境下的虚拟网络功能。</li>
+<li><a href="http://docs.openstack.org/developer/keystone/" target="_blank" rel="external">Keystone</a>:认证服务，提供用户认证以及openstack中服务认证。</li>
+<li><a href="http://docs.openstack.org/developer/glance/" target="_blank" rel="external">Glance</a>:镜像服务，提供镜像存储。</li>
+<li><a href="http://docs.openstack.org/developer/ceilometer/" target="_blank" rel="external">Ceilometer</a>:监控服务，负责资源监控实时了解资源情况。</li>
+<li><a href="http://docs.openstack.org/developer/swift/" target="_blank" rel="external">Swift</a>:对象存储服务，提供多租户的对象存储。</li>
+<li><a href="http://docs.openstack.org/developer/cinder/" target="_blank" rel="external">Cinder</a>:块存储服务，提供块存储。<h2 id="部署架构"><a href="#部署架构" class="headerlink" title="部署架构"></a>部署架构</h2><h3 id="硬件架构"><a href="#硬件架构" class="headerlink" title="硬件架构"></a>硬件架构</h3><img src="/images/hwreqs.png" alt="部署结构图"><br>常规部署主要有分为控制节点，计算节点，网络节点。我们以最简方式部署，如上图所示使用两个节点，控制节点和计算节点，我们不单独部署网络节点将网络agent部署在控制节点不单独部署在网络节点。另外配置至少如上要求所示。<h3 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h3>1.软件部署架构如下图所示：<br><img src="/images/network2-services.png" alt=""><br><strong>控制节点</strong><br>控制节点主要部署openstack基础服务如：keystone,horizon,Neutron等，以及基础服务的支持服务，如：消息队列，NTP，mysql等。<br><strong>计算节点</strong><br>计算节点主要部署hypervisor，根据nova调度算法创建实例，以及网络服务。<br>2.网络拓扑架构图：<br><img src="/images/networklayout.png" alt=""><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="基础环境搭建"><a href="#基础环境搭建" class="headerlink" title="基础环境搭建"></a>基础环境搭建</h3>以下环境搭建在通过<a href="https://console.ustack.com" target="_blank" rel="external">ustack</a>云平台进行搭建：</li>
+</ul>
+<ol>
+<li>新建路由器route0</li>
+<li>创建私有网络public-network和management-network</li>
+<li>申请名为net的公网并且绑定到路由器route</li>
+<li>将私有网络public-network关联到路由器route</li>
+<li>创建控制节点controller(2vcpu,8G)和计算节点compute(4vcpu,8G),将controller加入私有网络public-network,将compute加入私有网络public-network和management-network<br>搭建完成后网络拓扑如下所示：<br><img src="/images/topology.png" alt=""><h3 id="配置host"><a href="#配置host" class="headerlink" title="配置host"></a>配置host</h3>接着我们来配置控制节点和计算几点host<br>修改文件/etc/hosts,如下所示：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># 控制节点编辑文件/etc/hosts</div><div class="line">192.168.2.2 controller</div><div class="line">192.168.2.5 compute</div><div class="line"># 计算节点同上操作</div><div class="line">192.168.2.2 controller</div><div class="line">192.168.2.5 compute</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可以通过以下命令在控制节点和计算节点验证是否配置正确：</p>
+<blockquote>
+<p>root@compute:~# ping controller<br>PING controller (192.168.2.2) 56(84) bytes of data.<br>64 bytes from controller (192.168.2.2): icmp_seq=1 ttl=64 time=0.407 ms<br>64 bytes from controller (192.168.2.2): icmp_seq=2 ttl=64 time=0.508 ms<br>64 bytes from controller (192.168.2.2): icmp_seq=3 ttl=64 time=0.571 ms<br>root@compute:~# ping -c 4 openstack.org<br>PING openstack.org (162.242.140.107) 56(84) bytes of data.<br>64 bytes from 162.242.140.107: icmp_seq=1 ttl=42 time=386 ms<br>64 bytes from 162.242.140.107: icmp_seq=2 ttl=42 time=384 ms<br>64 bytes from 162.242.140.107: icmp_seq=3 ttl=42 time=386 ms</p>
+</blockquote>
+<h3 id="安装支持软件"><a href="#安装支持软件" class="headerlink" title="安装支持软件"></a>安装支持软件</h3><h4 id="安装NTP服务"><a href="#安装NTP服务" class="headerlink" title="安装NTP服务"></a>安装NTP服务</h4><p>控制节点controller：<br>1.安装chrony包<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apt-get install chrony</div></pre></td></tr></table></figure></p>
+<p>2.编辑文件/etc/chrony/chrony.conf插入以下内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># 以asia.pool.ntp.org时间为例</div><div class="line">server asia.pool.ntp.org iburst</div></pre></td></tr></table></figure></p>
+<p>3.重启NTP服务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">service chrony restart</div></pre></td></tr></table></figure></p>
+<p>计算节点compute：<br>安装步骤跟控制节点一样，在编辑/etc/chrony/chrony.conf文件时需要插入以下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># 表示跟controller节点时间同步</div><div class="line">server controller iburst</div></pre></td></tr></table></figure></p>
+<p>验证：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"># *表示当前所用的时间</div><div class="line"># 控制节点</div><div class="line">root@controller:~# chronyc sources</div><div class="line">210 Number of sources = 1</div><div class="line">MS Name/IP address         Stratum Poll Reach LastRx Last sample</div><div class="line">===============================================================================</div><div class="line">^* host-2.net50.sol.az           4   6   177    55  +3003us[ +313us] +/-  694ms</div><div class="line"># 计算节点</div><div class="line">root@compute:~# chronyc sources</div><div class="line">210 Number of sources = 1</div><div class="line">MS Name/IP address         Stratum Poll Reach LastRx Last sample</div><div class="line">===============================================================================</div><div class="line">^* controller                    5   6   377    36  +4607us[  +27ms] +/-  734ms</div></pre></td></tr></table></figure></p>
+<h4 id="安装openstack软件包支持"><a href="#安装openstack软件包支持" class="headerlink" title="安装openstack软件包支持"></a>安装openstack软件包支持</h4><p>该操作在所有节点均执行<br>修改文件/etc/apt/sources.list，增加以下内容：</p>
+<blockquote>
+<p>deb <a href="http://ubuntu-cloud.archive.canonical.com/ubuntu" target="_blank" rel="external">http://ubuntu-cloud.archive.canonical.com/ubuntu</a> trusty-updates/liberty main</p>
+</blockquote>
+<p>执行命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apt-get update &amp;&amp; apt-get dist-upgrade</div></pre></td></tr></table></figure></p>
+<p>如果出现如下错误：</p>
+<blockquote>
+<p>error:<br>W: GPG error: <a href="http://ubuntu-cloud.archive.canonical.com" target="_blank" rel="external">http://ubuntu-cloud.archive.canonical.com</a> trusty-updates/liberty Release: The following signatures couldn’t be verified because the public key is not available: NO_PUBKEY 5EDB1B62EC4926EA<br>执行命令<figure class="highlight plain"><figcaption><span>adv --keyserver keyserver.ubuntu.com --recv-keys 5EDB1B62EC4926EA```后在运行```apt-get update && apt-get dist-upgrade```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">#### 安装SQL数据库</div><div class="line">在控制节点执行如下操作：</div><div class="line">1.安装sql包,并且设置root用户密码</div></pre></td></tr></table></figure></p>
+</blockquote>
+<p>apt-get install mariadb-server python-pymysql<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.修改文件/etc/mysql/my.cnf并添加如下内容允许所有节点请求。</div></pre></td></tr></table></figure></p>
+<p>[mysqld]<br>bind-address = 0.0.0.0<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.重启sql服务</div></pre></td></tr></table></figure></p>
+<p>service mysql restart<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 安装消息队列rabbitmq</div><div class="line">1.安装rabbitmq软件包</div></pre></td></tr></table></figure></p>
+<p>apt-get install rabbitmq-server<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.添加openstack用户</div></pre></td></tr></table></figure></p>
+<p>rabbitmqctl add_user openstack root<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.给openstack用户添加读写权限</div></pre></td></tr></table></figure></p>
+<p>rabbitmqctl set_permissions openstack “.<em>“ “.</em>“ “.*”<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">## 安装openstack软件</div><div class="line">### 安装keystone</div><div class="line">#### 创建keystone数据库</div><div class="line">创建keystone数据库以及生成admin token</div><div class="line">1.登入数据库</div></pre></td></tr></table></figure></p>
+<p>mysql -uroot<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.创建keystone数据库</div></pre></td></tr></table></figure></p>
+<p>CREATE DATABASE keystone;<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.添加数据库访问权限</div></pre></td></tr></table></figure></p>
+<p>GRANT ALL PRIVILEGES ON keystone.<em> TO ‘keystone’@’localhost’ \<br>  IDENTIFIED BY ‘root’;<br>GRANT ALL PRIVILEGES ON keystone.</em> TO ‘keystone’@’%’ \<br>  IDENTIFIED BY ‘root’;<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 随机生成admin token</div><div class="line">执行以下命令生成admin token以便后续步骤使用</div></pre></td></tr></table></figure></p>
+<p>root@controller:~# openssl rand -hex 10<br>e770648f049dd983575b<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 安装keystone服务</div><div class="line">1.从源安装keystone</div></pre></td></tr></table></figure></p>
+<h1 id="禁止安装完后启动服务"><a href="#禁止安装完后启动服务" class="headerlink" title="禁止安装完后启动服务"></a>禁止安装完后启动服务</h1><p>echo “manual” &gt; /etc/init/keystone.override<br>apt-get install keystone apache2 libapache2-mod-wsgi \<br>  memcached python-memcache<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.配置keystone配置文件/etc/keystone/keystone.conf,修改以下配置</div></pre></td></tr></table></figure></p>
+<p>[DEFAULT]<br>…<br>admin_token = e770648f049dd983575b<br>[database]<br>…<br>connection = mysql://keystone:root@controller/keystone?charset=utf8<br>[memcache]<br>…<br>servers = localhost:11211<br>[token]<br>…<br>provider = uuid<br>driver = memcache<br>[revoke]<br>…<br>driver = sql<br>[DEFAULT]<br>…<br>verbose = True<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.同步数据库</div></pre></td></tr></table></figure></p>
+<p>su -s /bin/sh -c “keystone-manage db_sync” keystone<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 配置apache服务器</div><div class="line">1.编辑文件/etc/apache2/apache2.conf修改Servername</div></pre></td></tr></table></figure></p>
+<p>ServerName controller<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.创建文件/etc/apache2/sites-available/wsgi-keystone.conf，并添加如下内容</div></pre></td></tr></table></figure></p>
+<p>Listen 5000<br>Listen 35357</p>
+<p><virtualhost *:5000=""><br>    WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}<br>    WSGIProcessGroup keystone-public<br>    WSGIScriptAlias / /usr/bin/keystone-wsgi-public<br>    WSGIApplicationGroup %{GLOBAL}<br>    WSGIPassAuthorization On<br>    <ifversion>= 2.4&gt;<br>      ErrorLogFormat “%{cu}t %M”<br>    </ifversion><br>    ErrorLog /var/log/apache2/keystone.log<br>    CustomLog /var/log/apache2/keystone_access.log combined<br>    <directory usr="" bin=""><br>        <ifversion>= 2.4&gt;<br>            Require all granted<br>        </ifversion><br>        <ifversion <="" 2.4=""><br>            Order allow,deny<br>            Allow from all<br>        </ifversion><br>    </directory><br></virtualhost></p>
+<p><virtualhost *:35357=""><br>    WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}<br>    WSGIProcessGroup keystone-admin<br>    WSGIScriptAlias / /usr/bin/keystone-wsgi-admin<br>    WSGIApplicationGroup %{GLOBAL}<br>    WSGIPassAuthorization On<br>    <ifversion>= 2.4&gt;<br>      ErrorLogFormat “%{cu}t %M”<br>    </ifversion><br>    ErrorLog /var/log/apache2/keystone.log<br>    CustomLog /var/log/apache2/keystone_access.log combined<br>    <directory usr="" bin=""><br>        <ifversion>= 2.4&gt;<br>            Require all granted<br>        </ifversion><br>        <ifversion <="" 2.4=""><br>            Order allow,deny<br>            Allow from all<br>        </ifversion><br>    </directory><br></virtualhost><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.允许加载keystone服务并重启apache服务器</div></pre></td></tr></table></figure></p>
+<p>ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled<br>service apache2 restart<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 创建service entity和API endpoints</div><div class="line">1.配置认证信息</div></pre></td></tr></table></figure></p>
+<p>export OS_TOKEN=e770648f049dd983575b<br>export OS_URL=<a href="http://controller:35357/v3" target="_blank" rel="external">http://controller:35357/v3</a><br>export OS_IDENTITY_API_VERSION=3<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.创建keystone服务</div></pre></td></tr></table></figure></p>
+<p>root@controller:~# openstack service create \<br>   –name keystone –description “OpenStack Identity” identity<br>+————-+———————————-+<br>| Field       | Value                            |<br>+————-+———————————-+<br>| description | OpenStack Identity               |<br>| enabled     | True                             |<br>| id          | 70c001520bc346f5a24cbce02251edc0 |<br>| name        | keystone                         |<br>| type        | identity                         |<br>+————-+———————————-+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.创建endpoints</div></pre></td></tr></table></figure></p>
+<p>root@controller:~# openstack endpoint create –region RegionOne \<br>   identity public <a href="http://controller:5000/v2.0" target="_blank" rel="external">http://controller:5000/v2.0</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | 20ff23f26e9044bab521cf3aa449107c |<br>| interface    | public                           |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 70c001520bc346f5a24cbce02251edc0 |<br>| service_name | keystone                         |<br>| service_type | identity                         |<br>| url          | <a href="http://controller:5000/v2.0" target="_blank" rel="external">http://controller:5000/v2.0</a>      |<br>+————–+———————————-+<br>root@controller:~# openstack endpoint create –region RegionOne \<br>   identity internal <a href="http://controller:5000/v2.0" target="_blank" rel="external">http://controller:5000/v2.0</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | 2f61696b382f4d18be1dbf26958affc9 |<br>| interface    | internal                         |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 70c001520bc346f5a24cbce02251edc0 |<br>| service_name | keystone                         |<br>| service_type | identity                         |<br>| url          | <a href="http://controller:5000/v2.0" target="_blank" rel="external">http://controller:5000/v2.0</a>      |<br>+————–+———————————-+<br>root@controller:~# openstack endpoint create –region RegionOne \<br>   identity admin <a href="http://controller:35357/v2.0" target="_blank" rel="external">http://controller:35357/v2.0</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | cce98996793948f8841e9e809c1fcce0 |<br>| interface    | admin                            |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 70c001520bc346f5a24cbce02251edc0 |<br>| service_name | keystone                         |<br>| service_type | identity                         |<br>| url          | <a href="http://controller:35357/v2.0" target="_blank" rel="external">http://controller:35357/v2.0</a>     |<br>+————–+———————————-+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 创建projects, users, and roles</div><div class="line">1.创建管理员用户</div></pre></td></tr></table></figure></p>
+<h1 id="创建管理员项目"><a href="#创建管理员项目" class="headerlink" title="创建管理员项目"></a>创建管理员项目</h1><p>root@controller:~# openstack project create –domain default \<br>   –description “Admin Project” admin<br>+————-+———————————-+<br>| Field       | Value                            |<br>+————-+———————————-+<br>| description | Admin Project                    |<br>| domain_id   | default                          |<br>| enabled     | True                             |<br>| id          | ae557b315d7c430c929f31b480084ada |<br>| is_domain   | False                            |<br>| name        | admin                            |<br>| parent_id   | None                             |<br>+————-+———————————-+</p>
+<h1 id="创建admin账户"><a href="#创建admin账户" class="headerlink" title="创建admin账户"></a>创建admin账户</h1><p>root@controller:~# openstack user create –domain default \<br>   –password-prompt admin<br>User Password:<br>Repeat User Password:<br>+———–+———————————-+<br>| Field     | Value                            |<br>+———–+———————————-+<br>| domain_id | default                          |<br>| enabled   | True                             |<br>| id        | 59a21d5fea5a42908d5911635eb92742 |<br>| name      | admin                            |<br>+———–+———————————-+</p>
+<h1 id="创建admin角色"><a href="#创建admin角色" class="headerlink" title="创建admin角色"></a>创建admin角色</h1><p>root@controller:~# openstack role create admin<br>+——-+———————————-+<br>| Field | Value                            |<br>+——-+———————————-+<br>| id    | 28754433fefd4572be420fcf91be7788 |<br>| name  | admin                            |<br>+——-+———————————-+</p>
+<h1 id="添加权限"><a href="#添加权限" class="headerlink" title="添加权限"></a>添加权限</h1><p>root@controller:~# openstack role add –project admin –user admin admin<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.创建service项目</div></pre></td></tr></table></figure></p>
+<p>root@controller:~# openstack project create –domain default \<br>   –description “Service Project” service<br>+————-+———————————-+<br>| Field       | Value                            |<br>+————-+———————————-+<br>| description | Service Project                  |<br>| domain_id   | default                          |<br>| enabled     | True                             |<br>| id          | c0f3b4ac140e4d98a4ec87adbfb54c60 |<br>| is_domain   | False                            |<br>| name        | service                          |<br>| parent_id   | None                             |<br>+————-+———————————-+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.创建普通用户</div></pre></td></tr></table></figure></p>
+<h1 id="创建demo项目"><a href="#创建demo项目" class="headerlink" title="创建demo项目"></a>创建demo项目</h1><p>root@controller:~# openstack project create –domain default \<br>   –description “Demo Project” demo<br>+————-+———————————-+<br>| Field       | Value                            |<br>+————-+———————————-+<br>| description | Demo Project                     |<br>| domain_id   | default                          |<br>| enabled     | True                             |<br>| id          | 89149a8b334a4a05bf50772944d41dad |<br>| is_domain   | False                            |<br>| name        | demo                             |<br>| parent_id   | None                             |<br>+————-+———————————-+</p>
+<h1 id="创建demo用户"><a href="#创建demo用户" class="headerlink" title="创建demo用户"></a>创建demo用户</h1><p>root@controller:~# openstack user create –domain default \<br>   –password-prompt demo<br>User Password:<br>Repeat User Password:<br>+———–+———————————-+<br>| Field     | Value                            |<br>+———–+———————————-+<br>| domain_id | default                          |<br>| enabled   | True                             |<br>| id        | c86e83459c21400c9092e4b68aac0e6e |<br>| name      | demo                             |<br>+———–+———————————-+</p>
+<h1 id="创建user角色"><a href="#创建user角色" class="headerlink" title="创建user角色"></a>创建user角色</h1><p>root@controller:~# openstack role create user<br>+——-+———————————-+<br>| Field | Value                            |<br>+——-+———————————-+<br>| id    | 48b053ac809d48d58b0032e52be9d057 |<br>| name  | user                             |<br>+——-+———————————-+</p>
+<h1 id="分配角色"><a href="#分配角色" class="headerlink" title="分配角色"></a>分配角色</h1><p>root@controller:~# openstack role add –project demo –user demo user<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 验证配置</div><div class="line">1.清除原有环境变量</div></pre></td></tr></table></figure></p>
+<p>unset OS_TOKEN OS_URL<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.使用用户名密码获取token</div></pre></td></tr></table></figure></p>
+<p>root@controller:~#  openstack –os-auth-url <a href="http://controller:35357/v3" target="_blank" rel="external">http://controller:35357/v3</a> \<br>   –os-project-domain-id default –os-user-domain-id default \<br>   –os-project-name admin –os-username admin –os-auth-type password \<br>   token issue<br>Password:<br>+————+———————————-+<br>| Field      | Value                            |<br>+————+———————————-+<br>| expires    | 2016-03-24T11:06:17.423633Z      |<br>| id         | d55f1ceaabf14b93aef5516c497c2d7e |<br>| project_id | ae557b315d7c430c929f31b480084ada |<br>| user_id    | 59a21d5fea5a42908d5911635eb92742 |<br>+————+———————————-+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 创建openstack命令行证书文件</div><div class="line">新建文件admin-openrc.sh，并添加如下内容：</div></pre></td></tr></table></figure></p>
+<p>export OS_PROJECT_DOMAIN_ID=default<br>export OS_USER_DOMAIN_ID=default<br>export OS_PROJECT_NAME=admin<br>export OS_TENANT_NAME=admin<br>export OS_USERNAME=admin<br>export OS_PASSWORD=root #根据实际填写<br>export OS_AUTH_URL=<a href="http://controller:35357/v3" target="_blank" rel="external">http://controller:35357/v3</a><br>export OS_IDENTITY_API_VERSION=3<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">### 安装镜像服务glance</div><div class="line">#### 基础配置准备</div><div class="line">1.进入数据库服务创建glance数据库</div></pre></td></tr></table></figure></p>
+<h1 id="创建glance数据库"><a href="#创建glance数据库" class="headerlink" title="创建glance数据库"></a>创建glance数据库</h1><p>CREATE DATABASE glance;<br>分配相应的访问权限<br>GRANT ALL PRIVILEGES ON glance.<em> TO ‘glance’@’localhost’ \<br>  IDENTIFIED BY ‘root’;<br>GRANT ALL PRIVILEGES ON glance.</em> TO ‘glance’@’%’ \<br>  IDENTIFIED BY ‘root’;<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.source证书文件admin-openrc.sh</div></pre></td></tr></table></figure></p>
+<p>root@controller:~# source admin-openrc.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.在keystone中创建glance用户信息</div></pre></td></tr></table></figure></p>
+<h1 id="创建glance用户"><a href="#创建glance用户" class="headerlink" title="创建glance用户"></a>创建glance用户</h1><p>root@controller:~# openstack user create –domain default –password-prompt glance<br>User Password:<br>Repeat User Password:<br>+———–+———————————-+<br>| Field     | Value                            |<br>+———–+———————————-+<br>| domain_id | default                          |<br>| enabled   | True                             |<br>| id        | dc680f9b12e44ebb93c91dfdeeabcb8f |<br>| name      | glance                           |<br>+———–+———————————-+</p>
+<h1 id="为glance用户在service项目添加admin权限"><a href="#为glance用户在service项目添加admin权限" class="headerlink" title="为glance用户在service项目添加admin权限"></a>为glance用户在service项目添加admin权限</h1><p>root@controller:~# openstack role add –project service –user glance admin</p>
+<h1 id="创建glance服务"><a href="#创建glance服务" class="headerlink" title="创建glance服务"></a>创建glance服务</h1><p>root@controller:~# openstack service create –name glance \<br>   –description “OpenStack Image service” image<br>+————-+———————————-+<br>| Field       | Value                            |<br>+————-+———————————-+<br>| description | OpenStack Image service          |<br>| enabled     | True                             |<br>| id          | 0fc59e7791d9463085c7f84a39c1f3c8 |<br>| name        | glance                           |<br>| type        | image                            |<br>+————-+———————————-+</p>
+<h1 id="创建镜像服务endpoint"><a href="#创建镜像服务endpoint" class="headerlink" title="创建镜像服务endpoint"></a>创建镜像服务endpoint</h1><p>root@controller:~# openstack endpoint create –region RegionOne \<br>   image public <a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | 9c34be6312974f9dabc8783816771103 |<br>| interface    | public                           |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 0fc59e7791d9463085c7f84a39c1f3c8 |<br>| service_name | glance                           |<br>| service_type | image                            |<br>| url          | <a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a>           |<br>+————–+———————————-+<br>root@controller:~# openstack endpoint create –region RegionOne \<br>   image internal <a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | a6f97076343248ec98ec7a800ec94577 |<br>| interface    | internal                         |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 0fc59e7791d9463085c7f84a39c1f3c8 |<br>| service_name | glance                           |<br>| service_type | image                            |<br>| url          | <a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a>           |<br>+————–+———————————-+<br>root@controller:~#  openstack endpoint create –region RegionOne \<br>   image admin <a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | e01dbccee82a406e8deaae02b6590b44 |<br>| interface    | admin                            |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 0fc59e7791d9463085c7f84a39c1f3c8 |<br>| service_name | glance                           |<br>| service_type | image                            |<br>| url          | <a href="http://controller:9292" target="_blank" rel="external">http://controller:9292</a>           |<br>+————–+———————————-+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 安装配置glance软件包</div><div class="line">1.安装软件包</div></pre></td></tr></table></figure></p>
+<p>apt-get install glance python-glanceclient<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.修改配置文件/etc/glance/glance-api.conf和/etc/glance/glance-registry.conf</div></pre></td></tr></table></figure></p>
+<h1 id="修改文件-etc-glance-glance-api-conf"><a href="#修改文件-etc-glance-glance-api-conf" class="headerlink" title="修改文件/etc/glance/glance-api.conf"></a>修改文件/etc/glance/glance-api.conf</h1><p>[database]<br>…<br>connection = mysql+pymysql://glance:GLANCE_DBPASS@controller/glance<br>[keystone_authtoken]<br>…<br>auth_uri = <a href="http://controller:5000" target="_blank" rel="external">http://controller:5000</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>project_name = service<br>username = glance<br>password = root<br>[paste_deploy]<br>…<br>flavor = keystone<br>[glance_store]<br>…<br>default_store = file<br>filesystem_store_datadir = /var/lib/glance/images/<br>[DEFAULT]<br>…<br>notification_driver = noop</p>
+<h1 id="verbose-True"><a href="#verbose-True" class="headerlink" title="verbose = True"></a>verbose = True</h1><h1 id="修改配置文件-etc-glance-glance-registry-conf"><a href="#修改配置文件-etc-glance-glance-registry-conf" class="headerlink" title="修改配置文件/etc/glance/glance-registry.conf"></a>修改配置文件/etc/glance/glance-registry.conf</h1><p>[database]<br>…<br>connection = mysql+pymysql://glance:root@controller/glance<br>[keystone_authtoken]<br>…<br>auth_uri = <a href="http://controller:5000" target="_blank" rel="external">http://controller:5000</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>project_name = service<br>username = glance<br>password = root<br>[paste_deploy]<br>…<br>flavor = keystone<br>[DEFAULT]<br>…<br>notification_driver = noop<br>verbose = True<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.同步glance数据库并重启服务</div></pre></td></tr></table></figure></p>
+<h1 id="同步数据库"><a href="#同步数据库" class="headerlink" title="同步数据库"></a>同步数据库</h1><p>su -s /bin/sh -c “glance-manage db_sync” glance</p>
+<h1 id="重启服务"><a href="#重启服务" class="headerlink" title="重启服务"></a>重启服务</h1><p>service glance-registry restart<br>service glance-api restart<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">p</div><div class="line">#### 验证glance服务</div><div class="line">1.将镜像版本信息写入证书文件admin-openrc.sh</div></pre></td></tr></table></figure></p>
+<p>echo “export OS_IMAGE_API_VERSION=2” \<br>  | tee -a admin-openrc.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.source文件admin-openrc.sh</div></pre></td></tr></table></figure></p>
+<p>source admin-openrc.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.下载测试镜像</div></pre></td></tr></table></figure></p>
+<p>wget <a href="http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img" target="_blank" rel="external">http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">4.在glance创建镜像</div></pre></td></tr></table></figure></p>
+<h1 id="创建镜像"><a href="#创建镜像" class="headerlink" title="创建镜像"></a>创建镜像</h1><p>root@controller:~# glance image-create –name “cirros” \<br>   –file cirros-0.3.4-x86_64-disk.img \<br>   –disk-format qcow2 –container-format bare \<br>   –visibility public –progress<br>[=============================&gt;] 100%<br>+——————+————————————–+<br>| Property         | Value                                |<br>+——————+————————————–+<br>| checksum         | ee1eca47dc88f4879d8a229cc70a07c6     |<br>| container_format | bare                                 |<br>| created_at       | 2016-03-25T06:23:07Z                 |<br>| disk_format      | qcow2                                |<br>| id               | 67cfd037-5704-4432-9b2c-cf5fffdb6319 |<br>| min_disk         | 0                                    |<br>| min_ram          | 0                                    |<br>| name             | cirros                               |<br>| owner            | ae557b315d7c430c929f31b480084ada     |<br>| protected        | False                                |<br>| size             | 13287936                             |<br>| status           | active                               |<br>| tags             | []                                   |<br>| updated_at       | 2016-03-25T06:23:08Z                 |<br>| virtual_size     | None                                 |<br>| visibility       | public                               |<br>+——————+————————————–+<br>]]</p>
+<h1 id="查看镜像"><a href="#查看镜像" class="headerlink" title="查看镜像"></a>查看镜像</h1><p>root@controller:~# glance image-list<br>+————————————–+——–+<br>| ID                                   | Name   |<br>+————————————–+——–+<br>| 67cfd037-5704-4432-9b2c-cf5fffdb6319 | cirros |<br>+————————————–+——–+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">### 安装计算服务Nova</div><div class="line">#### 安装控制节点</div><div class="line">##### 前期准备</div><div class="line">1.创建nova数据库，并分配权限</div></pre></td></tr></table></figure></p>
+<h1 id="创建数据库"><a href="#创建数据库" class="headerlink" title="创建数据库"></a>创建数据库</h1><p>CREATE DATABASE nova;</p>
+<h1 id="分配访问权限"><a href="#分配访问权限" class="headerlink" title="分配访问权限"></a>分配访问权限</h1><p>GRANT ALL PRIVILEGES ON nova.<em> TO ‘nova’@’localhost’ \<br>  IDENTIFIED BY ‘NOVA_DBPASS’;<br>GRANT ALL PRIVILEGES ON nova.</em> TO ‘nova’@’%’ \<br>  IDENTIFIED BY ‘NOVA_DBPASS’;<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.在keystone中创建nova用户,服务以及endpoint</div></pre></td></tr></table></figure></p>
+<h1 id="创建账户"><a href="#创建账户" class="headerlink" title="创建账户"></a>创建账户</h1><p>root@controller:~# openstack user create –domain default –password-prompt nova<br>User Password:<br>Repeat User Password:<br>+———–+———————————-+<br>| Field     | Value                            |<br>+———–+———————————-+<br>| domain_id | default                          |<br>| enabled   | True                             |<br>| id        | 77a5b14032ed484ebeefa981e1c0ac00 |<br>| name      | nova                             |<br>+———–+———————————-+</p>
+<h1 id="给nova添加admin权限"><a href="#给nova添加admin权限" class="headerlink" title="给nova添加admin权限"></a>给nova添加admin权限</h1><p>root@controller:~# openstack role add –project service –user nova admin</p>
+<h1 id="创建nova服务"><a href="#创建nova服务" class="headerlink" title="创建nova服务"></a>创建nova服务</h1><p>root@controller:~# openstack service create –name nova \<br>   –description “OpenStack Compute” compute<br>+————-+———————————-+<br>| Field       | Value                            |<br>+————-+———————————-+<br>| description | OpenStack Compute                |<br>| enabled     | True                             |<br>| id          | 023a040a53b44ff69cb9d5d8f210323b |<br>| name        | nova                             |<br>| type        | compute                          |<br>+————-+———————————-+</p>
+<h1 id="添加endpoint"><a href="#添加endpoint" class="headerlink" title="添加endpoint"></a>添加endpoint</h1><p>root@controller:~# openstack endpoint create –region RegionOne \<br>   compute public <a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a><br>+————–+—————————————–+<br>| Field        | Value                                   |<br>+————–+—————————————–+<br>| enabled      | True                                    |<br>| id           | df485e2cbf9b414ab57be9d9a0d9b253        |<br>| interface    | public                                  |<br>| region       | RegionOne                               |<br>| region_id    | RegionOne                               |<br>| service_id   | 023a040a53b44ff69cb9d5d8f210323b        |<br>| service_name | nova                                    |<br>| service_type | compute                                 |<br>| url          | <a href="http://controller:8774/v2/%(tenant_id)s" target="_blank" rel="external">http://controller:8774/v2/%(tenant_id)s</a> |<br>+————–+—————————————–+<br>root@controller:~# openstack endpoint create –region RegionOne \<br>   compute internal <a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a><br>+————–+—————————————–+<br>| Field        | Value                                   |<br>+————–+—————————————–+<br>| enabled      | True                                    |<br>| id           | bf83399e62c0481593d3c923ddce2820        |<br>| interface    | internal                                |<br>| region       | RegionOne                               |<br>| region_id    | RegionOne                               |<br>| service_id   | 023a040a53b44ff69cb9d5d8f210323b        |<br>| service_name | nova                                    |<br>| service_type | compute                                 |<br>| url          | <a href="http://controller:8774/v2/%(tenant_id)s" target="_blank" rel="external">http://controller:8774/v2/%(tenant_id)s</a> |<br>+————–+—————————————–+<br>root@controller:~# openstack endpoint create –region RegionOne \<br>   compute admin <a href="http://controller:8774/v2/%\(tenant_id\)s" target="_blank" rel="external">http://controller:8774/v2/%\(tenant_id\)s</a><br>+————–+—————————————–+<br>| Field        | Value                                   |<br>+————–+—————————————–+<br>| enabled      | True                                    |<br>| id           | 1a3972fe66f243b08bbc5e98e27b3110        |<br>| interface    | admin                                   |<br>| region       | RegionOne                               |<br>| region_id    | RegionOne                               |<br>| service_id   | 023a040a53b44ff69cb9d5d8f210323b        |<br>| service_name | nova                                    |<br>| service_type | compute                                 |<br>| url          | <a href="http://controller:8774/v2/%(tenant_id)s" target="_blank" rel="external">http://controller:8774/v2/%(tenant_id)s</a> |<br>+————–+—————————————–+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">##### 安装nova软件包并配置</div><div class="line">1.安装软件包</div></pre></td></tr></table></figure></p>
+<p> apt-get install nova-api nova-cert nova-conductor \<br>   nova-consoleauth nova-novncproxy nova-scheduler \<br>     python-novaclient<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.编辑配置文件/etc/nova/nova.conf 修改以下配置</div></pre></td></tr></table></figure></p>
+<p>[database]<br>…<br>connection = mysql+pymysql://nova:root@controller/nova<br>[DEFAULT]<br>…<br>rpc_backend = rabbit<br>[oslo_messaging_rabbit]<br>…<br>rabbit_host = controller<br>rabbit_userid = openstack<br>rabbit_password = root<br>…<br>auth_strategy = keystone<br>…<br>my_ip = 192.168.2.2<br>…<br>network_api_class = nova.network.neutronv2.api.API<br>security_group_api = neutron<br>linuxnet_interface_driver = nova.network.linux_net.NeutronLinuxBridgeInterfaceDriver<br>firewall_driver = nova.virt.firewall.NoopFirewallDriver<br>…<br>enabled_apis=osapi_compute,metadata<br>…<br>verbose = True<br>[keystone_authtoken]<br>…<br>auth_uri = <a href="http://controller:5000" target="_blank" rel="external">http://controller:5000</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>project_name = service<br>username = nova<br>password = root<br>[vnc]<br>…<br>vncserver_listen = $my_ip<br>vncserver_proxyclient_address = $my_ip<br>[glance]<br>…<br>host = controller<br>[oslo_concurrency]<br>…<br>lock_path = /var/lib/nova/tmp<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.同步数据库</div></pre></td></tr></table></figure></p>
+<p>su -s /bin/sh -c “nova-manage db sync” nova<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">4.重启nova服务</div></pre></td></tr></table></figure></p>
+<p>service nova-api restart<br>service nova-cert restart<br>service nova-consoleauth restart<br>service nova-scheduler restart<br>service nova-conductor restart<br>service nova-novncproxy restart<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">### 安装计算节点</div><div class="line">1.安装软件包</div></pre></td></tr></table></figure></p>
+<p>apt-get install nova-compute sysfsutils<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.修改配置文件/etc/nova/nova.conf</div></pre></td></tr></table></figure></p>
+<p>[DEFAULT]<br>…<br>rpc_backend = rabbit<br>…<br>auth_strategy = keystone<br>…<br>my_ip = 192.168.2.2 # compute节点的ip地址<br>…<br>network_api_class = nova.network.neutronv2.api.API<br>security_group_api = neutron<br>linuxnet_interface_driver = nova.network.linux_net.NeutronLinuxBridgeInterfaceDriver<br>firewall_driver = nova.virt.firewall.NoopFirewallDriver<br>…<br>verbose = True<br>[oslo_messaging_rabbit]<br>…<br>rabbit_host = controller<br>rabbit_userid = openstack<br>rabbit_password = root<br>[keystone_authtoken]<br>…<br>auth_uri = <a href="http://controller:5000" target="_blank" rel="external">http://controller:5000</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>project_name = service<br>username = nova<br>password = root<br>[vnc]<br>…<br>enabled = True<br>vncserver_listen = 0.0.0.0<br>vncserver_proxyclient_address = $my_ip<br>novncproxy_base_url = <a href="http://controller:6080/vnc_auto.html" target="_blank" rel="external">http://controller:6080/vnc_auto.html</a><br>[glance]<br>…<br>host = controller<br>[oslo_concurrency]<br>…<br>lock_path = /var/lib/nova/tmp<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.验证是否支持虚拟化</div></pre></td></tr></table></figure></p>
+<h1 id="执行以下命令如果返回０则表示不支持"><a href="#执行以下命令如果返回０则表示不支持" class="headerlink" title="执行以下命令如果返回０则表示不支持"></a>执行以下命令如果返回０则表示不支持</h1><p>egrep -c ‘(vmx|svm)’ /proc/cpuinfo</p>
+<h1 id="我们的环境是在虚拟化环境中所以肯定不支持再次虚拟化，所以需要在-etc-nova-nova-compute-conf中做如下配置"><a href="#我们的环境是在虚拟化环境中所以肯定不支持再次虚拟化，所以需要在-etc-nova-nova-compute-conf中做如下配置" class="headerlink" title="我们的环境是在虚拟化环境中所以肯定不支持再次虚拟化，所以需要在/etc/nova/nova-compute.conf中做如下配置"></a>我们的环境是在虚拟化环境中所以肯定不支持再次虚拟化，所以需要在/etc/nova/nova-compute.conf中做如下配置</h1><p>[libvirt]<br>…<br>virt_type = qemu # 如果支持的话可以设置为kvm<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">4.重启nova compute服务</div></pre></td></tr></table></figure></p>
+<p>service nova-compute restart<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">### 验证服务</div><div class="line">在控制节点执行以下命令</div></pre></td></tr></table></figure></p>
+<h1 id="列出nova所有服务列表"><a href="#列出nova所有服务列表" class="headerlink" title="列出nova所有服务列表"></a>列出nova所有服务列表</h1><p>root@controller:~# nova service-list<br>+—-+——————+————+———-+———+——-+—————————-+—————–+<br>| Id | Binary           | Host       | Zone     | Status  | State | Updated_at                 | Disabled Reason |<br>+—-+——————+————+———-+———+——-+—————————-+—————–+<br>| 1  | nova-cert        | controller | internal | enabled | up    | 2016-03-27T11:48:59.000000 | -               |<br>| 2  | nova-consoleauth | controller | internal | enabled | up    | 2016-03-27T11:48:59.000000 | -               |<br>| 3  | nova-conductor   | controller | internal | enabled | up    | 2016-03-27T11:48:59.000000 | -               |<br>| 4  | nova-scheduler   | controller | internal | enabled | up    | 2016-03-27T11:48:59.000000 | -               |<br>| 5  | nova-compute     | compute    | nova     | enabled | up    | 2016-03-27T11:48:59.000000 | -               |<br>+—-+——————+————+———-+———+——-+—————————-+—————–+</p>
+<h1 id="查看镜像-1"><a href="#查看镜像-1" class="headerlink" title="查看镜像"></a>查看镜像</h1><p>root@controller:~# nova image-list<br>+————————————–+——–+——–+——–+<br>| ID                                   | Name   | Status | Server |<br>+————————————–+——–+——–+——–+<br>| 67cfd037-5704-4432-9b2c-cf5fffdb6319 | cirros | ACTIVE |        |<br>+————————————–+——–+——–+——–+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">### 安装网络服务neutron</div><div class="line">#### 安装控制节点</div><div class="line">1.创建neutron数据库并分配相应权限</div></pre></td></tr></table></figure></p>
+<h1 id="创建数据库-1"><a href="#创建数据库-1" class="headerlink" title="创建数据库"></a>创建数据库</h1><p>CREATE DATABASE neutron;</p>
+<h1 id="分配访问权限-1"><a href="#分配访问权限-1" class="headerlink" title="分配访问权限"></a>分配访问权限</h1><p>GRANT ALL PRIVILEGES ON neutron.<em> TO ‘neutron’@’localhost’ \<br>  IDENTIFIED BY ‘root’;<br>GRANT ALL PRIVILEGES ON neutron.</em> TO ‘neutron’@’%’ \<br>  IDENTIFIED BY ‘root’;<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.在keystone中创建neutron服务以及endpoint</div></pre></td></tr></table></figure></p>
+<h1 id="创建neutron用户"><a href="#创建neutron用户" class="headerlink" title="创建neutron用户"></a>创建neutron用户</h1><p>root@controller:~# openstack user create –domain default –password-prompt neutron<br>User Password:<br>Repeat User Password:<br>+———–+———————————-+<br>| Field     | Value                            |<br>+———–+———————————-+<br>| domain_id | default                          |<br>| enabled   | True                             |<br>| id        | a8edd66b5dc64ce2b2a37cf66546297f |<br>| name      | neutron                          |<br>+———–+———————————-+</p>
+<h1 id="给neutron用户分配admin权限"><a href="#给neutron用户分配admin权限" class="headerlink" title="给neutron用户分配admin权限"></a>给neutron用户分配admin权限</h1><p>root@controller:~# openstack role add –project service –user neutron admin</p>
+<h1 id="创建neutron服务"><a href="#创建neutron服务" class="headerlink" title="创建neutron服务"></a>创建neutron服务</h1><p>root@controller:~# openstack service create –name neutron \<br>   –description “OpenStack Networking” network<br>+————-+———————————-+<br>| Field       | Value                            |<br>+————-+———————————-+<br>| description | OpenStack Networking             |<br>| enabled     | True                             |<br>| id          | 4a3333006f844469b2ae735014a24ec9 |<br>| name        | neutron                          |<br>| type        | network                          |<br>+————-+———————————-+</p>
+<h1 id="创建网络服务endpoint"><a href="#创建网络服务endpoint" class="headerlink" title="创建网络服务endpoint"></a>创建网络服务endpoint</h1><p>root@controller:~# openstack endpoint create –region RegionOne \<br>   network public <a href="http://controller:9696" target="_blank" rel="external">http://controller:9696</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | e7b234ba729b46cbbaa86db2df71e0f2 |<br>| interface    | public                           |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 4a3333006f844469b2ae735014a24ec9 |<br>| service_name | neutron                          |<br>| service_type | network                          |<br>| url          | <a href="http://controller:9696" target="_blank" rel="external">http://controller:9696</a>           |<br>+————–+———————————-+<br>root@controller:~# openstack endpoint create –region RegionOne \<br>   network internal <a href="http://controller:9696" target="_blank" rel="external">http://controller:9696</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | fadda1557ca846edbeab3f6f8dc79823 |<br>| interface    | internal                         |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 4a3333006f844469b2ae735014a24ec9 |<br>| service_name | neutron                          |<br>| service_type | network                          |<br>| url          | <a href="http://controller:9696" target="_blank" rel="external">http://controller:9696</a>           |<br>+————–+———————————-+<br>root@controller:~# openstack endpoint create –region RegionOne \<br>   network admin <a href="http://controller:9696" target="_blank" rel="external">http://controller:9696</a><br>+————–+———————————-+<br>| Field        | Value                            |<br>+————–+———————————-+<br>| enabled      | True                             |<br>| id           | 3f9866732fd84b70bb14e00fcee597a3 |<br>| interface    | admin                            |<br>| region       | RegionOne                        |<br>| region_id    | RegionOne                        |<br>| service_id   | 4a3333006f844469b2ae735014a24ec9 |<br>| service_name | neutron                          |<br>| service_type | network                          |<br>| url          | <a href="http://controller:9696" target="_blank" rel="external">http://controller:9696</a>           |<br>+————–+———————————-+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.安装neutron软件（根据Self-service网络方式）</div></pre></td></tr></table></figure></p>
+<p>apt-get install neutron-server neutron-plugin-ml2 \<br>  neutron-plugin-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \<br>    neutron-metadata-agent python-neutronclient conntrack<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">4.修改配置文件/etc/neutron/neutron.conf</div></pre></td></tr></table></figure></p>
+<p>[database]<br>…<br>connection = mysql+pymysql://neutron:root@controller/neutron<br>[DEFAULT]<br>…<br>core_plugin = ml2<br>service_plugins = router<br>allow_overlapping_ips = True<br>…<br>rpc_backend = rabbit<br>…<br>auth_strategy = keystone<br>…<br>notify_nova_on_port_status_changes = True<br>notify_nova_on_port_data_changes = True<br>nova_url = <a href="http://controller:8774/v2" target="_blank" rel="external">http://controller:8774/v2</a><br>…<br>verbose = True<br>[oslo_messaging_rabbit]<br>…<br>rabbit_host = controller<br>rabbit_userid = openstack<br>rabbit_password = RABBIT_PASS<br>[keystone_authtoken]<br>…<br>auth_uri = <a href="http://controller:5000" target="_blank" rel="external">http://controller:5000</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>project_name = service<br>username = neutron<br>password = NEUTRON_PASS<br>[nova]<br>…<br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>region_name = RegionOne<br>project_name = service<br>username = nova<br>password = NOVA_PASS<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">5.修改配置文件/etc/neutron/plugins/ml2/ml2_conf.ini</div></pre></td></tr></table></figure></p>
+<p>[ml2]<br>…<br>type_drivers = flat,vlan,vxlan<br>…<br>tenant_network_types = vxlan<br>…<br>mechanism_drivers = linuxbridge,l2population<br>…<br>extension_drivers = port_security<br>[ml2_type_flat]<br>…<br>flat_networks = public<br>[ml2_type_vxlan]<br>…<br>vni_ranges = 1:1000<br>[securitygroup]<br>…<br>enable_ipset = True<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">6.修改配置文件/etc/neutron/plugins/ml2/linuxbridge_agent.ini</div></pre></td></tr></table></figure></p>
+<p>[linux_bridge]<br>physical_interface_mappings = public:eth0<br>[vxlan]<br>enable_vxlan = True<br>local_ip = 192.168.2.2<br>l2_population = True<br>[agent]<br>…<br>prevent_arp_spoofing = True<br>[securitygroup]<br>…<br>enable_security_group = True<br>firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">7.修改配置文件/etc/neutron/l3_agent.ini</div></pre></td></tr></table></figure></p>
+<p>[DEFAULT]<br>…<br>interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver<br>…<br>verbose = True<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">8.修改配置文件/etc/neutron/dhcp_agent.ini</div></pre></td></tr></table></figure></p>
+<p>[DEFAULT]<br>…<br>interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver<br>dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq<br>enable_isolated_metadata = True<br>…<br>verbose = True<br>…<br>dnsmasq_config_file = /etc/neutron/dnsmasq-neutron.conf</p>
+<h1 id="创建文件-etc-neutron-dnsmasq-neutron-conf并写入如下内容"><a href="#创建文件-etc-neutron-dnsmasq-neutron-conf并写入如下内容" class="headerlink" title="创建文件/etc/neutron/dnsmasq-neutron.conf并写入如下内容"></a>创建文件/etc/neutron/dnsmasq-neutron.conf并写入如下内容</h1><p>dhcp-option-force=26,1450<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">9.修改配置文件/etc/neutron/metadata_agent.ini</div></pre></td></tr></table></figure></p>
+<p>[DEFAULT]<br>…<br>auth_uri = <a href="http://controller:5000" target="_blank" rel="external">http://controller:5000</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_region = RegionOne<br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>project_name = service<br>username = neutron<br>password = root<br>…<br>nova_metadata_ip = controller<br>…<br>metadata_proxy_shared_secret = root<br>…<br>verbose = True<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">10.修改配置文件/etc/nova/nova.conf</div></pre></td></tr></table></figure></p>
+<p>[neutron]<br>…<br>url = <a href="http://controller:9696" target="_blank" rel="external">http://controller:9696</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>region_name = RegionOne<br>project_name = service<br>username = neutron<br>password = root<br>service_metadata_proxy = True<br>metadata_proxy_shared_secret = root<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">11.同步数据库</div></pre></td></tr></table></figure></p>
+<p>su -s /bin/sh -c “neutron-db-manage –config-file /etc/neutron/neutron.conf \<br>  –config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head” neutron<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">12.重启服务</div></pre></td></tr></table></figure></p>
+<h1 id="重启nova"><a href="#重启nova" class="headerlink" title="重启nova"></a>重启nova</h1><p>service nova-api restart</p>
+<h1 id="重启neutron"><a href="#重启neutron" class="headerlink" title="重启neutron"></a>重启neutron</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">#### 安装计算节点</div><div class="line">1.安装软件包</div></pre></td></tr></table></figure>
+<p>apt-get install neutron-plugin-linuxbridge-agent conntrack<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.修改配置文件/etc/neutron/neutron.conf</div></pre></td></tr></table></figure></p>
+<p>[DEFAULT]<br>…<br>rpc_backend = rabbit<br>…<br>auth_strategy = keystone<br>…<br>verbose = True<br>[oslo_messaging_rabbit]<br>…<br>rabbit_host = controller<br>rabbit_userid = openstack<br>rabbit_password = root<br>[keystone_authtoken]<br>…<br>auth_uri = <a href="http://controller:5000" target="_blank" rel="external">http://controller:5000</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>project_name = service<br>username = neutron<br>password = root<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.修改配置文件/etc/neutron/plugins/ml2/linuxbridge_agent.ini</div></pre></td></tr></table></figure></p>
+<p>[linux_bridge]<br>physical_interface_mappings = public:eth0<br>[vxlan]<br>enable_vxlan = True<br>local_ip = 192.168.2.6<br>l2_population = True<br>[agent]<br>…<br>prevent_arp_spoofing = True<br>[securitygroup]<br>…<br>enable_security_group = True<br>firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">4.修改配置文件/etc/nova/nova.conf</div></pre></td></tr></table></figure></p>
+<p>[neutron]<br>…<br>url = <a href="http://controller:9696" target="_blank" rel="external">http://controller:9696</a><br>auth_url = <a href="http://controller:35357" target="_blank" rel="external">http://controller:35357</a><br>auth_plugin = password<br>project_domain_id = default<br>user_domain_id = default<br>region_name = RegionOne<br>project_name = service<br>username = neutron<br>password = root<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">5.重启服务</div></pre></td></tr></table></figure></p>
+<h1 id="重启nova-compute"><a href="#重启nova-compute" class="headerlink" title="重启nova-compute"></a>重启nova-compute</h1><p>service nova-compute restart</p>
+<h1 id="重启网络服务"><a href="#重启网络服务" class="headerlink" title="重启网络服务"></a>重启网络服务</h1><p>service neutron-plugin-linuxbridge-agent restart<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">6.验证</div></pre></td></tr></table></figure></p>
+<h1 id="验证是否成功加载插件"><a href="#验证是否成功加载插件" class="headerlink" title="验证是否成功加载插件"></a>验证是否成功加载插件</h1><p>root@controller:~# neutron ext-list<br>+———————–+———————————————–+<br>| alias                 | name                                          |<br>+———————–+———————————————–+<br>| dns-integration       | DNS Integration                               |<br>| ext-gw-mode           | Neutron L3 Configurable external gateway mode |<br>| binding               | Port Binding                                  |<br>| agent                 | agent                                         |<br>| subnet_allocation     | Subnet Allocation                             |<br>| l3_agent_scheduler    | L3 Agent Scheduler                            |<br>| external-net          | Neutron external network                      |<br>| flavors               | Neutron Service Flavors                       |<br>| net-mtu               | Network MTU                                   |<br>| quotas                | Quota management support                      |<br>| l3-ha                 | HA Router extension                           |<br>| provider              | Provider Network                              |<br>| multi-provider        | Multi Provider Network                        |<br>| extraroute            | Neutron Extra Route                           |<br>| router                | Neutron L3 Router                             |<br>| extra_dhcp_opt        | Neutron Extra DHCP opts                       |<br>| security-group        | security-group                                |<br>| dhcp_agent_scheduler  | DHCP Agent Scheduler                          |<br>| rbac-policies         | RBAC Policies                                 |<br>| port-security         | Port Security                                 |<br>| allowed-address-pairs | Allowed Address Pairs                         |<br>| dvr                   | Distributed Virtual Router                    |<br>+———————–+———————————————–+</p>
+<h1 id="验证neutron-agents是否正确"><a href="#验证neutron-agents是否正确" class="headerlink" title="验证neutron agents是否正确"></a>验证neutron agents是否正确</h1><p>root@controller:~# neutron agent-list<br>+————————————–+——————–+————+——-+—————-+—————————+<br>| id                                   | agent_type         | host       | alive | admin_state_up | binary                    |<br>+————————————–+——————–+————+——-+—————-+—————————+<br>| 28e6e70f-063e-433a-943f-ded82ec083fb | Metadata agent     | controller | :-)   | True           | neutron-metadata-agent    |<br>| 2abdf6a3-f0cd-4a3e-87a3-def58f03aeba | Linux bridge agent | controller | :-)   | True           | neutron-linuxbridge-agent |<br>| 5e78f457-95f6-4e95-929d-268d35f49037 | DHCP agent         | controller | :-)   | True           | neutron-dhcp-agent        |<br>| 82c1d9fa-a906-45fc-9a56-56390c8a35fb | L3 agent           | controller | :-)   | True           | neutron-l3-agent          |<br>| dbbb522e-a424-4606-8a69-77250154e5d3 | Linux bridge agent | compute    | :-)   | True           | neutron-linuxbridge-agent |<br>+————————————–+——————–+————+——-+—————-+—————————+<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">### 安装面板服务horizon</div><div class="line">1.安装horizon软件包</div></pre></td></tr></table></figure></p>
+<p>apt-get install openstack-dashboard<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2.修改配置文件</div></pre></td></tr></table></figure></p>
+<p>OPENSTACK_HOST = “controller”<br>ALLOWED_HOSTS = [‘*’, ]<br>CACHES = {<br>    ‘default’: {<br>        ‘BACKEND’: ‘django.core.cache.backends.memcached.MemcachedCache’,<br>        ‘LOCATION’: ‘127.0.0.1:11211’,<br>    }<br>}<br>OPENSTACK_KEYSTONE_DEFAULT_ROLE = “user”<br>OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True<br>OPENSTACK_API_VERSIONS = {<br>    “identity”: 3,<br>    “volume”: 2,<br>}<br>OPENSTACK_NEUTRON_NETWORK = {<br>    ‘enable_router’: False,<br>    ‘enable_quotas’: False,<br>    ‘enable_distributed_router’: False,<br>    ‘enable_ha_router’: False,<br>    ‘enable_lb’: False,<br>    ‘enable_firewall’: False,<br>    ‘enable_vpn’: False,<br>    ‘enable_fip_topology_check’: False,<br>}<br>TIME_ZONE = “TIME_ZONE”<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">3.验证面板</div></pre></td></tr></table></figure></p>
+<p>登入面板测试面板可用性<br>```</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/liantu.png" alt="Summer Smith wechat" style="width: 200px; max-width: 100%;"/>
+    <div>扫一扫，用手机访问本站😆</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/openstack/" rel="tag"># openstack</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/27/articles/linux/2016328/" rel="next" title="linux病毒扫描软件ClamAV安装于使用">
+                <i class="fa fa-chevron-left"></i> linux病毒扫描软件ClamAV安装于使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/22/dns/" rel="prev" title="DNS域名含义解析">
+                DNS域名含义解析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Summer Smith" />
+          <p class="site-author-name" itemprop="name">Summer Smith</p>
+          <p class="site-description motion-element" itemprop="description">“任何傻瓜都能写出计算机可以理解的代码。 好的程序员能写出人能读懂的代码” ——Martin Fowler</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">32</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+            <a href='javascript:(function(){function h(){var e=document.createElement("link");e.setAttribute("type","text/css");e.setAttribute("rel","stylesheet");e.setAttribute("href",l);e.setAttribute("class",c);document.body.appendChild(e)}function p(){var e=document.getElementsByClassName(c);for(var t=0;t<e.length;t++){document.body.removeChild(e[t])}}function d(){var e=document.createElement("div");e.setAttribute("class",f);document.body.appendChild(e);setTimeout(function(){document.body.removeChild(e)},100)}function v(e){return{height:e.offsetHeight,width:e.offsetWidth}}function m(i){var s=v(i);return s.height>e&&s.height<n&&s.width>t&&s.width<r}function g(e){var t=e;var n=0;while(!!t){n+=t.offsetTop;t=t.offsetParent}return n}function y(){var e=document.documentElement;if(!!window.innerWidth){return window.innerHeight}else if(e&&!isNaN(e.clientHeight)){return e.clientHeight}return 0}function b(){if(window.pageYOffset){return window.pageYOffset}return Math.max(document.documentElement.scrollTop,document.body.scrollTop)}function S(e){var t=g(e);return t>=E&&t<=w+E}function x(){var e=document.createElement("audio");e.setAttribute("class",c);e.src=i;e.loop=false;var t=false,n=false,r=false;e.addEventListener("timeupdate",function(){var i=e.currentTime,s=D,o=s.length,u;if(i>=.5&&!t){t=true;T(_)}if(i>=15.5&&!n){n=true;k();d();for(u=0;u<o;u++){N(s[u])}}if(e.currentTime>=28.4&&!r){r=true;C()}},true);e.addEventListener("ended",function(){k();p()},true);e.innerHTML="<p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p>p>";document.body.appendChild(e);e.play()}function T(e){e.className+=" "+s+" "+u}function N(e){e.className+=" "+s+" "+a[Math.floor(Math.random()*a.length)]}function C(){var e=document.getElementsByClassName(s);for(var t=0;t<e.length;){e[t].className=e[t].className.replace(s,o)}s=o}function k(){var e=document.getElementsByClassName(s);var t=new RegExp("\\b"+s+"\\b");for(var n=0;n<e.length;){e[n].className=e[n].className.replace(t,"")}}var e=30;var t=30;var n=350;var r=350;var i="//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake.ogg";var s="mw-harlem_shake_me";var o="mw-harlem_shake_slow";var u="im_first";var a=["im_drunk","im_baked","im_trippin","im_blown"];var f="mw-strobe_light";var l="//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";var c="mw_added_css";var w=y();var E=b();var L=document.getElementsByTagName("*"),A=L.length,O,M;var _=null;for(O=0;O<A;O++){M=L[O];if(m(M)){if(S(M)){_=M;break}}}if(M===null){console.warn("Could not find a node of the right size. Please try a different page.");return}h();x();var D=[];for(O=0;O<A;O++){M=L[O];if(m(M)){D.push(M)}}})()' rel="alternate">
+              <i class="fa fa-music"></i>
+              HOT_DANCE
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/scorpioxiatian" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2508185000/profile?topnav=1&wvr=6&is_all=1" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mytrix.me/" title="MatheMatrix[PG]'s blog'" target="_blank">MatheMatrix[PG]'s blog'</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.coderzh.com/" title="CoderZH Blog" target="_blank">CoderZH Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://way4ever.com/" title="Way Forever" target="_blank">Way Forever</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wklken.me/" title="wklken" target="_blank">wklken</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://bingotree.cn/" title="BINGOTREE" target="_blank">BINGOTREE</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://adam.younglogic.com/" title="Adam Young’s Blog" target="_blank">Adam Young’s Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://seanlook.com/" title="Sean's Notes" target="_blank">Sean's Notes</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wsfdl.com/" title="koala bear" target="_blank">koala bear</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://int32bit.me/" title="int32bit" target="_blank">int32bit</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://bellard.org/" title="bellard" target="_blank">bellard</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wklken.me/" title="WKLKEN" target="_blank">WKLKEN</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.biaodianfu.com/" title="标点符" target="_blank">标点符</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wuxubj.cn/" title="务虚笔记" target="_blank">务虚笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://tonybai.com/" title="Tony Bai(go)" target="_blank">Tony Bai(go)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://foofish.net" title="PYTHON之禅" target="_blank">PYTHON之禅</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概要"><span class="nav-number">1.</span> <span class="nav-text">概要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署架构"><span class="nav-number">2.</span> <span class="nav-text">部署架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#硬件架构"><span class="nav-number">2.1.</span> <span class="nav-text">硬件架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#软件架构"><span class="nav-number">2.2.</span> <span class="nav-text">软件架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#环境准备"><span class="nav-number">3.</span> <span class="nav-text">环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础环境搭建"><span class="nav-number">3.1.</span> <span class="nav-text">基础环境搭建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置host"><span class="nav-number">3.2.</span> <span class="nav-text">配置host</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装支持软件"><span class="nav-number">3.3.</span> <span class="nav-text">安装支持软件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装NTP服务"><span class="nav-number">3.3.1.</span> <span class="nav-text">安装NTP服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装openstack软件包支持"><span class="nav-number">3.3.2.</span> <span class="nav-text">安装openstack软件包支持</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#禁止安装完后启动服务"><span class="nav-number"></span> <span class="nav-text">禁止安装完后启动服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建管理员项目"><span class="nav-number"></span> <span class="nav-text">创建管理员项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建admin账户"><span class="nav-number"></span> <span class="nav-text">创建admin账户</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建admin角色"><span class="nav-number"></span> <span class="nav-text">创建admin角色</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加权限"><span class="nav-number"></span> <span class="nav-text">添加权限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建demo项目"><span class="nav-number"></span> <span class="nav-text">创建demo项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建demo用户"><span class="nav-number"></span> <span class="nav-text">创建demo用户</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建user角色"><span class="nav-number"></span> <span class="nav-text">创建user角色</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分配角色"><span class="nav-number"></span> <span class="nav-text">分配角色</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建glance数据库"><span class="nav-number"></span> <span class="nav-text">创建glance数据库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建glance用户"><span class="nav-number"></span> <span class="nav-text">创建glance用户</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为glance用户在service项目添加admin权限"><span class="nav-number"></span> <span class="nav-text">为glance用户在service项目添加admin权限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建glance服务"><span class="nav-number"></span> <span class="nav-text">创建glance服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建镜像服务endpoint"><span class="nav-number"></span> <span class="nav-text">创建镜像服务endpoint</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#修改文件-etc-glance-glance-api-conf"><span class="nav-number"></span> <span class="nav-text">修改文件/etc/glance/glance-api.conf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#verbose-True"><span class="nav-number"></span> <span class="nav-text">verbose = True</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#修改配置文件-etc-glance-glance-registry-conf"><span class="nav-number"></span> <span class="nav-text">修改配置文件/etc/glance/glance-registry.conf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#同步数据库"><span class="nav-number"></span> <span class="nav-text">同步数据库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重启服务"><span class="nav-number"></span> <span class="nav-text">重启服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建镜像"><span class="nav-number"></span> <span class="nav-text">创建镜像</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#查看镜像"><span class="nav-number"></span> <span class="nav-text">查看镜像</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建数据库"><span class="nav-number"></span> <span class="nav-text">创建数据库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分配访问权限"><span class="nav-number"></span> <span class="nav-text">分配访问权限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建账户"><span class="nav-number"></span> <span class="nav-text">创建账户</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#给nova添加admin权限"><span class="nav-number"></span> <span class="nav-text">给nova添加admin权限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建nova服务"><span class="nav-number"></span> <span class="nav-text">创建nova服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加endpoint"><span class="nav-number"></span> <span class="nav-text">添加endpoint</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#执行以下命令如果返回０则表示不支持"><span class="nav-number"></span> <span class="nav-text">执行以下命令如果返回０则表示不支持</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#我们的环境是在虚拟化环境中所以肯定不支持再次虚拟化，所以需要在-etc-nova-nova-compute-conf中做如下配置"><span class="nav-number"></span> <span class="nav-text">我们的环境是在虚拟化环境中所以肯定不支持再次虚拟化，所以需要在/etc/nova/nova-compute.conf中做如下配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#列出nova所有服务列表"><span class="nav-number"></span> <span class="nav-text">列出nova所有服务列表</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#查看镜像-1"><span class="nav-number"></span> <span class="nav-text">查看镜像</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建数据库-1"><span class="nav-number"></span> <span class="nav-text">创建数据库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分配访问权限-1"><span class="nav-number"></span> <span class="nav-text">分配访问权限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建neutron用户"><span class="nav-number"></span> <span class="nav-text">创建neutron用户</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#给neutron用户分配admin权限"><span class="nav-number"></span> <span class="nav-text">给neutron用户分配admin权限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建neutron服务"><span class="nav-number"></span> <span class="nav-text">创建neutron服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建网络服务endpoint"><span class="nav-number"></span> <span class="nav-text">创建网络服务endpoint</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建文件-etc-neutron-dnsmasq-neutron-conf并写入如下内容"><span class="nav-number"></span> <span class="nav-text">创建文件/etc/neutron/dnsmasq-neutron.conf并写入如下内容</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重启nova"><span class="nav-number"></span> <span class="nav-text">重启nova</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重启neutron"><span class="nav-number"></span> <span class="nav-text">重启neutron</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重启nova-compute"><span class="nav-number"></span> <span class="nav-text">重启nova-compute</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重启网络服务"><span class="nav-number"></span> <span class="nav-text">重启网络服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#验证是否成功加载插件"><span class="nav-number"></span> <span class="nav-text">验证是否成功加载插件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#验证neutron-agents是否正确"><span class="nav-number"></span> <span class="nav-text">验证neutron agents是否正确</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Summer Smith</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'disqusscorpio';
+      var disqus_identifier = '2016/03/27/openstack-deploy/';
+
+      var disqus_title = "openstack 多节点安装";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fXdOUjFW97HzqFyh6Niz0SpV-gzGzoHsz", "wwiBgXuaoFBvop4a0EtnLE2i");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+
+</body>
+</html>

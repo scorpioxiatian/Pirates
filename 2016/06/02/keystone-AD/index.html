@@ -1,0 +1,1164 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="keystone," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Pirates" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="keystone对接AD(ActiveDirectory)，本文记录对接配置过程 简介AD，指Windows的Active Directory，是LDAP协议的另一个实现，Keystone也可以和AD进行对接。 AD服务安装配置首先我们需要配置好AD，以用来对接keystone。 安装AD服务在window server 中安装AD服务，该过程可参考（https://support.rackspa">
+<meta name="keywords" content="keystone">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Keystone对接ActiveDirectory">
+<meta property="og:url" content="http://www.pisces.ml/2016/06/02/keystone-AD/index.html">
+<meta property="og:site_name" content="Pirates">
+<meta property="og:description" content="keystone对接AD(ActiveDirectory)，本文记录对接配置过程 简介AD，指Windows的Active Directory，是LDAP协议的另一个实现，Keystone也可以和AD进行对接。 AD服务安装配置首先我们需要配置好AD，以用来对接keystone。 安装AD服务在window server 中安装AD服务，该过程可参考（https://support.rackspa">
+<meta property="og:image" content="http://www.pisces.ml/images/image2016-5-23-1.png">
+<meta property="og:image" content="http://www.pisces.ml/images/image2016-5-23-2.png">
+<meta property="og:image" content="http://www.pisces.ml/images/image2016-5-23-3.png">
+<meta property="og:image" content="http://www.pisces.ml/images/mage2016-5-23-4.png">
+<meta property="og:image" content="http://www.pisces.ml/images/image2016-5-23-5.png">
+<meta property="og:updated_time" content="2018-05-10T10:18:57.620Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Keystone对接ActiveDirectory">
+<meta name="twitter:description" content="keystone对接AD(ActiveDirectory)，本文记录对接配置过程 简介AD，指Windows的Active Directory，是LDAP协议的另一个实现，Keystone也可以和AD进行对接。 AD服务安装配置首先我们需要配置好AD，以用来对接keystone。 安装AD服务在window server 中安装AD服务，该过程可参考（https://support.rackspa">
+<meta name="twitter:image" content="http://www.pisces.ml/images/image2016-5-23-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.pisces.ml/2016/06/02/keystone-AD/"/>
+
+
+
+
+
+  <title> Keystone对接ActiveDirectory | Pirates </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-89244963-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?72c93c3a5a0145d3a078592d8b7af890";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Pirates</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-love">
+          <a href="/romance/love.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br />
+            
+            爱之篇章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://www.pisces.ml/2016/06/02/keystone-AD/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Summer Smith">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Pirates">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Pirates" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Keystone对接ActiveDirectory
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-02T09:00:13+08:00">
+                2016-06-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Openstack/" itemprop="url" rel="index">
+                    <span itemprop="name">Openstack</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <a href="/2016/06/02/keystone-AD/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/06/02/keystone-AD/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/06/02/keystone-AD/" class="leancloud_visitors" data-flag-title="Keystone对接ActiveDirectory">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>keystone对接AD(ActiveDirectory)，本文记录对接配置过程</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>AD，指Windows的Active Directory，是LDAP协议的另一个实现，Keystone也可以和AD进行对接。</p>
+<h2 id="AD服务安装配置"><a href="#AD服务安装配置" class="headerlink" title="AD服务安装配置"></a>AD服务安装配置</h2><p>首先我们需要配置好AD，以用来对接keystone。</p>
+<h3 id="安装AD服务"><a href="#安装AD服务" class="headerlink" title="安装AD服务"></a>安装AD服务</h3><p>在window server 中安装AD服务，该过程可参考（<a href="https://support.rackspace.com/how-to/installing-active-directory-on-windows-server-2012/）这里不再细说。" target="_blank" rel="external">https://support.rackspace.com/how-to/installing-active-directory-on-windows-server-2012/）这里不再细说。</a></p>
+<h3 id="数据初始化"><a href="#数据初始化" class="headerlink" title="数据初始化"></a>数据初始化</h3><p>AD服务安装完成后会生成Users的容器，该容器存放用户的分组以及用户。如下图所示：<br><img src="/images/image2016-5-23-1.png" alt=""><br>当然对于keystone我们也可以使用这种模式，将用户和分组同时都放在容器Users中，但是这样做会显的很乱。一种做法是我们可以单独给用户生成一个类似的容器来存放所有用户信息，也给分组生成一个容器来存放所有分组(当然也可以根据客户现在的账户体系进行规划，这里只做示例用)，如下步骤所示分别建立两个容器来存放用户和分组：<br>第一步：在根目录ustack下点击新建，容器类型为‘组织单位’<br><img src="/images/image2016-5-23-2.png" alt=""><br>第二步：生成Keystone_Users容器<br><img src="/images/image2016-5-23-3.png" alt=""><br>同样的方式创建容器Keystone_Groups来存放分组，新建完成后如下所示：<br><img src="/images/mage2016-5-23-4.png" alt=""><br>完成之后我们需要在容器Keystone_Users和Keystone_Groups中分别创建用户和分组，示例（在Keystone_Users新建用户）：<br>进入容器Keystone_Users，右击新建－用户，填上必要的用户信息确认即可，如下图所示<br><img src="/images/image2016-5-23-5.png" alt=""><br>同样的方式可以建立相应的分组，并将用户添加到该分组中。</p>
+<h2 id="keystone的安装和配置"><a href="#keystone的安装和配置" class="headerlink" title="keystone的安装和配置"></a>keystone的安装和配置</h2><h3 id="keysotne安装"><a href="#keysotne安装" class="headerlink" title="keysotne安装"></a>keysotne安装</h3><p>keystone安装过程主要是根据社区文档进行安装部署即可，参考：<br>SUSE: <a href="http://docs.openstack.org/mitaka/install-guide-obs/index.html" target="_blank" rel="external">http://docs.openstack.org/mitaka/install-guide-obs/index.html</a> 主要执行以下步骤来安装配置keystone</p>
+<ol>
+<li><a href="http://docs.openstack.org/mitaka/install-guide-obs/environment-packages.html" target="_blank" rel="external">添加软件源并安装包python-openstackclient</a></li>
+<li><a href="http://docs.openstack.org/mitaka/install-guide-obs/environment-sql-database.html" target="_blank" rel="external">安装数据库</a></li>
+<li><a href="http://docs.openstack.org/mitaka/install-guide-obs/environment-memcached.html" target="_blank" rel="external">安装memcache服务器</a></li>
+<li><a href="http://docs.openstack.org/mitaka/install-guide-obs/keystone.html" target="_blank" rel="external">安装keystone</a><br>Ubuntu:<a href="http://docs.openstack.org/mitaka/install-guide-ubuntu/" target="_blank" rel="external">http://docs.openstack.org/mitaka/install-guide-ubuntu/</a><br>Red Hat Enterprise Linux 7 and CentOS7: <a href="http://docs.openstack.org/mitaka/install-guide-rdo/" target="_blank" rel="external">http://docs.openstack.org/mitaka/install-guide-rdo/</a><h3 id="keystone对接AD配置"><a href="#keystone对接AD配置" class="headerlink" title="keystone对接AD配置"></a>keystone对接AD配置</h3>第一步：source keystone证书文件openrc(v3版本)，该文件内容如下所示：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">root@ldap:~# cat openrc_v3</div><div class="line">export OS_PROJECT_DOMAIN_NAME=default</div><div class="line">export OS_USER_DOMAIN_NAME=default</div><div class="line">export OS_PROJECT_NAME=admin</div><div class="line">export OS_USERNAME=admin</div><div class="line">export OS_PASSWORD=root</div><div class="line">export OS_AUTH_URL=http://127.0.0.1:35357/v3</div><div class="line">export OS_IDENTITY_API_VERSION=3</div><div class="line">export OS_IMAGE_API_VERSION=2</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>第二步：在路径’/etc/keystone/‘下创建domains目录，并修改用户权限<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">＃　新建目录</div><div class="line">mkdir /etc/keystone/domains/</div><div class="line">＃　修改权限</div><div class="line">chown keystone /etc/keystone/domains/</div></pre></td></tr></table></figure></p>
+<p>第三步：修改配置文件keystone.conf，做如下修改<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># 文件位置　/etc/keystone</div><div class="line">[identity]</div><div class="line">domain_specific_drivers_enabled = true</div><div class="line">domain_config_dir = /etc/keystone/domains</div><div class="line">[assignment]</div><div class="line">driver = keystone.assignment.backends.sql.Assignment</div></pre></td></tr></table></figure></p>
+<p>第四步：查看AD server的NetBIOS name 作为AD DS的域<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">PS C:\&gt; Get-ADDomain | select NetBIOSName</div><div class="line">NetBIOSName</div><div class="line">-----------</div><div class="line">USTACK</div></pre></td></tr></table></figure></p>
+<p>由上所示我们可以看到NetBIOS name 为USTACK<br>第五步：用openstack命令创建AD 用户域<br>使用上步骤得到的NetBIOSName作为keystone账户中的域名。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">openstack domain create  USTACK</div></pre></td></tr></table></figure></p>
+<p>第五步：在/etc/keystone/domains/下创建文件keystone.USTACK.conf（注意该文件的命名必须格式keystone.{NetBIOSName}.conf）并做如下配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">[ldap]</div><div class="line">url = ldap://172.16.10.13</div><div class="line">user = cn=chengkun,cn=Users,dc=ustack,dc=test</div><div class="line">password = Ustack2016</div><div class="line">suffix = dc=ustack,dc=test</div><div class="line">user_tree_dn = cn=Users,dc=ustack,dc=test</div><div class="line"># user_filter = (memberOf=cn=ustack_admin,OU=UserGroups,DC=ustack,DC=test)</div><div class="line">user_objectclass = person</div><div class="line">user_id_attribute = sAMAccountName</div><div class="line">user_name_attribute = sAMAccountName</div><div class="line">user_mail_attribute = mail</div><div class="line">user_pass_attribute =</div><div class="line">user_enabled_attribute = userAccountControl</div><div class="line">user_enabled_mask = 2</div><div class="line">user_enabled_default = 512</div><div class="line">user_attribute_ignore = password,tenant_id,tenants</div><div class="line">user_allow_create = false</div><div class="line">user_allow_update = false</div><div class="line">user_allow_delete = false</div><div class="line">group_tree_dn = OU=UserGroups,DC=ustack,DC=test</div><div class="line"># group_tree_dn = cn=Users,dc=ustack,dc=test</div><div class="line">group_objectclass = group</div><div class="line">group_id_attribute = cn</div><div class="line">group_name_attribute = cn</div><div class="line">group_allow_create = False</div><div class="line">group_allow_update = False</div><div class="line">group_allow_delete = False</div><div class="line">[identity]</div><div class="line">driver = keystone.identity.backends.ldap.Identity</div></pre></td></tr></table></figure></p>
+<p>注意上面配置的用户信息根据实际用户信息填写即可。<br>修改该文件权限：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">chown keystone /etc/keystone/domains/keystone.LAB.conf</div></pre></td></tr></table></figure></p>
+<p>第六步：给AD账户domain分配权限<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">#查看domain id</div><div class="line">[root@localhost ~]# openstack domain show USTACK</div><div class="line">+---------+----------------------------------+</div><div class="line">| Field   | Value                            |</div><div class="line">+---------+----------------------------------+</div><div class="line">| enabled | True                             |</div><div class="line">| id      | 1954d71a8445418482b4d3966e6a8cfe |</div><div class="line">| name    | USTACK                           |</div><div class="line">+---------+----------------------------------+</div><div class="line">#查询admin用户id</div><div class="line">[root@localhost ~]# openstack user list --domain default | grep admin</div><div class="line">| 8ef5b603ae1344cea4fe060d198d42ad | admin |</div><div class="line">#给用户admin在domain USTACK中添加admin的role</div><div class="line">openstack role add --domain 1954d71a8445418482b4d3966e6a8cfe --user 8ef5b603ae1344cea4fe060d198d42ad admin</div><div class="line">#可以通过以下命令查看是否已经添加上</div><div class="line">[root@localhost ~]# openstack role assignment list | grep 1954d71a8445418482b4d3966e6a8cfe | grep 8ef5b603ae1344cea4fe060d198d42ad</div><div class="line">| 9d9bb1f3f9e84e999cc18f99fd901398 | 8ef5b603ae1344cea4fe060d198d42ad                                 |                                  |                                  | 1954d71a8445418482b4d3966e6a8cfe |</div></pre></td></tr></table></figure></p>
+<p>第七步：重启keystone服务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># 注：如果keystone跑在httpd上，直接重启httpd服务即可</div><div class="line">systemctl restart openstack-keystone.service</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://docs.hpcloud.com/commercial/GA1/1.1commerical.services-identity-integrate-ldap.html#topic9275__connect" target="_blank" rel="external">https://docs.hpcloud.com/commercial/GA1/1.1commerical.services-identity-integrate-ldap.html#topic9275__connect</a></li>
+<li><a href="https://access.redhat.com/documentation/en/red-hat-enterprise-linux-openstack-platform/7/integrate-with-identity-service/chapter-1-active-directory-integration" target="_blank" rel="external">https://access.redhat.com/documentation/en/red-hat-enterprise-linux-openstack-platform/7/integrate-with-identity-service/chapter-1-active-directory-integration</a></li>
+<li><a href="https://technet.microsoft.com/en-us/library/ee617195.aspx" target="_blank" rel="external">https://technet.microsoft.com/en-us/library/ee617195.aspx</a></li>
+<li><a href="http://windowsitpro.com/powershell/top-10-active-directory-tasks-solved-powershell" target="_blank" rel="external">http://windowsitpro.com/powershell/top-10-active-directory-tasks-solved-powershell</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/liantu.png" alt="Summer Smith wechat" style="width: 200px; max-width: 100%;"/>
+    <div>扫一扫，用手机访问本站😆</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/keystone/" rel="tag"># keystone</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/22/jekyll-Variables/" rel="next" title="jekyll 常用变量">
+                <i class="fa fa-chevron-left"></i> jekyll 常用变量
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/22/tcpdump-usage/" rel="prev" title="tcpdump命令详解">
+                tcpdump命令详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Summer Smith" />
+          <p class="site-author-name" itemprop="name">Summer Smith</p>
+          <p class="site-description motion-element" itemprop="description">“任何傻瓜都能写出计算机可以理解的代码。 好的程序员能写出人能读懂的代码” ——Martin Fowler</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">32</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+            <a href='javascript:(function(){function h(){var e=document.createElement("link");e.setAttribute("type","text/css");e.setAttribute("rel","stylesheet");e.setAttribute("href",l);e.setAttribute("class",c);document.body.appendChild(e)}function p(){var e=document.getElementsByClassName(c);for(var t=0;t<e.length;t++){document.body.removeChild(e[t])}}function d(){var e=document.createElement("div");e.setAttribute("class",f);document.body.appendChild(e);setTimeout(function(){document.body.removeChild(e)},100)}function v(e){return{height:e.offsetHeight,width:e.offsetWidth}}function m(i){var s=v(i);return s.height>e&&s.height<n&&s.width>t&&s.width<r}function g(e){var t=e;var n=0;while(!!t){n+=t.offsetTop;t=t.offsetParent}return n}function y(){var e=document.documentElement;if(!!window.innerWidth){return window.innerHeight}else if(e&&!isNaN(e.clientHeight)){return e.clientHeight}return 0}function b(){if(window.pageYOffset){return window.pageYOffset}return Math.max(document.documentElement.scrollTop,document.body.scrollTop)}function S(e){var t=g(e);return t>=E&&t<=w+E}function x(){var e=document.createElement("audio");e.setAttribute("class",c);e.src=i;e.loop=false;var t=false,n=false,r=false;e.addEventListener("timeupdate",function(){var i=e.currentTime,s=D,o=s.length,u;if(i>=.5&&!t){t=true;T(_)}if(i>=15.5&&!n){n=true;k();d();for(u=0;u<o;u++){N(s[u])}}if(e.currentTime>=28.4&&!r){r=true;C()}},true);e.addEventListener("ended",function(){k();p()},true);e.innerHTML="<p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p>p>";document.body.appendChild(e);e.play()}function T(e){e.className+=" "+s+" "+u}function N(e){e.className+=" "+s+" "+a[Math.floor(Math.random()*a.length)]}function C(){var e=document.getElementsByClassName(s);for(var t=0;t<e.length;){e[t].className=e[t].className.replace(s,o)}s=o}function k(){var e=document.getElementsByClassName(s);var t=new RegExp("\\b"+s+"\\b");for(var n=0;n<e.length;){e[n].className=e[n].className.replace(t,"")}}var e=30;var t=30;var n=350;var r=350;var i="//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake.ogg";var s="mw-harlem_shake_me";var o="mw-harlem_shake_slow";var u="im_first";var a=["im_drunk","im_baked","im_trippin","im_blown"];var f="mw-strobe_light";var l="//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";var c="mw_added_css";var w=y();var E=b();var L=document.getElementsByTagName("*"),A=L.length,O,M;var _=null;for(O=0;O<A;O++){M=L[O];if(m(M)){if(S(M)){_=M;break}}}if(M===null){console.warn("Could not find a node of the right size. Please try a different page.");return}h();x();var D=[];for(O=0;O<A;O++){M=L[O];if(m(M)){D.push(M)}}})()' rel="alternate">
+              <i class="fa fa-music"></i>
+              HOT_DANCE
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/scorpioxiatian" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2508185000/profile?topnav=1&wvr=6&is_all=1" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mytrix.me/" title="MatheMatrix[PG]'s blog'" target="_blank">MatheMatrix[PG]'s blog'</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.coderzh.com/" title="CoderZH Blog" target="_blank">CoderZH Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://way4ever.com/" title="Way Forever" target="_blank">Way Forever</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wklken.me/" title="wklken" target="_blank">wklken</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://bingotree.cn/" title="BINGOTREE" target="_blank">BINGOTREE</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://adam.younglogic.com/" title="Adam Young’s Blog" target="_blank">Adam Young’s Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://seanlook.com/" title="Sean's Notes" target="_blank">Sean's Notes</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wsfdl.com/" title="koala bear" target="_blank">koala bear</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://int32bit.me/" title="int32bit" target="_blank">int32bit</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://bellard.org/" title="bellard" target="_blank">bellard</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wklken.me/" title="WKLKEN" target="_blank">WKLKEN</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.biaodianfu.com/" title="标点符" target="_blank">标点符</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wuxubj.cn/" title="务虚笔记" target="_blank">务虚笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://tonybai.com/" title="Tony Bai(go)" target="_blank">Tony Bai(go)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://foofish.net" title="PYTHON之禅" target="_blank">PYTHON之禅</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AD服务安装配置"><span class="nav-number">2.</span> <span class="nav-text">AD服务安装配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装AD服务"><span class="nav-number">2.1.</span> <span class="nav-text">安装AD服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据初始化"><span class="nav-number">2.2.</span> <span class="nav-text">数据初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keystone的安装和配置"><span class="nav-number">3.</span> <span class="nav-text">keystone的安装和配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#keysotne安装"><span class="nav-number">3.1.</span> <span class="nav-text">keysotne安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#keystone对接AD配置"><span class="nav-number">3.2.</span> <span class="nav-text">keystone对接AD配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Summer Smith</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'disqusscorpio';
+      var disqus_identifier = '2016/06/02/keystone-AD/';
+
+      var disqus_title = "Keystone对接ActiveDirectory";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fXdOUjFW97HzqFyh6Niz0SpV-gzGzoHsz", "wwiBgXuaoFBvop4a0EtnLE2i");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+
+</body>
+</html>

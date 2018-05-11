@@ -1,0 +1,1053 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Pirates</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://www.pisces.ml/"/>
+  <updated>2018-05-11T06:53:56.754Z</updated>
+  <id>http://www.pisces.ml/</id>
+  
+  <author>
+    <name>Summer Smith</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>linux常用shell脚本记录（附带脚本解析）</title>
+    <link href="http://www.pisces.ml/2018/05/10/linux%E5%B8%B8%E7%94%A8shell%E8%84%9A%E6%9C%AC%E8%AE%B0%E5%BD%95/"/>
+    <id>http://www.pisces.ml/2018/05/10/linux常用shell脚本记录/</id>
+    <published>2018-05-10T08:09:08.000Z</published>
+    <updated>2018-05-11T06:53:56.754Z</updated>
+    
+    <content type="html"><![CDATA[<p>由于工作中经常会用到一些shell来统计或者做一些批量操作，一些shell用的少，突然用的时候可能会忘记。本文用于记录工作中用到shell命令，以便日后备用。好记性不如烂笔头嘛！！！</p>
+<h3 id="统计服务器socket连接数"><a href="#统计服务器socket连接数" class="headerlink" title="统计服务器socket连接数"></a>统计服务器socket连接数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">netstat -n | awk &apos;/^tcp/ &#123;++S[$NF]&#125; END &#123;for(a in S) print a, S[a]&#125;&apos;</div></pre></td></tr></table></figure>
+<p>shell脚本解析：通过netstat列出当前socket连接信息，并通过管道将结果传递给awk命令，作为awk命令处理的参数，awk命令首先执行正则匹配，过滤出TCP socket，然后用$NF取行的最后一个值作为统计值进行sum统计，最后将得到的数组S打印出来。</p>
+<p>awk内建函数参考示例： <a href="https://www.linuxnix.com/awk-scripting-learn-awk-built-in-variables-with-examples/" target="_blank" rel="external">https://www.linuxnix.com/awk-scripting-learn-awk-built-in-variables-with-examples/</a></p>
+<p>题外话：<a href="https://jaminzhang.github.io/network/the-difference-between-unix-domain-socket-and-tcp-ip-socket/" target="_blank" rel="external">Unix domain socket 和 TCP/IP socket 的区别</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;由于工作中经常会用到一些shell来统计或者做一些批量操作，一些shell用的少，突然用的时候可能会忘记。本文用于记录工作中用到shell命令，以便日后备用。好记性不如烂笔头嘛！！！&lt;/p&gt;
+&lt;h3 id=&quot;统计服务器socket连接数&quot;&gt;&lt;a href=&quot;#统计服务器so
+    
+    </summary>
+    
+      <category term="Shell" scheme="http://www.pisces.ml/categories/Shell/"/>
+    
+    
+      <category term="shell" scheme="http://www.pisces.ml/tags/shell/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>python基础知识——装饰器篇</title>
+    <link href="http://www.pisces.ml/2018/05/08/python%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E2%80%94%E2%80%94%E8%A3%85%E9%A5%B0%E5%99%A8%E7%AF%87/"/>
+    <id>http://www.pisces.ml/2018/05/08/python基础知识——装饰器篇/</id>
+    <published>2018-05-08T09:49:50.000Z</published>
+    <updated>2018-05-11T06:53:26.783Z</updated>
+    
+    <content type="html"><![CDATA[<p>​    本篇文章主要来总结下python中的几种常用的装饰器用法。我们知道在python编程中经常会用到装饰器，因为使用装饰器，我们可以简化代码，避免重复造轮子，使得代码看着更加整洁，增强代码可读性。</p>
+<p>​    说到装饰器的用法，不得不提下装饰器在openstack中的应用。本人入行已有三年之久，现在专注于云计算开发运维，编程习惯以及编码风格受了openstack社区极大影响，社区大牛多之前就看了keystone的源码，你会发现刚开始看的时候一脸懵逼，静下心好好看看你会发现真的是匠心之作。基本上将装饰器应用到了极致，社区为了简化代码用了很多嵌套的装饰器（真的是层层嵌套），毕竟在设计上许多功能是需要重复使用的，所以其中也大量的用到了装饰器，并且是使用了模块化的层层嵌套，将许多功能封装成许多装饰器，又通过装饰器的组合嵌套来使用，这样一方面避免了代码冗余，另外还实现了代码的组合使用类似于模块化组件，使得代码更加简洁。</p>
+<p>​    谈装饰器前还需要注意下，Python 中的函数和 Java、C++不太一样，Python 中的函数可以像普通变量一样当做参数传递给另外一个函数</p>
+<h3 id="简单装饰器"><a href="#简单装饰器" class="headerlink" title="简单装饰器"></a>简单装饰器</h3><p>python中通过符号”@“引入装饰器，如下所示是一种简单装饰器写法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">use_logging</span><span class="params">(func)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">()</span>:</span></div><div class="line">        logging.warn(<span class="string">"%s is running"</span> % func.__name__)</div><div class="line">        <span class="keyword">return</span> func()</div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"><span class="meta">@use_logging</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">"i am foo"</span>)</div><div class="line"></div><div class="line">foo()</div></pre></td></tr></table></figure>
+<p>​    如上图所示，foo方法作为参数传递给user_logging方法，在user_logging方法中执行完日志功能之后返回foo方法，这样只需要将需要打印日志的地方在函数预定义的地方添加这个装饰器就能实现日志功能。这样做避免了重复在函数中写日志搜集功能相关代码，也使得代码更加简洁明了。</p>
+<h3 id="args、-kwargs"><a href="#args、-kwargs" class="headerlink" title="args、*kwargs"></a><em>args、*</em>kwargs</h3><p>​    如上述简单装饰器中，你可能会问如果foo函数需要参数需要怎么办？例如：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">def foo(name)：</div><div class="line">    print("i am %s" % name)</div></pre></td></tr></table></figure>
+<p>​    增对参数传递，我们只需将参数传递给wrapper函数，再由wrapper函数传递给foo函数即可。如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(name)</span>:</span> <span class="comment"># 此处参数如果未知或者多个可用*args/**kwargs替代，一般情况下我们使用*args/**kwargs</span></div><div class="line">    logging.warn(<span class="string">"%s is running"</span> % func.__name__)</div><div class="line">    <span class="keyword">return</span> func(name)</div></pre></td></tr></table></figure>
+<p>​    结合起来完整代码如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">use_logging</span><span class="params">(func)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args)</span>:</span> <span class="comment"># 由于函数参数无法确定我们需要使用*args替代</span></div><div class="line">        logging.warn(<span class="string">"%s is running"</span> % func.__name__)</div><div class="line">        <span class="keyword">return</span> func(*args)</div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"><span class="meta">@use_logging</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(name)</span>:</span></div><div class="line">    print(<span class="string">"i am %s"</span> % name)</div><div class="line"></div><div class="line">foo(name)</div></pre></td></tr></table></figure>
+<h3 id="带参数装饰器"><a href="#带参数装饰器" class="headerlink" title="带参数装饰器"></a>带参数装饰器</h3><p>装饰器在使用中还支持接收参数，如上示例中每个执行函数所需的日志级别肯定不尽相同，我们需要实现功能根据实际需求提供日志级别，这样我们就需要改写user_logging方法，使其支持参数传递，这样就能根据不容参数传入，来选择相应的日志级别。更改如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">use_logging</span><span class="params">(level)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">decorate</span><span class="params">(func)</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            <span class="keyword">if</span> level == <span class="string">"warn"</span>:</div><div class="line">                logging.warn(<span class="string">"%s is running"</span> % func.__name__)</div><div class="line">            <span class="keyword">elif</span> level == <span class="string">"info"</span>:</div><div class="line">                logging.info(<span class="string">"%s is running"</span> % func.__name__)</div><div class="line">            <span class="keyword">return</span> func(*args)</div><div class="line">        <span class="keyword">return</span> wrapper</div><div class="line">    <span class="keyword">return</span> decorate</div></pre></td></tr></table></figure>
+<p>那么我们该如何调用呢？其实也很简单，形同函数传参一样调用时加上相应参数即可。如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@use_logging(level="warn")</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(name)</span>:</span></div><div class="line">    print(<span class="string">"i am %s"</span> %name)</div><div class="line">				</div><div class="line">foo(<span class="string">"hero"</span>)</div></pre></td></tr></table></figure>
+<h3 id="类装饰器"><a href="#类装饰器" class="headerlink" title="类装饰器"></a>类装饰器</h3><p>python装饰器实现中不仅仅可以使函数方法，也可以是以类的方式实现。相比函数装饰器，类装饰器具有灵活度大、高内聚、封装性等优点。使用类装饰器主要依靠类函数的<a href="http://pycoders-weekly-chinese.readthedocs.org/en/latest/issue6/a-guide-to-pythons-magic-methods.html" target="_blank" rel="external">魔术方法</a>“_ <em>call </em> _” ,当调用时只需用语法糖@引入即可，如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Log</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, func)</span>:</span></div><div class="line">        self._func = func</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(self)</span>:</span></div><div class="line">        logging.warn(<span class="string">"%s is running"</span> % self._func.__name)</div><div class="line"> 		self._func()</div><div class="line"> </div><div class="line"><span class="meta">@Log</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">"I am foo"</span>)</div><div class="line"></div><div class="line">foo()</div></pre></td></tr></table></figure>
+<h3 id="装饰器顺序"><a href="#装饰器顺序" class="headerlink" title="装饰器顺序"></a>装饰器顺序</h3><p>我们知道一个函数是可以引入多个装饰器的，例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@func1</span></div><div class="line"><span class="meta">@func2</span></div><div class="line"><span class="meta">@func3</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">"do something"</span>)</div></pre></td></tr></table></figure>
+<p>执行顺序是从里到外的，即先执行func3再到func1。以下示例能更好的解释执行顺序：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">f = func1(func2(func3(foo)))</div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;​    本篇文章主要来总结下python中的几种常用的装饰器用法。我们知道在python编程中经常会用到装饰器，因为使用装饰器，我们可以简化代码，避免重复造轮子，使得代码看着更加整洁，增强代码可读性。&lt;/p&gt;
+&lt;p&gt;​    说到装饰器的用法，不得不提下装饰器在opens
+    
+    </summary>
+    
+      <category term="Python" scheme="http://www.pisces.ml/categories/Python/"/>
+    
+    
+      <category term="装饰器" scheme="http://www.pisces.ml/tags/%E8%A3%85%E9%A5%B0%E5%99%A8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>linux 常用软件包命令集锦</title>
+    <link href="http://www.pisces.ml/2018/03/24/linux-%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%91%BD%E4%BB%A4%E9%9B%86%E9%94%A6/"/>
+    <id>http://www.pisces.ml/2018/03/24/linux-常用软件包命令集锦/</id>
+    <published>2018-03-24T01:55:44.000Z</published>
+    <updated>2018-05-11T06:53:08.298Z</updated>
+    
+    <content type="html"><![CDATA[<p>本篇用于记录常用linux操作系统软件包安装命令集锦</p>
+<h2 id="查询rpm包的依赖关系"><a href="#查询rpm包的依赖关系" class="headerlink" title="查询rpm包的依赖关系"></a>查询rpm包的依赖关系</h2><p><strong><em>查询未安装软件包的依赖关系</em></strong></p>
+<p>rpm -qRp xxxxx.rpm</p>
+<p><strong>查询已安装软件包依赖</strong></p>
+<p>rpm -qR xxxxx</p>
+<h2 id="离线下载软件包"><a href="#离线下载软件包" class="headerlink" title="离线下载软件包"></a>离线下载软件包</h2><p>yum install -y –downloadonly –downloaddir=/xxx/xxx xxxxx</p>
+<h2 id="搜索仓库所有版本软件包"><a href="#搜索仓库所有版本软件包" class="headerlink" title="搜索仓库所有版本软件包"></a>搜索仓库所有版本软件包</h2><p>yum search –showduplicates xxxxxxx</p>
+<h2 id="本地安装rpm软件包"><a href="#本地安装rpm软件包" class="headerlink" title="本地安装rpm软件包"></a>本地安装rpm软件包</h2><p>rpm -ivh xxxxx.rpm or rpm -ivh –force xxxxx.rpm</p>
+<h2 id="经验记录"><a href="#经验记录" class="headerlink" title="经验记录"></a>经验记录</h2><p>大部分公司都是私有环境，虽然有自己的私有仓库，但是问题是并不会实时去同步官方的仓库，经常遇到软件包不存在，需要自己离线去下载并上传安装。常用的做法就是本地先起一个相同内核版本的linux操作系统，然后离线下载软件包（包括依赖），最后上传到服务器上用rpm命令进行本地安装。本地安装可能会出现以下类似报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">rpm -ivh openssl-*                                                                                                     准备中...                          ################################# [100%]</div><div class="line">        file /usr/lib64/.libcrypto.so.10.hmac from install of openssl-libs-1:1.0.2k-8.el7.x86_64 conflicts with file from package openssl-libs-1:1.0.1e-60.el7.x86_64</div><div class="line">        file /usr/lib64/.libssl.so.10.hmac from install of openssl-libs-1:1.0.2k-8.el7.x86_64 conflicts with file from package openssl-libs-1:1.0.1e-60.el7.x86_64</div><div class="line">        file /usr/lib64/libcrypto.so.10 from install of openssl-libs-1:1.0.2k-8.el7.x86_64 conflicts with file from package openssl-libs-1:1.0.1e-60.el7.x86_64</div><div class="line">        file /usr/lib64/libssl.so.10 from install of openssl-libs-1:1.0.2k-8.el7.x86_64 conflicts with file from package openssl-libs-1:1.0.1e-60.el7.x86_64</div></pre></td></tr></table></figure>
+<p>此时可以尝试强制安装命令（<strong>强制安装前需要检查软件包的依赖，查看系统有的软件包是否满足安装依赖需求</strong>）：</p>
+<p>rpm -ivh –force xxxxxx.rpm</p>
+<p>由于强制安装并不会将之前的版本卸载了，如下所示我们能看到两个版本的软件包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># rpm -qa | grep openssl</div><div class="line">openssl-libs-1.0.2k-8.el7.x86_64</div><div class="line">openssl-libs-1.0.1e-60.el7.x86_64</div><div class="line">openssl-1.0.2k-8.el7.x86_64</div><div class="line">openssl-1.0.1e-60.el7.x86_64</div></pre></td></tr></table></figure>
+<p>执行yum check命令会有如下错误提示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"># yum check</div><div class="line">已加载插件：fastestmirror</div><div class="line">audit-2.7.6-3.el7.x86_64 是 audit-2.6.5-3.el7.x86_64 的副本</div><div class="line">audit-libs-2.7.6-3.el7.x86_64 是 audit-libs-2.6.5-3.el7.x86_64 的副本</div><div class="line">libsemanage-2.5-8.el7.x86_64 是 libsemanage-2.5-4.el7.x86_64 的副本</div><div class="line">1:openssl-1.0.2k-8.el7.x86_64 是 1:openssl-1.0.1e-60.el7.x86_64 的副本</div><div class="line">1:openssl-libs-1.0.2k-8.el7.x86_64 是 1:openssl-libs-1.0.1e-60.el7.x86_64 的副本</div><div class="line">policycoreutils-2.5-17.1.el7.x86_64 是 policycoreutils-2.5-8.el7.x86_64 的副本</div></pre></td></tr></table></figure>
+<p>所以我们需要执行以下命令清除重复的软件包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">package-cleanup --cleandupes</div></pre></td></tr></table></figure>
+<p>清除完后软件包就可以正常运行了。</p>
+<p>本篇工作记录，持续更新……</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本篇用于记录常用linux操作系统软件包安装命令集锦&lt;/p&gt;
+&lt;h2 id=&quot;查询rpm包的依赖关系&quot;&gt;&lt;a href=&quot;#查询rpm包的依赖关系&quot; class=&quot;headerlink&quot; title=&quot;查询rpm包的依赖关系&quot;&gt;&lt;/a&gt;查询rpm包的依赖关系&lt;/h2&gt;&lt;p&gt;
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://www.pisces.ml/categories/Linux/"/>
+    
+    
+      <category term="rpm" scheme="http://www.pisces.ml/tags/rpm/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>openstack——云硬盘的备份与恢复</title>
+    <link href="http://www.pisces.ml/2017/09/22/openstack%E2%80%94%E2%80%94%E4%BA%91%E7%A1%AC%E7%9B%98%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D/"/>
+    <id>http://www.pisces.ml/2017/09/22/openstack——云硬盘的备份与恢复/</id>
+    <published>2017-09-22T06:51:35.000Z</published>
+    <updated>2018-05-10T10:23:25.976Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文会讲述如何进行跨平台云硬盘的备份与恢复，cinder提供的backup功能目前支持多种后端driver备份，比如：nfs、swift、ceph、tsm等等，可见目前常见的存储后端都是支持的。cinder在很早就已经支持备份，主要有以下优势：</p>
+<ol>
+<li>重要数据及时备份</li>
+<li>异地容灾备份（基于cinder备份功能独立的后端driver实现）</li>
+<li>openstack集群升级与迁移（冷迁移）</li>
+</ol>
+<p>下文增对openstack集群迁移来讲解，使用cinder backup来实现数据跨集群备份与恢复。</p>
+<h1 id="总体思路"><a href="#总体思路" class="headerlink" title="总体思路"></a>总体思路</h1><p>以下主要概括备份与恢复大概思路。</p>
+<p>在openstack集群A中做如下操作：</p>
+<ol>
+<li>配置cinder的backup使用ceph作为后端driver</li>
+<li>创建云盘备份</li>
+<li>导出云盘备份的metadata</li>
+</ol>
+<p>在openstack集群B中做如下操作：</p>
+<ol>
+<li>配置cinder的backup使用ceph作为后端driver</li>
+<li>导入云盘的metadata信息</li>
+<li>创建新的云硬盘，大小与原云盘一致</li>
+<li>将备份从ceph存储中恢复到新建的云硬盘中</li>
+</ol>
+<h1 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h1><p>前期准备：</p>
+<ul>
+<li>[x] openstack集群两套（也可一套仅仅做云盘备份用）</li>
+<li>[x] 一套ceph集群专门用作云盘备份</li>
+</ul>
+<h2 id="创建云盘备份"><a href="#创建云盘备份" class="headerlink" title="创建云盘备份"></a>创建云盘备份</h2><p>首先将ceph集群中的配置文件以及认证文件拷贝到cinder所在节点的/etc/ceph目录下并重命名（防止与原来的ceph配置重叠）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">scp /etc/ceph/ceph.conf root@cinder_host_addr:/etc/ceph/ceph-backup.conf</div><div class="line">scp /etc/ceph/ceph.client.admin.keyring root@cinder_host_addr:/etc/ceph/ceph.client.cinder-backup.keyring</div></pre></td></tr></table></figure>
+<p>在两套集群中cinder所在节点修改ceph-backup.conf文件，在【global】分组中添加如下配置（<strong>important</strong>）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">keyring = /etc/ceph/ceph.client.cinder-backup.keyring</div></pre></td></tr></table></figure>
+<p>在两套集群中配置cinder的backup后端driver，如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">backup_driver=cinder.backup.drivers.ceph</div><div class="line">backup_ceph_conf=/etc/ceph/ceph-backup.conf</div><div class="line">backup_ceph_user=admin</div><div class="line">backup_ceph_chunk_size=<span class="number">134217728</span></div><div class="line">backup_ceph_pool=sata<span class="number">-00</span> <span class="comment"># 存储pool根据实际ceph中规划的pool填写</span></div></pre></td></tr></table></figure>
+<p>重启cinder-backup服务：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl restart openstack-cinder-backup</div></pre></td></tr></table></figure>
+<p>在集群A中创建volume备份：</p>
+<blockquote>
+<p>注意备份云盘前需将云盘从云主机中解绑才行</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cinder backup-create <span class="number">0</span>c7006e8<span class="number">-4</span>c01<span class="number">-4</span>bdb-b4b2<span class="number">-6</span>be5336263d0 <span class="comment"># volume ID</span></div></pre></td></tr></table></figure>
+<p>等待几秒查看备份是否成功，状态为available即表示创建成功：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">[root@controller ~]<span class="comment"># cinder backup-show 46fc9fc6-d783-4dd3-8096-839e21c49c68</span></div><div class="line">+-----------------------+--------------------------------------+</div><div class="line">|        Property       |                Value                 |</div><div class="line">+-----------------------+--------------------------------------+</div><div class="line">|   availability_zone   |                 nova                 |</div><div class="line">|       container       |               sata<span class="number">-00</span>                |</div><div class="line">|       created_at      |      <span class="number">2017</span><span class="number">-09</span><span class="number">-23</span>T06:<span class="number">22</span>:<span class="number">21.000000</span>      |</div><div class="line">|      description      |                 <span class="keyword">None</span>                 |</div><div class="line">|      fail_reason      |                 <span class="keyword">None</span>                 |</div><div class="line">| has_dependent_backups |                <span class="keyword">False</span>                 |</div><div class="line">|           id          | <span class="number">46</span>fc9fc6-d783<span class="number">-4</span>dd3<span class="number">-8096</span><span class="number">-839e21</span>c49c68 |</div><div class="line">|     is_incremental    |                <span class="keyword">False</span>                 |</div><div class="line">|          name         |                 <span class="keyword">None</span>                 |</div><div class="line">|      object_count     |                  <span class="number">0</span>                   |</div><div class="line">|          size         |                  <span class="number">10</span>                  |</div><div class="line">|         status        |              available               |</div><div class="line">|       volume_id       | <span class="number">0</span>c7006e8<span class="number">-4</span>c01<span class="number">-4</span>bdb-b4b2<span class="number">-6</span>be5336263d0 |</div><div class="line">+-----------------------+--------------------------------------+</div></pre></td></tr></table></figure>
+<p>查看ceph集群中是否已经有该云盘备份：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@server<span class="number">-17</span> ~]<span class="comment"># rbd -p sata-00 ls | grep 0c7006e8-4c01-4bdb-b4b2-6be5336263d0</span></div><div class="line">volume<span class="number">-0</span>c7006e8<span class="number">-4</span>c01<span class="number">-4</span>bdb-b4b2<span class="number">-6</span>be5336263d0.backup.base</div></pre></td></tr></table></figure>
+<p>至此云盘备份已经完成。</p>
+<h2 id="导出云盘backup的metadata"><a href="#导出云盘backup的metadata" class="headerlink" title="导出云盘backup的metadata"></a>导出云盘backup的metadata</h2><blockquote>
+<p>目前openstackclient命令暂不支持backup-export命令，社区已经有提出并提交了代码来支持:<a href="https://review.openstack.org/#/c/497167/" target="_blank" rel="external">https://review.openstack.org/#/c/497167/</a></p>
+</blockquote>
+<p>下面我们需要将集群A中的云盘本分的metadata信息导出，执行如下命令：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">[root@controller ~]<span class="comment"># cinder backup-export 46fc9fc6-d783-4dd3-8096-839e21c49c68</span></div><div class="line">+----------------+------------------------------------------------------------------------------+</div><div class="line">|    Property    |                                    Value                                     |</div><div class="line">+----------------+------------------------------------------------------------------------------+</div><div class="line">| backup_service |                          cinder.backup.drivers.ceph                          |</div><div class="line">|   backup_url   | eyJzdGF0dXMiOiAiYXZhaWxhYmxlIiwgImRpc3BsYXlfbmFtZSI6IG51bGwsICJhdmFpbGFiaWxp |</div><div class="line">|                | dHlfem9uZSI6ICJub3ZhIiwgImRlbGV0ZWQiOiBmYWxzZSwgInVwZGF0ZWRfYXQiOiAiMjAxNy0w |</div><div class="line">|                | OS0yM1QwNjoyMjozOFoiLCAiaG9zdCI6ICJjaW5kZXIiLCAidm9sdW1lX2lkIjogIjBjNzAwNmU4 |</div><div class="line">|                | LTRjMDEtNGJkYi1iNGIyLTZiZTUzMzYyNjNkMCIsICJjb250YWluZXIiOiAic2F0YS0wMCIsICJz |</div><div class="line">|                | ZXJ2aWNlX21ldGFkYXRhIjogbnVsbCwgImlkIjogIjQ2ZmM5ZmM2LWQ3ODMtNGRkMy04MDk2LTgz |</div><div class="line">|                | OWUyMWM0OWM2OCIsICJzaXplIjogMTAsICJvYmplY3RfY291bnQiOiAwLCAicHJvamVjdF9pZCI6 |</div><div class="line">|                | ICI2NWZlNzg2NTY3YTM0MTgyOWFhMDU3NTFiMmI3MzYwZiIsICJkZWxldGVkX2F0IjogbnVsbCwg |</div><div class="line">|                | InVzZXJfaWQiOiAib3BlbnN0YWNrX2FkbWluIiwgInNlcnZpY2UiOiAiY2luZGVyLmJhY2t1cC5k |</div><div class="line">|                | cml2ZXJzLmNlcGgiLCAiZHJpdmVyX2luZm8iOiB7fSwgImNyZWF0ZWRfYXQiOiAiMjAxNy0wOS0y |</div><div class="line">|                | M1QwNjoyMjoyMVoiLCAiZGlzcGxheV9kZXNjcmlwdGlvbiI6IG51bGwsICJwYXJlbnRfaWQiOiBu |</div><div class="line">|                | dWxsLCAibnVtX2RlcGVuZGVudF9iYWNrdXBzIjogMCwgImZhaWxfcmVhc29uIjogbnVsbCwgInRl |</div><div class="line">|                |       bXBfc25hcHNob3RfaWQiOiBudWxsLCAidGVtcF92b2x1bWVfaWQiOiBudWxsfQ==       |</div><div class="line">|                |                                                                              |</div><div class="line">+----------------+------------------------------------------------------------------------------+</div></pre></td></tr></table></figure>
+<p>其中backup_url就是我们所需要的metadata信息，这一串东西就是metadata经过base64过后的字符，我们用base64进行解码后就能得到如下信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;&quot;status&quot;: &quot;available&quot;, &quot;display_name&quot;: null, &quot;availability_zone&quot;: &quot;nova&quot;, &quot;deleted&quot;: false, &quot;updated_at&quot;: &quot;2017-09-23T06:22:38Z&quot;, &quot;host&quot;: &quot;cinder&quot;, &quot;volume_id&quot;: &quot;0c7006e8-4c01-4bdb-b4b2-6be5336263d0&quot;, &quot;container&quot;: &quot;sata-00&quot;, &quot;service_metadata&quot;: null, &quot;id&quot;: &quot;46fc9fc6-d783-4dd3-8096-839e21c49c68&quot;, &quot;size&quot;: 10, &quot;object_count&quot;: 0, &quot;project_id&quot;: &quot;65fe786567a341829aa05751b2b7360f&quot;, &quot;deleted_at&quot;: null, &quot;user_id&quot;: &quot;75fc9fc6-d783-4dd3-8096-839e21c49c68&quot;, &quot;service&quot;: &quot;cinder.backup.drivers.ceph&quot;, &quot;driver_info&quot;: &#123;&#125;, &quot;created_at&quot;: &quot;2017-09-23T06:22:21Z&quot;, &quot;display_description&quot;: null, &quot;parent_id&quot;: null, &quot;num_dependent_backups&quot;: 0, &quot;fail_reason&quot;: null, &quot;temp_snapshot_id&quot;: null, &quot;temp_volume_id&quot;: null&#125;</div></pre></td></tr></table></figure>
+<p>可以用如下命令得到backup_url:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[root@controller ~]<span class="comment"># cinder backup-export 46fc9fc6-d783-4dd3-8096-839e21c49c68 |  sed -n '/backup_url/,$ s/|.*|  *\(.*\) |/\1/p'</span></div><div class="line">eyJzdGF0dXMiOiAiYXZhaWxhYmxlIiwgImRpc3BsYXlfbmFtZSI6IG51bGwsICJhdmFpbGFiaWxp</div><div class="line">dHlfem9uZSI6ICJub3ZhIiwgImRlbGV0ZWQiOiBmYWxzZSwgInVwZGF0ZWRfYXQiOiAiMjAxNy0w</div><div class="line">OS0yM1QwNjoyMjozOFoiLCAiaG9zdCI6ICJjaW5kZXIiLCAidm9sdW1lX2lkIjogIjBjNzAwNmU4</div><div class="line">LTRjMDEtNGJkYi1iNGIyLTZiZTUzMzYyNjNkMCIsICJjb250YWluZXIiOiAic2F0YS0wMCIsICJz</div><div class="line">ZXJ2aWNlX21ldGFkYXRhIjogbnVsbCwgImlkIjogIjQ2ZmM5ZmM2LWQ3ODMtNGRkMy04MDk2LTgz</div><div class="line">OWUyMWM0OWM2OCIsICJzaXplIjogMTAsICJvYmplY3RfY291bnQiOiAwLCAicHJvamVjdF9pZCI6</div><div class="line">ICI2NWZlNzg2NTY3YTM0MTgyOWFhMDU3NTFiMmI3MzYwZiIsICJkZWxldGVkX2F0IjogbnVsbCwg</div><div class="line">InVzZXJfaWQiOiAib3BlbnN0YWNrX2FkbWluIiwgInNlcnZpY2UiOiAiY2luZGVyLmJhY2t1cC5k</div><div class="line">cml2ZXJzLmNlcGgiLCAiZHJpdmVyX2luZm8iOiB7fSwgImNyZWF0ZWRfYXQiOiAiMjAxNy0wOS0y</div><div class="line">M1QwNjoyMjoyMVoiLCAiZGlzcGxheV9kZXNjcmlwdGlvbiI6IG51bGwsICJwYXJlbnRfaWQiOiBu</div><div class="line">dWxsLCAibnVtX2RlcGVuZGVudF9iYWNrdXBzIjogMCwgImZhaWxfcmVhc29uIjogbnVsbCwgInRl</div><div class="line">bXBfc25hcHNob3RfaWQiOiBudWxsLCAidGVtcF92b2x1bWVfaWQiOiBudWxsfQ==</div></pre></td></tr></table></figure>
+<h2 id="导入云盘backup的metadata"><a href="#导入云盘backup的metadata" class="headerlink" title="导入云盘backup的metadata"></a>导入云盘backup的metadata</h2><p>根据上面步骤得到的backup_url，我将将其写到metadata.txt文件中，然后再集群B中导入该metadata信息，操作步骤如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">cinder backup-import cinder.backup.drivers.ceph $(tr -d &apos;\n&apos; &lt; metadata.txt)</div><div class="line">+----------+--------------------------------------+</div><div class="line">| Property |                Value                 |</div><div class="line">+----------+--------------------------------------+</div><div class="line">|    id    | b238d4b5-e757-4d8f-5623-3d982e5616dc |</div><div class="line">|   name   |                 None                 |</div><div class="line">+----------+--------------------------------------+</div></pre></td></tr></table></figure>
+<p>导入成功后我们能用cinder backup-list看到新导入的metadata信息。</p>
+<h2 id="创建新的云硬盘"><a href="#创建新的云硬盘" class="headerlink" title="创建新的云硬盘"></a>创建新的云硬盘</h2><p>在集群B中创建一个新的云硬盘，磁盘大小跟原来的一样，执行如下命令创建：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">[root@controller ~]<span class="comment"># cinder create --display_name backup_recover 10</span></div><div class="line">+---------------------------------------+--------------------------------------+</div><div class="line">|                Property               |                Value                 |</div><div class="line">+---------------------------------------+--------------------------------------+</div><div class="line">|              attachments              |                  []                  |</div><div class="line">|           availability_zone           |                 nova                 |</div><div class="line">|                bootable               |                false                 |</div><div class="line">|          consistencygroup_id          |                 <span class="keyword">None</span>                 |</div><div class="line">|               created_at              |      <span class="number">2017</span><span class="number">-09</span><span class="number">-23</span>T06:<span class="number">53</span>:<span class="number">13.000000</span>      |</div><div class="line">|              description              |                 <span class="keyword">None</span>                 |</div><div class="line">|               encrypted               |                <span class="keyword">False</span>                 |</div><div class="line">|                   id                  | d0431cee<span class="number">-3</span>de2<span class="number">-458</span>f-a70d<span class="number">-95935</span>d7ffd9f |</div><div class="line">|                metadata               |                  &#123;&#125;                  |</div><div class="line">|            migration_status           |                 <span class="keyword">None</span>                 |</div><div class="line">|              multiattach              |                <span class="keyword">False</span>                 |</div><div class="line">|                  name                 |            backup_recover            |</div><div class="line">|         os-vol-host-attr:host         |         cinder@ssd-ceph<span class="comment">#ssd          |</span></div><div class="line">|     os-vol-mig-status-attr:migstat    |                 <span class="keyword">None</span>                 |</div><div class="line">|     os-vol-mig-status-attr:name_id    |                 <span class="keyword">None</span>                 |</div><div class="line">|      os-vol-tenant-attr:tenant_id     |   <span class="number">65</span>fe786567a341829aa05751b2b7360f   |</div></pre></td></tr></table></figure>
+<h2 id="云盘恢复"><a href="#云盘恢复" class="headerlink" title="云盘恢复"></a>云盘恢复</h2><p>现在需要将原来的云盘的备份恢复到新建的云硬盘中，我们需要在集群B的cinder节点执行如下恢复操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">[root@controller ~]# cinder backup-restore --volume d0431cee-3de2-458f-a70d-95935d7ffd9f b238d4b5-e757-4d8f-5623-3d982e5616dc</div><div class="line">+-------------+--------------------------------------+</div><div class="line">|   Property  |                Value                 |</div><div class="line">+-------------+--------------------------------------+</div><div class="line">|  backup_id  | b238d4b5-e757-4d8f-5623-3d982e5616dc |</div><div class="line">|  volume_id  | d0431cee-3de2-458f-a70d-95935d7ffd9f |</div><div class="line">| volume_name |            backup_recover            |</div><div class="line">+-------------+--------------------------------------+</div></pre></td></tr></table></figure>
+<p>恢复成功后backup的状态会从restoring变为available，到此表示恢复完成，我们需要做的就是将恢复完成的云盘挂载到云主机中，来查看数据是否已经恢复。THE END。。。。。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文会讲述如何进行跨平台云硬盘的备份与恢复，cinder提供的backup功能目前支持多种后端driver备份，比如：nfs、swift、ceph、tsm等等，可见目前常见的存储后端都是支持的。cinder在很早就已经支持备份，主要有以下优势：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;重
+    
+    </summary>
+    
+      <category term="Openstack" scheme="http://www.pisces.ml/categories/Openstack/"/>
+    
+    
+      <category term="cinder" scheme="http://www.pisces.ml/tags/cinder/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mac OS X 下文件名乱码问题解决</title>
+    <link href="http://www.pisces.ml/2017/09/15/Mac-OS-X-%E4%B8%8B%E6%96%87%E4%BB%B6%E5%90%8D%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
+    <id>http://www.pisces.ml/2017/09/15/Mac-OS-X-下文件名乱码问题解决/</id>
+    <published>2017-09-15T07:47:16.000Z</published>
+    <updated>2018-05-10T10:12:27.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>​    在 GB2312 等编码环境下的 zip 格式压缩包在 Mac OS X 环境下解压，或者从各种奇怪编码格式的 ftp 下载文件，以及从各种生产环境竟然不是utf-8的古代论坛下载到附件之类的事情之后，文件名很可能会变成乱码。这些乱码是由于 GB2312 编码（或者其它编码）下的文字的binary形式被错误地使用 utf-8 方式解码产生的。</p>
+<p>​    mac系统默认用归档实用工具打开zip格式压缩包mac，系统自带的归档实用工具只能用utf-8的方式解码，且不能配置解码格式，所以当我们用归档实用工具打开的zip压缩文件会显示错误编码格式（此处只想吐槽）</p>
+<p>​    既然mac系统自带的解压工具仅支持utf-8编码格式，我们就不得不使用其他工具代替，去商店搜索解压软件，只有一款解压软件是免费的——Rar解压王，下载使用之后果然应验了那句话天下没有免费的午餐，没有用，没有用，没有用！！！重要的事情说三遍，，，没用还带广告真是无力吐槽……</p>
+<p>​    难道真的没有免费的面包吃么？深深被开源思想灌溉的我不信（咋不说口袋空空呢⊙﹏⊙），这怎么可能（毕竟这么实用的功能），Google了一番，终于找到一个免费开源的解压软件（最重要还没有广告哦）：<a href="https://theunarchiver.com/" target="_blank" rel="external">unarchiver</a> 该解压软件支持多种压缩格式，类似于window中的rar解压软件一样，并且能够自动识别文件编码，并用正确编码格式进行解码。perfect！perfect！perfect！完美解决。喝杯咖啡压压惊</p>
+<p>  end</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;​    在 GB2312 等编码环境下的 zip 格式压缩包在 Mac OS X 环境下解压，或者从各种奇怪编码格式的 ftp 下载文件，以及从各种生产环境竟然不是utf-8的古代论坛下载到附件之类的事情之后，文件名很可能会变成乱码。这些乱码是由于 GB2312 编码（或
+    
+    </summary>
+    
+      <category term="Mac" scheme="http://www.pisces.ml/categories/Mac/"/>
+    
+    
+      <category term="code" scheme="http://www.pisces.ml/tags/code/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mac命令行终端下使用shadowsocks翻墙（转）</title>
+    <link href="http://www.pisces.ml/2017/08/22/Mac%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%BB%88%E7%AB%AF%E4%B8%8B%E4%BD%BF%E7%94%A8shadowsocks%E7%BF%BB%E5%A2%99/"/>
+    <id>http://www.pisces.ml/2017/08/22/Mac命令行终端下使用shadowsocks翻墙/</id>
+    <published>2017-08-22T08:19:30.000Z</published>
+    <updated>2018-05-10T10:11:23.391Z</updated>
+    
+    <content type="html"><![CDATA[<p>原文转自：<a href="http://www.cashqian.net/blog/001486989831982332565298e4942a2bb8f56b08f9d2475000" target="_blank" rel="external">http://www.cashqian.net/blog/001486989831982332565298e4942a2bb8f56b08f9d2475000</a> 仅供学习使用</p>
+<p>配置好shadowsocks服务器端后，安装对应系统的客户端，浏览器安装相应插件就可以翻墙上网了，这都很简单。</p>
+<p>问题是对于经常在命令行终端下工作的码农们，SS无法正常工作。因为在终端下不支持socks5代理，只支持http代理，这就很尴尬了。wget、curl、git、brew等命令行工具都会变得很慢。</p>
+<p>Linux系统就简单一些，安装proxychains-NG等软件就可以解决了，但是在Mac下有点麻烦。OS X 10.11之前的系统海好说，都还比较顺利，但是OS X 10.11之后较新的系统默认设置下不会安装成功。</p>
+<p>因为苹果在新系统中加入了SIP安全机制，他会阻止第三方程序向系统目录内（/System，/bin，/sbin，/usr(除了/usr/local)）进行写操作，sudo也不行。办法是先把SIP关了，等装好软件配置好后再打开SIP。或者改用其他软件。</p>
+<p>我懒得去把SIP关了开开了关了，找了另外一个软件privoxy，它刚好就是安装在/usr/local内，不需要关闭SIP也可以正常使用。</p>
+<h3 id="privoxy安装"><a href="#privoxy安装" class="headerlink" title="privoxy安装"></a>privoxy安装</h3><p>安装很简单用brew安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install privoxy</div></pre></td></tr></table></figure>
+<h3 id="privoxy配置"><a href="#privoxy配置" class="headerlink" title="privoxy配置"></a>privoxy配置</h3><p>打开配置文件 <code>/usr/local/etc/privoxy/config</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vim /usr/local/etc/privoxy/config</div></pre></td></tr></table></figure>
+<p>加入下面这两项配置项</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">listen-address 0.0.0.0:8118</div><div class="line">forward-socks5 / localhost:1080 .</div></pre></td></tr></table></figure>
+<p>第一行设置privoxy监听任意IP地址的8118端口。第二行设置本地socks5代理客户端端口，注意不要忘了最后有一个空格和点号。</p>
+<h3 id="启动privoxy"><a href="#启动privoxy" class="headerlink" title="启动privoxy"></a>启动privoxy</h3><p>因为没有安装在系统目录内，所以启动的时候需要打全路径。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo /usr/local/sbin/privoxy /usr/local/etc/privoxy/config</div></pre></td></tr></table></figure>
+<h3 id="查看是否启动成功"><a href="#查看是否启动成功" class="headerlink" title="查看是否启动成功"></a>查看是否启动成功</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">netstat -na | grep 8118</div></pre></td></tr></table></figure>
+<p>看到有类似如下信息就表示启动成功了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tcp4       0      0  *.8118                 *.*                    LISTEN</div></pre></td></tr></table></figure>
+<p>如果没有，可以查看日志信息，判断哪里出了问题。打开配置文件找到 <code>logdir</code> 配置项，查看log文件。</p>
+<h3 id="privoxy使用"><a href="#privoxy使用" class="headerlink" title="privoxy使用"></a>privoxy使用</h3><p>在命令行终端中输入如下命令后，该终端即可翻墙了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">export http_proxy=&apos;http://localhost:8118&apos;</div><div class="line">export https_proxy=&apos;http://localhost:8118&apos;</div></pre></td></tr></table></figure>
+<p>他的原理是讲socks5代理转化成http代理给命令行终端使用。</p>
+<p>如果不想用了取消即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">unset http_proxy</div><div class="line">unset https_proxy</div></pre></td></tr></table></figure>
+<p>如果关闭终端窗口，功能就会失效，如果需要代理一直生效，则可以把上述两行代码添加到 ~/.bash_profile 文件最后。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">vim ~/.bash_profile</div><div class="line">-----------------------------------------------------</div><div class="line">export http_proxy=&apos;http://localhost:8118&apos;</div><div class="line">export https_proxy=&apos;http://localhost:8118&apos;</div><div class="line">-----------------------------------------------------</div></pre></td></tr></table></figure>
+<p>使配置立即生效</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">source  ~/.bash_profile</div></pre></td></tr></table></figure>
+<p>还可以在 <code>~/.bash_profile</code> 里加入开关函数，使用起来更方便</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">function proxy_off()&#123;</div><div class="line">    unset http_proxy</div><div class="line">    unset https_proxy</div><div class="line">    echo -e &quot;已关闭代理&quot;</div><div class="line">&#125;</div><div class="line"></div><div class="line">function proxy_on() &#123;</div><div class="line">    export no_proxy=&quot;localhost,127.0.0.1,localaddress,.localdomain.com&quot;</div><div class="line">    export http_proxy=&quot;http://127.0.0.1:8118&quot;</div><div class="line">    export https_proxy=$http_proxy</div><div class="line">    echo -e &quot;已开启代理&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="更多设置"><a href="#更多设置" class="headerlink" title="更多设置"></a>更多设置</h3><p>privoxy更多设置项可以参考这篇文章：</p>
+<blockquote>
+<p><a href="http://blog.devtang.com/2012/12/08/use-privoxy/" target="_blank" rel="external">使用Privoxy做智能代理切换</a></p>
+</blockquote>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><blockquote>
+<p>1、<a href="http://ian.wang/270.htm" target="_blank" rel="external">http://ian.wang/270.htm</a></p>
+<p>2、<a href="http://www.yinqisen.cn/blog-707.html" target="_blank" rel="external">http://www.yinqisen.cn/blog-707.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;原文转自：&lt;a href=&quot;http://www.cashqian.net/blog/001486989831982332565298e4942a2bb8f56b08f9d2475000&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.
+    
+    </summary>
+    
+      <category term="Mac" scheme="http://www.pisces.ml/categories/Mac/"/>
+    
+    
+      <category term="shadowsocks" scheme="http://www.pisces.ml/tags/shadowsocks/"/>
+    
+      <category term="privoxy" scheme="http://www.pisces.ml/tags/privoxy/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Linux系统奇怪的磁盘占用解决记录(转载)</title>
+    <link href="http://www.pisces.ml/2017/08/02/Linux%E7%B3%BB%E7%BB%9F%E5%A5%87%E6%80%AA%E7%9A%84%E7%A3%81%E7%9B%98%E5%8D%A0%E7%94%A8%E8%A7%A3%E5%86%B3%E8%AE%B0%E5%BD%95-%E8%BD%AC%E8%BD%BD/"/>
+    <id>http://www.pisces.ml/2017/08/02/Linux系统奇怪的磁盘占用解决记录-转载/</id>
+    <published>2017-08-02T02:54:19.000Z</published>
+    <updated>2018-05-10T10:23:50.342Z</updated>
+    
+    <content type="html"><![CDATA[<p>原文转自：<a href="http://davidaq.com/technique/2015/07/18/linux-weird-disk-usage.html" target="_blank" rel="external">http://davidaq.com/technique/2015/07/18/linux-weird-disk-usage.html</a></p>
+<p>近日我所维护的一台服务器运行出现了异常，翻开程序运行日志，初步发现问题是某个过程无法创建新临时文件。 再仔细阅读日志，看到了Java报出的<code>Java.io.IOException; there is not enough space on the disk</code>。</p>
+<p>那么问题就很明显了，磁盘占满了。但是这事本身就让我很费解，因为这个服务器上所跑的程序不会长期存储文件， 只是一个数据加工服务器，把传入的文件进行一定的处理然后再回传，期间会产生一些临时文件，但都会在处理 过程结束后自动删除掉。我第一想到的就是，会不会是这个自动删除的功能没做好，导致临时文件堆积如山， 但是经过检查，包括系统其他程序在内所产生的临时文件不到1G，根本不足以占满系统。</p>
+<p>我运行<code>df</code>命令查看磁盘的占用情况，看到了4个磁盘挂载点，发现是挂载在<code>/</code>上的磁盘总共50GB被占满了。 于是我在根目录运行<code>du -h -x --max-depth=1</code>想看看是哪个目录占用的这么多空间，我好判断到底出什么问题了， 这个命令中的<code>-x</code>参数会让<code>du</code>命令不统计不在同一个磁盘分区上目录，或换句话说，忽略其他的磁盘挂载点。 结果令人崩溃，根本不用看哪个目录有问题，整个根目录总共统计，磁盘只占用了5.5GB。 那么50GB的磁盘被占满了，但是实际统计磁盘上的文件，总共却只有5.5GB大小，那么剩余的44.5GB被什么鬼用掉了？</p>
+<p>我只好进行我的Google功课，然后认识到了几点非常重要的Linux特性。这个特性我以前也知道，却没有重视。 就是在Linux的文件系统中删除一个文件，系统并不会真的立刻把这个文件丢弃掉，而只是把它从文件的目录系统中移除， 只有确保所有使用这个文件的程序全部都退出后，才会真的把文件彻底删除掉。所以这些幽灵文件还会占用磁盘空间， 不过这些幽灵文件并不会出现在<code>df</code>命令的统计中去，因为它们已经不存在于任何目录当中了。</p>
+<p>文件系统作为Linux最核心的部件，工具也是最齐全的。<code>lsof</code>此时就可以针对此问题进行检查了，这个命令是用来 列出整个系统中所有被打开的文件（顺便还可以查看所有已经启动的硬件设备以及打开的网络连接等）。 已经从目录系统中移除，但任然被程序占用的的文件可以用<code>lsof | grep &#39;(deleted)&#39;</code>来查看。 经此我立刻就发现了我的问题在哪里了：有一个已经被“删除”掉的日志文件，因为并没有关闭或重启程序， 该文件还在一直被使用着，还在忠实地记录着程序的运行状态。该程序已经持续运行半年了，而且日志文件一直都是 以同一个文件打开描述进行操作（日志文件只在程序开始时打开过一次，后面一直用这个打开的文件）， 这个日志文件已经涨到40多GB了。</p>
+<p>找到问题后，解决就简单了，我重启了那个程序，立刻40多G的占用空间就归还给了系统，所有程序都运行正常了。 当然这只是权宜之计，解决眼前问题采取的快速措施。要根除此问题就要用更科学的方式记录日志，使用已经成熟的 日志系统是个比较正确的选择。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;原文转自：&lt;a href=&quot;http://davidaq.com/technique/2015/07/18/linux-weird-disk-usage.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://davidaq.com/tech
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://www.pisces.ml/categories/Linux/"/>
+    
+    
+      <category term="disk" scheme="http://www.pisces.ml/tags/disk/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何避免ssh未知节点主机认证？</title>
+    <link href="http://www.pisces.ml/2017/07/27/%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dssh%E6%9C%AA%E7%9F%A5%E8%8A%82%E7%82%B9%E4%B8%BB%E6%9C%BA%E8%AE%A4%E8%AF%81%EF%BC%9F/"/>
+    <id>http://www.pisces.ml/2017/07/27/如何避免ssh未知节点主机认证？/</id>
+    <published>2017-07-27T01:56:21.000Z</published>
+    <updated>2018-05-10T10:23:55.815Z</updated>
+    
+    <content type="html"><![CDATA[<p>通常情况下，ssh连接到新的节点会显示如下确认信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">The authenticity of host &apos;111.222.333.444 (111.222.333.444)&apos; can&apos;t be established.</div><div class="line">RSA key fingerprint is f3:cf:58:ae:71:0b:c8:04:6f:34:a3:b2:e4:1e:0c:8b.</div><div class="line">Are you sure you want to continue connecting (yes/no)?</div></pre></td></tr></table></figure>
+<p>对于单一节点确认下即可，但是如果同时处理多个节点的话就比较蛋疼了。所以我们进行ssh连接时需要跳过验证，ssh命令也考虑到了这个问题，只需带上相应的可选参数即可，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -o &quot;StrictHostKeyChecking no&quot; user@host</div></pre></td></tr></table></figure>
+<p>对于scp多主机拷贝文件也只需加这个参数即可，示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">scp -o &quot;StrictHostKeyChecking no&quot; user@host:/home/text.txt .</div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;通常情况下，ssh连接到新的节点会显示如下确认信息：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;li
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://www.pisces.ml/categories/Linux/"/>
+    
+    
+      <category term="ssh" scheme="http://www.pisces.ml/tags/ssh/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>浅谈redis</title>
+    <link href="http://www.pisces.ml/2017/07/25/%E6%B5%85%E8%B0%88redis/"/>
+    <id>http://www.pisces.ml/2017/07/25/浅谈redis/</id>
+    <published>2017-07-25T06:29:52.000Z</published>
+    <updated>2018-05-11T06:32:04.871Z</updated>
+    
+    <content type="html"><![CDATA[<p>​    最近工作用到了redis做数据缓存，于是乎花了点时间研究了下redis。各种语言对redis都有相应的支持，我们可以在官网上看到：<a href="https://redis.io/clients，足以见的redis的广泛适用性。" target="_blank" rel="external">https://redis.io/clients，足以见的redis的广泛适用性。</a></p>
+<p>​    针对python的client，看了下redis-py用的人比较多，果断用redis-py做应用开发（这可不是从众心理哦）。简单的看了下，client已经将redis接口封装了一次，仅仅提供了简单易用的接口，对于使用者无需关心底层调用，只需关心接口使用即可。</p>
+<h1 id="redis-py基本使用"><a href="#redis-py基本使用" class="headerlink" title="redis-py基本使用"></a>redis-py基本使用</h1><p>接下来我们先介绍下redis-py简单的应用，主要参考<a href="https://github.com/andymccurdy/redis-py" target="_blank" rel="external">官方文档</a>资料。有兴趣可以看看源码，更有助于理解。</p>
+<p>redis-py使用示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> redis</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>r = redis.StrictRedis(host=<span class="string">'localhost'</span>, port=<span class="number">6379</span>, db=<span class="number">0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>r.set(<span class="string">'foo'</span>, <span class="string">'bar'</span>)</div><div class="line"><span class="keyword">True</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>r.get(<span class="string">'foo'</span>)</div><div class="line"><span class="string">'bar'</span></div></pre></td></tr></table></figure>
+<h2 id="redis连接池"><a href="#redis连接池" class="headerlink" title="redis连接池"></a>redis连接池</h2><p>通常情况下, 当我们需要做redis操作时, 会创建一个连接, 并基于这个连接进行redis操作，操作完成后, 释放连接，一般情况下, 这是没问题的, 但当并发量比较高的时候, 频繁的连接创建和释放对性能会有较高的影响。于是, 连接池就发挥作用了。连接池的原理是, 通过预先创建多个连接, 当进行redis操作时, 直接获取已经创建的连接进行操作, 而且操作完成后, 不会释放, 用于后续的其他redis操作这样就达到了避免频繁的redis连接创建和释放的目的, 从而提高性能。</p>
+<p>redis-py建立连接池：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>pool = redis.ConnectionPool(host=<span class="string">'localhost'</span>, port=<span class="number">6379</span>, db=<span class="number">0</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>r = redis.Redis(connection_pool=pool)</div></pre></td></tr></table></figure>
+<h2 id="redis事务处理"><a href="#redis事务处理" class="headerlink" title="redis事务处理"></a>redis事务处理</h2><p>redis-py通过Pipelines实现类似数据库的事务处理功能，如下所示表示简单的redis事务操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span>r = redis.Redis(...)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>r.set(<span class="string">'bing'</span>, <span class="string">'baz'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># Use the pipeline() method to create a pipeline instance</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>pipe = r.pipeline()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># The following SET commands are buffered</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>pipe.set(<span class="string">'foo'</span>, <span class="string">'bar'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>pipe.get(<span class="string">'bing'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># the EXECUTE call sends all buffered commands to the server, returning</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># a list of responses, one for each command.</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>pipe.execute()</div><div class="line">[<span class="keyword">True</span>, <span class="string">'baz'</span>]</div></pre></td></tr></table></figure>
+<p>事务处理特点：</p>
+<ul>
+<li>事务是一个单独的隔离操作：事务中的所有命令都会序列化、按顺序地执行。事务在执行的过程中，不会被其他客户端发送来的命令请求所打断。</li>
+<li>事务是一个原子操作：事务中的命令要么全部被执行，要么全部都不执行。</li>
+</ul>
+<p>对于redis使用，并不会很复杂，详细看看官方文档即可。</p>
+<h1 id="问题思考"><a href="#问题思考" class="headerlink" title="问题思考"></a>问题思考</h1><p>目前市面上的应用程序为了提高性能一般都是多线程运行，那么redis中对于并发请求是否可能出现异常？</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://www.u3v3.com/ar/1346" target="_blank" rel="external">https://www.u3v3.com/ar/1346</a></p>
+<p><a href="http://www.redis.cn/topics/transactions.html" target="_blank" rel="external">http://www.redis.cn/topics/transactions.html</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;​    最近工作用到了redis做数据缓存，于是乎花了点时间研究了下redis。各种语言对redis都有相应的支持，我们可以在官网上看到：&lt;a href=&quot;https://redis.io/clients，足以见的redis的广泛适用性。&quot; target=&quot;_blank&quot;
+    
+    </summary>
+    
+      <category term="Cache" scheme="http://www.pisces.ml/categories/Cache/"/>
+    
+    
+      <category term="redis" scheme="http://www.pisces.ml/tags/redis/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何制作rpm安装包</title>
+    <link href="http://www.pisces.ml/2017/06/17/%E5%A6%82%E4%BD%95%E5%88%B6%E4%BD%9Crpm%E5%AE%89%E8%A3%85%E5%8C%85/"/>
+    <id>http://www.pisces.ml/2017/06/17/如何制作rpm安装包/</id>
+    <published>2017-06-17T06:59:45.000Z</published>
+    <updated>2018-05-10T10:14:54.223Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>安装部署软件包，大部分我们都是通过rpm来完成。通常情况我们根据源码包，来制作rpm安装包，再将安装包放到yum仓库里。这样安装一个软件我们就可以直接通过yum命令来安装了。</p>
+<h1 id="RPM基础知识"><a href="#RPM基础知识" class="headerlink" title="RPM基础知识"></a>RPM基础知识</h1><p>若要构建一个标准的 RPM 包，您需要创建 <strong>.spec</strong> 文件，其中包含软件打包的全部信息。然后，对此文件执行 <strong>rpmbuild</strong> 命令，经过这一步，系统会按照步骤生成最终的 RPM 包。</p>
+<p>一般情况，您应该把源代码包，比如由开发者发布的以 <strong>.tar.gz</strong> 结尾的文件，放入 <strong>~/rpmbuild/SOURCES</strong> 目录。将<strong>.spec</strong> 文件放入 <strong>~/rpmbuild/SPECS</strong> 目录，并命名为 “<em>软件包名</em>.spec” 。当然， <em>软件包名</em> 就是最终 RPM 包的名字。为了创建二进制（Binary RPM）和源码软件包（SRPM），您需要将目录切换至 <strong>~/rpmbuild/SPECS</strong> 并执行：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ rpmbuild -ba NAME.spec</div></pre></td></tr></table></figure>
+<p>当执行此命令时，<strong>rpmbuild</strong> 会自动读取 <strong>.spec</strong> 文件并按照下表列出的步骤完成构建。下表中，以 <strong>%</strong> 开头的语句为预定义宏，每个宏的作用如下：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>读取的目录</th>
+<th>写入的目录</th>
+<th>具体动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>%prep</td>
+<td>%_sourcedir</td>
+<td>%_builddir</td>
+<td>读取位于 %_sourcedir 目录的源代码和 patch 。之后，解压源代码至 %_builddir的子目录并应用所有 patch。</td>
+</tr>
+<tr>
+<td>%build</td>
+<td>%_builddir</td>
+<td>%_builddir</td>
+<td>编译位于 %_builddir构建目录下的文件。通过执行类似 “./configure &amp;&amp; make” 的命令实现。</td>
+</tr>
+<tr>
+<td>%install</td>
+<td>%_builddir</td>
+<td>%_buildrootdir</td>
+<td>读取位于 %_builddir构建目录下的文件并将其安装至 %_buildrootdir` 目录。这些文件就是用户安装 RPM 后，最终得到的文件。注意一个奇怪的地方: <em>最终安装目录</em> <strong>不是</strong> <em>构建目录</em>。通过执行类似 “make install” 的命令实现。</td>
+</tr>
+<tr>
+<td>%check</td>
+<td>%_builddir</td>
+<td>%_builddir</td>
+<td>检查软件是否正常运行。通过执行类似 “<code>make test</code>“ 的命令实现。很多软件包都不需要此步。</td>
+</tr>
+<tr>
+<td>bin</td>
+<td>%_buildrootdir</td>
+<td>%_rpmdir</td>
+<td>读取位于 %_buildrootdir 最终安装目录下的文件，以便最终在 %_rpmdir目录下创建 RPM 包。在该目录下，不同架构的 RPM 包会分别保存至不同子目录， “noarch`” 目录保存适用于所有架构的 RPM 包。这些 RPM 文件就是用户最终安装的 RPM 包。</td>
+</tr>
+<tr>
+<td>src</td>
+<td>%_sourcedir</td>
+<td>%_srcrpmdir</td>
+<td>创建源码 RPM 包（简称 SRPM，以.src.rpm 作为后缀名），并保存至 %_srcrpmdir 目录。SRPM 包通常用于审核和升级软件包。</td>
+</tr>
+</tbody>
+</table>
+<p>在 <strong>rpmbuild</strong> 中，对上表中的每个宏代码都有对应的目录：</p>
+<table>
+<thead>
+<tr>
+<th>宏代码</th>
+<th>名称</th>
+<th>默认位置</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>%_specdir</td>
+<td>Spec 文件目录</td>
+<td>~/rpmbuild/SPECS</td>
+<td>保存 RPM 包配置（.spec）文件</td>
+</tr>
+<tr>
+<td>%_sourcedir</td>
+<td>源代码目录</td>
+<td>~/rpmbuild/SOURCES</td>
+<td>保存源码包（如 .tar 包）和所有 patch 补丁</td>
+</tr>
+<tr>
+<td>%_builddir</td>
+<td>构建目录</td>
+<td>~/rpmbuild/BUILD</td>
+<td>源码包被解压至此，并在该目录的子目录完成编译</td>
+</tr>
+<tr>
+<td>%_buildrootdir</td>
+<td>最终安装目录</td>
+<td>~/rpmbuild/BUILDROOT</td>
+<td>保存 %install 阶段安装的文件</td>
+</tr>
+<tr>
+<td>%_rpmdir</td>
+<td>标准 RPM 包目录</td>
+<td>~/rpmbuild/RPMS</td>
+<td>生成/保存二进制 RPM 包</td>
+</tr>
+<tr>
+<td>%_srcrpmdir</td>
+<td>源代码 RPM 包目录</td>
+<td>~/rpmbuild/SRPMS</td>
+<td>生成/保存源码 RPM 包(SRPM)</td>
+</tr>
+</tbody>
+</table>
+<p>如果某一阶段失败，请查看输出信息以了解失败<em>原因</em>，并根据需要修改 .<strong>spec</strong> 文件。</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>制作环境：Centos 7.1</p>
+<p>制作工具:  rpmdevtools</p>
+<p>首先安装依赖包:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install rpmdevtools</div></pre></td></tr></table></figure>
+<h2 id="创建目录结构"><a href="#创建目录结构" class="headerlink" title="创建目录结构"></a>创建目录结构</h2><p>执行 <code>rpmdev-setuptree</code> 将在当前用户主目录下创建一个RPM构建根目录结构，结构如下所示：</p>
+<p>（注：如需改变默认位置，可以修改配置文件:<strong>~/.rpmmacros</strong>中变量<strong>_topdir</strong>对应的值。)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">rpmbuild/</div><div class="line">├── BUILD (源码包被解压至此，并在该目录的子目录完成编译)</div><div class="line">├── RPMS (生成/保存二进制 RPM 包)</div><div class="line">├── SOURCES (保存源码包（如 .tar 包）和所有 patch 补丁)</div><div class="line">├── SPECS (保存 RPM 包配置（.spec）文件)</div><div class="line">└── SRPMS (生成/保存源码 RPM 包(SRPM))</div></pre></td></tr></table></figure>
+<h2 id="撰写spec文档"><a href="#撰写spec文档" class="headerlink" title="撰写spec文档"></a>撰写spec文档</h2><p>现在，需要在 <strong>~/rpmbuild/SPECS</strong> 目录下，新建一个 SPEC 文件。文件应命名为 “<strong>软件包名.spec</strong>“。名称根据软件包名或通用名填写即可。但是，必须要遵守 <a href="https://fedoraproject.org/wiki/Packaging/NamingGuidelines" target="_blank" rel="external">软件包命名规定</a>。示例，我们在SPECS目录下新建文件<strong>xxxxx.spec</strong>，我们能看到会自动生成如下内容：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line">#软件包的名字</div><div class="line">Name:</div><div class="line">#软件包的主版本号 </div><div class="line">Version:</div><div class="line">#软件包的次版本号，一般我们对该软件包做了一些小的补丁的时候就应该把释出号加1。</div><div class="line">Release:	1%&#123;?dist&#125;</div><div class="line">#软件包简要介绍</div><div class="line">Summary:</div><div class="line"></div><div class="line">#软件分类</div><div class="line">Group:</div><div class="line">#授权协议</div><div class="line">License:</div><div class="line">#源码软件源地址</div><div class="line">URL:</div><div class="line">#源代码包，默认将在上面提到的SOURCES目录中寻找</div><div class="line">Source0:</div><div class="line"></div><div class="line">#构建项目需要的依赖包</div><div class="line">BuildRequires:</div><div class="line">#软件运行依赖包</div><div class="line">Requires:</div><div class="line"></div><div class="line">#软件包的内容介绍 </div><div class="line">%description</div><div class="line"></div><div class="line"></div><div class="line">#这个段是预处理段，通常用来执行一些解开源程序包的命令，为下一步的编译安装作准备。%prep和下面的%build，%install段一样，除了可以执行RPM所定义的宏命令（以%开头）以外，还可以执行SHELL命令，命令可以有很多行，如我们常写的tar解包命令。</div><div class="line">%prep</div><div class="line">#构建BUILD环境，将解压源码压缩包到BUILD目录</div><div class="line">%setup -q</div><div class="line"></div><div class="line"></div><div class="line">#BUILD字段，将通过直接调用源码目录中自动构建工具完成源码编译操作</div><div class="line">%build</div><div class="line">#调用源码目录中的configure命令  </div><div class="line">%configure</div><div class="line">make %&#123;?_smp_mflags&#125;</div><div class="line"></div><div class="line"></div><div class="line">#本段是安装段，其中的命令在安装软件包时将执行，如make install命令。</div><div class="line">%install</div><div class="line">#调用源码中安装执行脚本 </div><div class="line">make install DESTDIR=%&#123;buildroot&#125;</div><div class="line"></div><div class="line"></div><div class="line">#文件说明字段，声明多余或者缺少都将可能出错</div><div class="line">%files</div><div class="line">%doc</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">%changelog</div></pre></td></tr></table></figure>
+<h3 id="如何查看spec文件中宏路径（很重要哦）"><a href="#如何查看spec文件中宏路径（很重要哦）" class="headerlink" title="如何查看spec文件中宏路径（很重要哦）"></a>如何查看spec文件中宏路径（很重要哦）</h3><p>我们可以通过命令<code>rpm --showrc</code>查看实现代码。另外直接通过<code>rpm --eval &quot;%{macro}&quot;</code>来查看具体对应路径。比如我们要查看%{_bindir}的路径，就可以使用命令<code>rpm --eval &quot;%{ _bindir}&quot;</code>来查看。另外，所有的宏都可以在/usr/lib/rpm/macros里找到。示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rpm --eval <span class="string">"%&#123;_bindir&#125;"</span></div><div class="line">/usr/bin</div></pre></td></tr></table></figure>
+<h2 id="源码打包"><a href="#源码打包" class="headerlink" title="源码打包"></a>源码打包</h2><p>如果是python项目，我们可以通过命令<code>python setup.py sdist</code>进行打包，执行命令完成后会在源码包的dist目录下生成一个<strong>tar.gz</strong>的源码包，我们需要将源码包拷贝到<strong>~/rpmbuild/SOURCES</strong>。不是python项目的话根据相应的打包规则进行打包即可。（注，确保此归档文件解压后的目录为<strong>xxxx-0.0.1</strong>，否则会有问题）</p>
+<h2 id="构建RPM包"><a href="#构建RPM包" class="headerlink" title="构建RPM包"></a>构建RPM包</h2><p>构建RPM包很容易，只需要在工作目录（rpmbuild）下执行如下命令构建即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rpmbuild -ba SPECS/xxx.spec</div></pre></td></tr></table></figure>
+<p>其中<strong>-ba</strong>表示<strong>build all</strong>，即生成包括二进制包和源代码包的所有RPM包，下来如果正常的话，rpmbuild将正常退出，同时在RPMS目录和SRPMS目录中将生成对应的RPM包。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>打包过程其实不麻烦，构建好环境后执行打包命令即可。最重要的是spec文件的编写，spec文件定义了包的安装配置也就是所说的宏的定义。我们需要对打包机制很熟悉才能根据实际需求写出符合要求的spec文件。</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://fedoraproject.org/wiki/How_to_create_an_RPM_package/zh-cn#.E5.87.86.E5.A4.87.E7.B3.BB.E7.BB.9F" target="_blank" rel="external">https://fedoraproject.org/wiki/How_to_create_an_RPM_package/zh-cn#.E5.87.86.E5.A4.87.E7.B3.BB.E7.BB.9F</a></p>
+<p><a href="https://segmentfault.com/a/1190000002539129" target="_blank" rel="external">https://segmentfault.com/a/1190000002539129</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;安装部署软件包，大部分我们都是通过rpm来完成。通常情况我们根据源码包，来制作rpm安装包，再将安装包放到yum仓库里。这样安装一个软件我们
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://www.pisces.ml/categories/Linux/"/>
+    
+    
+      <category term="rpmbuild" scheme="http://www.pisces.ml/tags/rpmbuild/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>python 时间戳处理</title>
+    <link href="http://www.pisces.ml/2017/06/13/python-%E6%97%B6%E9%97%B4%E6%88%B3%E5%A4%84%E7%90%86/"/>
+    <id>http://www.pisces.ml/2017/06/13/python-时间戳处理/</id>
+    <published>2017-06-13T03:38:34.000Z</published>
+    <updated>2018-05-10T10:15:04.968Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="python-时间戳处理"><a href="#python-时间戳处理" class="headerlink" title="python 时间戳处理"></a>python 时间戳处理</h1><p><a href="http://funhacks.net/2015/04/29/Unix-timestamp/" target="_blank" rel="external">Unix 时间戳</a>根据精度的不同，有 10 位（秒级），13 位（毫秒级），16 位（微妙级）和 19 位（纳秒级）。在 python 中，我们可以将一个整数的时间戳转换为字符串格式，如 <code>&#39;2016-02-25 20:21:04&#39;</code>，也可以将其转换为 python 中的 <a href="https://docs.python.org/2/library/datetime.html" target="_blank" rel="external">datetime</a> 格式。反之，也可以将整数的时间戳转换为字符串格式和 datetime 格式。用图展示如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">             +------------+</div><div class="line">             | timestamp  |</div><div class="line">       +----&gt;|            |&lt;-----+</div><div class="line">       |     +------------+      |</div><div class="line">       |                         |</div><div class="line">       |                         |</div><div class="line">       |                         |</div><div class="line">       v                         v</div><div class="line">+------------+            +------------+</div><div class="line">|  datetime  |            |   string   |</div><div class="line">|            |&lt;----------&gt;|            |</div><div class="line">+------------+            +------------+</div></pre></td></tr></table></figure>
+<p>要注意的是，由于每个时区都有自己的本地时间（北京在东八区），因此也产生了世界标准时间（UTC, Universal Time Coordinated）。所以，在将一个时间戳转换为普通时间（比如 2016-01-01 12:00:00）时，要注意是要本地时区的时间还是世界时间等。</p>
+<h1 id="local-time-北京时间"><a href="#local-time-北京时间" class="headerlink" title="local time (北京时间)"></a>local time (北京时间)</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timestamp_to_strtime</span><span class="params">(timestamp)</span>:</span></div><div class="line">    <span class="string">"""将 13 位整数的毫秒时间戳转化成本地普通时间 (字符串格式)</span></div><div class="line">    :param timestamp: 13 位整数的毫秒时间戳 (1456402864242)</div><div class="line">    :return: 返回字符串格式 &#123;str&#125;'2016-02-25 20:21:04.242000'</div><div class="line">    """</div><div class="line">    local_str_time = datetime.fromtimestamp(timestamp / <span class="number">1000.0</span>).strftime(<span class="string">'%Y-%m-%d %H:%M:%S.%f'</span>)</div><div class="line">    <span class="keyword">return</span> local_str_time</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timestamp_to_datetime</span><span class="params">(timestamp)</span>:</span></div><div class="line">    <span class="string">"""将 13 位整数的毫秒时间戳转化成本地普通时间 (datetime 格式)</span></div><div class="line">    :param timestamp: 13 位整数的毫秒时间戳 (1456402864242)</div><div class="line">    :return: 返回 datetime 格式 &#123;datetime&#125;2016-02-25 20:21:04.242000</div><div class="line">    """</div><div class="line">    local_dt_time = datetime.fromtimestamp(timestamp / <span class="number">1000.0</span>)</div><div class="line">    <span class="keyword">return</span> local_dt_time</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">datetime_to_strtime</span><span class="params">(datetime_obj)</span>:</span></div><div class="line">    <span class="string">"""将 datetime 格式的时间 (含毫秒) 转为字符串格式</span></div><div class="line">    :param datetime_obj: &#123;datetime&#125;2016-02-25 20:21:04.242000</div><div class="line">    :return: &#123;str&#125;'2016-02-25 20:21:04.242'</div><div class="line">    """</div><div class="line">    local_str_time = datetime_obj.strftime(<span class="string">"%Y-%m-%d %H:%M:%S.%f"</span>)</div><div class="line">    <span class="keyword">return</span> local_str_time</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">datetime_to_timestamp</span><span class="params">(datetime_obj)</span>:</span></div><div class="line">    <span class="string">"""将本地(local) datetime 格式的时间 (含毫秒) 转为毫秒时间戳</span></div><div class="line">    :param datetime_obj: &#123;datetime&#125;2016-02-25 20:21:04.242000</div><div class="line">    :return: 13 位的毫秒时间戳  1456402864242</div><div class="line">    """</div><div class="line">    local_timestamp = long(time.mktime(datetime_obj.timetuple()) * <span class="number">1000.0</span> + datetime_obj.microsecond / <span class="number">1000.0</span>)</div><div class="line">    <span class="keyword">return</span> local_timestamp</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">strtime_to_datetime</span><span class="params">(timestr)</span>:</span></div><div class="line">    <span class="string">"""将字符串格式的时间 (含毫秒) 转为 datetiem 格式</span></div><div class="line">    :param timestr: &#123;str&#125;'2016-02-25 20:21:04.242'</div><div class="line">    :return: &#123;datetime&#125;2016-02-25 20:21:04.242000</div><div class="line">    """</div><div class="line">    local_datetime = datetime.strptime(timestr, <span class="string">"%Y-%m-%d %H:%M:%S.%f"</span>)</div><div class="line">    <span class="keyword">return</span> local_datetime</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">strtime_to_timestamp</span><span class="params">(local_timestr)</span>:</span></div><div class="line">    <span class="string">"""将本地时间 (字符串格式，含毫秒) 转为 13 位整数的毫秒时间戳</span></div><div class="line">    :param local_timestr: &#123;str&#125;'2016-02-25 20:21:04.242'</div><div class="line">    :return: 1456402864242</div><div class="line">    """</div><div class="line">    local_datetime = strtime_to_datetime(local_timestr)</div><div class="line">    timestamp = datetime_to_timestamp(local_datetime)</div><div class="line">    <span class="keyword">return</span> timestamp</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">current_datetime</span><span class="params">()</span>:</span></div><div class="line">    <span class="string">"""返回本地当前时间, 包含datetime 格式, 字符串格式, 时间戳格式</span></div><div class="line">    :return: (datetime 格式, 字符串格式, 时间戳格式)</div><div class="line">    """</div><div class="line">    <span class="comment"># 当前时间：datetime 格式</span></div><div class="line">    local_datetime_now = datetime.now()</div><div class="line">    <span class="comment"># 当前时间：字符串格式</span></div><div class="line">    local_strtime_now = datetime_to_strtime(local_datetime_now)</div><div class="line">    <span class="comment"># 当前时间：时间戳格式 13位整数</span></div><div class="line">    local_timestamp_now = datetime_to_timestamp(local_datetime_now)</div><div class="line">    <span class="keyword">return</span> local_datetime_now, local_strtime_now, local_timestamp_now</div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    time_str = <span class="string">'2016-02-25 20:21:04.242'</span></div><div class="line">    timestamp1 = strtime_to_timestamp(time_str)</div><div class="line">    datetime1 = strtime_to_datetime(time_str)</div><div class="line">    time_str2 = datetime_to_strtime(datetime1)</div><div class="line">    timestamp2 = datetime_to_timestamp(datetime1)</div><div class="line">    datetime3 = timestamp_to_datetime(timestamp2)</div><div class="line">    time_str3 = timestamp_to_strtime(timestamp2)</div><div class="line">    current_time = current_datetime()</div><div class="line">    <span class="keyword">print</span> <span class="string">'timestamp1: '</span>, timestamp1</div><div class="line">    <span class="keyword">print</span> <span class="string">'datetime1: '</span>, datetime1</div><div class="line">    <span class="keyword">print</span> <span class="string">'time_str2: '</span>, time_str2</div><div class="line">    <span class="keyword">print</span> <span class="string">'timestamp2: '</span>, timestamp2</div><div class="line">    <span class="keyword">print</span> <span class="string">'datetime3: '</span>, datetime3</div><div class="line">    <span class="keyword">print</span> <span class="string">'time_str3: '</span>, time_str3</div><div class="line">    <span class="keyword">print</span> <span class="string">'current_time: '</span>, current_time</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 输出</span></div><div class="line">timestamp1:  <span class="number">1456402864242</span></div><div class="line">datetime1:  <span class="number">2016</span><span class="number">-02</span><span class="number">-25</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">04.242000</span></div><div class="line">time_str2:  <span class="number">2016</span><span class="number">-02</span><span class="number">-25</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">04.242000</span></div><div class="line">timestamp2:  <span class="number">1456402864242</span></div><div class="line">datetime3:  <span class="number">2016</span><span class="number">-02</span><span class="number">-25</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">04.242000</span></div><div class="line">time_str3:  <span class="number">2016</span><span class="number">-02</span><span class="number">-25</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">04.242000</span></div><div class="line">current_time:  (datetime.datetime(<span class="number">2016</span>, <span class="number">3</span>, <span class="number">19</span>, <span class="number">14</span>, <span class="number">11</span>, <span class="number">4</span>, <span class="number">901903</span>), <span class="string">'2016-03-19 14:11:04.901903'</span>, <span class="number">1458367864901L</span>)</div></pre></td></tr></table></figure>
+<h1 id="utc-time"><a href="#utc-time" class="headerlink" title="utc time"></a>utc time</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> calendar</div><div class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timestamp_to_utc_strtime</span><span class="params">(timestamp)</span>:</span></div><div class="line">    <span class="string">"""将 13 位整数的毫秒时间戳转化成 utc 时间 (字符串格式，含毫秒)</span></div><div class="line">    :param timestamp: 13 位整数的毫秒时间戳 (1456402864242)</div><div class="line">    :return: 返回字符串格式 &#123;str&#125;'2016-02-25 12:21:04.242000'</div><div class="line">    """</div><div class="line">    utc_str_time = datetime.utcfromtimestamp(timestamp / <span class="number">1000.0</span>).strftime(<span class="string">'%Y-%m-%d %H:%M:%S.%f'</span>)</div><div class="line">    <span class="keyword">return</span> utc_str_time</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">timestamp_to_utc_datetime</span><span class="params">(timestamp)</span>:</span></div><div class="line">    <span class="string">"""将 13 位整数的毫秒时间戳转化成 utc 时间 (datetime 格式)</span></div><div class="line">    :param timestamp: 13 位整数的时间戳 (1456402864242)</div><div class="line">    :return: 返回 datetime 格式 &#123;datetime&#125;2016-02-25 12:21:04.242000</div><div class="line">    """</div><div class="line">    utc_dt_time = datetime.utcfromtimestamp(timestamp / <span class="number">1000.0</span>)</div><div class="line">    <span class="keyword">return</span> utc_dt_time</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">utc_datetime_to_timestamp</span><span class="params">(utc_datetime)</span>:</span></div><div class="line">    <span class="string">"""将 utc 时间 (datetime 格式) 转为 utc 时间戳</span></div><div class="line">    :param utc_datetime: &#123;datetime&#125;2016-02-25 20:21:04.242000</div><div class="line">    :return: 13位 的毫秒时间戳 1456431664242</div><div class="line">    """</div><div class="line">    utc_timestamp = long(calendar.timegm(utc_datetime.timetuple()) * <span class="number">1000.0</span> + utc_datetime.microsecond / <span class="number">1000.0</span>)</div><div class="line">    <span class="keyword">return</span> utc_timestamp</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">datetime_to_strtime</span><span class="params">(datetime_obj)</span>:</span></div><div class="line">    <span class="string">"""将 datetime 格式的时间 (含毫秒) 转为字符串格式</span></div><div class="line">    :param datetime_obj: &#123;datetime&#125;2016-02-25 20:21:04.242000</div><div class="line">    :return: &#123;str&#125;'2016-02-25 20:21:04.242'</div><div class="line">    """</div><div class="line">    local_str_time = datetime_obj.strftime(<span class="string">"%Y-%m-%d %H:%M:%S.%f"</span>)</div><div class="line">    <span class="keyword">return</span> local_str_time</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">strtime_to_datetime</span><span class="params">(timestr)</span>:</span></div><div class="line">    <span class="string">"""将字符串格式的时间 (含毫秒) 转为 datetiem 格式</span></div><div class="line">    :param timestr: &#123;str&#125;'2016-02-25 20:21:04.242'</div><div class="line">    :return: &#123;datetime&#125;2016-02-25 20:21:04.242000</div><div class="line">    """</div><div class="line">    local_datetime = datetime.strptime(timestr, <span class="string">"%Y-%m-%d %H:%M:%S.%f"</span>)</div><div class="line">    <span class="keyword">return</span> local_datetime</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">utc_strtime_to_timestamp</span><span class="params">(utc_timestr)</span>:</span></div><div class="line">    <span class="string">"""将 utc 时间 (字符串格式) 转为 13 位的时间戳</span></div><div class="line">    :param utc_timestr: &#123;str&#125;'2016-02-25 20:21:04.242'</div><div class="line">    :return: 1456431664242</div><div class="line">    """</div><div class="line">    <span class="comment"># 先将字符串的格式转为 datetime 格式</span></div><div class="line">    utc_datetime = strtime_to_datetime(utc_timestr)</div><div class="line">    <span class="comment"># 再将 datetime 格式的时间转为时间戳</span></div><div class="line">    timestamp = utc_datetime_to_timestamp(utc_datetime)</div><div class="line">    <span class="keyword">return</span> timestamp</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">utc_current_datetime</span><span class="params">()</span>:</span></div><div class="line">    <span class="string">"""返回 utc 当前时间, datetime 格式, 字符串格式, 时间戳格式</span></div><div class="line">    :return: (datetime 格式, 字符串格式, 时间戳格式)</div><div class="line">    """</div><div class="line">    <span class="comment"># utc 当前时间: datetime 格式</span></div><div class="line">    utc_datetime_now = datetime.utcnow()</div><div class="line">    <span class="comment"># utc 当前时间: 字符串格式</span></div><div class="line">    utc_strtime_now = datetime_to_strtime(utc_datetime_now)</div><div class="line">    <span class="comment"># utc 当前时间: 时间戳格式 13位整数</span></div><div class="line">    utc_timestamp_now = utc_datetime_to_timestamp(utc_datetime_now)</div><div class="line">    <span class="keyword">return</span> utc_datetime_now, utc_strtime_now, utc_timestamp_now</div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    time_str = <span class="string">'2016-02-25 20:21:04.242'</span></div><div class="line">    <span class="comment"># 1456431664242</span></div><div class="line">    timestamp1 = utc_strtime_to_timestamp(time_str)</div><div class="line">    datetime1 = strtime_to_datetime(time_str)</div><div class="line">    time_str2 = datetime_to_strtime(datetime1)</div><div class="line">    timestamp2 = utc_datetime_to_timestamp(datetime1)</div><div class="line">    datetime3 = timestamp_to_utc_datetime(timestamp2)</div><div class="line">    time_str3 = timestamp_to_utc_strtime(timestamp2)</div><div class="line">    utc_current_time = utc_current_datetime()</div><div class="line">    <span class="keyword">print</span> <span class="string">'timestamp1: '</span>, timestamp1</div><div class="line">    <span class="keyword">print</span> <span class="string">'datetime1: '</span>, datetime1</div><div class="line">    <span class="keyword">print</span> <span class="string">'time_str2: '</span>, time_str2</div><div class="line">    <span class="keyword">print</span> <span class="string">'timestamp2: '</span>, timestamp2</div><div class="line">    <span class="keyword">print</span> <span class="string">'datetime3: '</span>, datetime3</div><div class="line">    <span class="keyword">print</span> <span class="string">'time_str3: '</span>, time_str3</div><div class="line">    <span class="keyword">print</span> <span class="string">'utc_current_time: '</span>, utc_current_time</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 输出</span></div><div class="line">timestamp1:  <span class="number">1456431664242</span></div><div class="line">datetime1:  <span class="number">2016</span><span class="number">-02</span><span class="number">-25</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">04.242000</span></div><div class="line">time_str2:  <span class="number">2016</span><span class="number">-02</span><span class="number">-25</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">04.242000</span></div><div class="line">timestamp2:  <span class="number">1456431664242</span></div><div class="line">datetime3:  <span class="number">2016</span><span class="number">-02</span><span class="number">-25</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">04.242000</span></div><div class="line">time_str3:  <span class="number">2016</span><span class="number">-02</span><span class="number">-25</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">04.242000</span></div><div class="line">utc_current_time:  (datetime.datetime(<span class="number">2016</span>, <span class="number">3</span>, <span class="number">19</span>, <span class="number">7</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">217055</span>), <span class="string">'2016-03-19 07:07:02.217055'</span>, <span class="number">1458371222217L</span>)</div></pre></td></tr></table></figure>
+<p>本文来自<a href="http://funhacks.net/2016/03/19/python%20%E6%97%B6%E9%97%B4%E6%88%B3%E5%A4%84%E7%90%86/" target="_blank" rel="external">网络</a>，仅供学习使用。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;python-时间戳处理&quot;&gt;&lt;a href=&quot;#python-时间戳处理&quot; class=&quot;headerlink&quot; title=&quot;python 时间戳处理&quot;&gt;&lt;/a&gt;python 时间戳处理&lt;/h1&gt;&lt;p&gt;&lt;a href=&quot;http://funhacks.net/2
+    
+    </summary>
+    
+      <category term="Python" scheme="http://www.pisces.ml/categories/Python/"/>
+    
+    
+      <category term="timestamp" scheme="http://www.pisces.ml/tags/timestamp/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>VMware Fusion 设置端口转发</title>
+    <link href="http://www.pisces.ml/2017/04/13/VMware-Fusion-%E8%AE%BE%E7%BD%AE%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/"/>
+    <id>http://www.pisces.ml/2017/04/13/VMware-Fusion-设置端口转发/</id>
+    <published>2017-04-13T08:06:00.000Z</published>
+    <updated>2018-05-11T06:32:24.368Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>VMware Fusion没有提供图形化的虚拟网络编辑器，当我们选用nat网络类型，我们需要端口转发的功能，那么我们需要如何设置呢？下面我们就介绍下如何在mac系统中设置虚拟机端口转发。</p>
+<h1 id="配置方法"><a href="#配置方法" class="headerlink" title="配置方法"></a>配置方法</h1><p>虽然VMware Fusion没有提供图形化界面来支持端口转发的功能，但是我们可以通过修改网络配置文件来达到该目的。原理很简单我们只需要修改相应的网络配置文件，然后重启网络服务即可。下面我们将介绍具体的操作步骤：</p>
+<ol>
+<li><p><strong>修改配置文件</strong></p>
+<p>VMware Fusion 的 NAT 配置文件位于 <em>/Library/Preferences/VMware Fusion/vmnet8/nat.conf</em> ，打开配置文件：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo vi /Library/Preferences/VMware\ Fusion/vmnet8/nat.conf</div></pre></td></tr></table></figure>
+<p>修改<em>[incomingtcp]</em> 部分，添加相应的端口转发即可。如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">[incomingtcp]</div><div class="line"></div><div class="line"># Use these with care - anyone can enter into your VM through these...</div><div class="line"># The format and example are as follows:</div><div class="line">#&lt;external port number&gt; = &lt;VM's IP address&gt;:&lt;VM's port number&gt;</div><div class="line">#8080 = 172.16.3.128:80</div><div class="line">8080 = 192.168.125.130:22 (根据需求添加即可)</div><div class="line">8081 = 192.168.125.129:22</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>重启虚拟网络服务</strong></p>
+<p>两种方式重启虚拟网络：</p>
+<ul>
+<li><p>重启VMware Fusion</p>
+</li>
+<li><p>执行以下命令直接重启网络模块</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo /Applications/VMware\ Fusion.app/Contents/Library/vmnet-cli --stop</div><div class="line">sudo /Applications/VMware\ Fusion.app/Contents/Library/vmnet-cli --start</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h1&gt;&lt;p&gt;VMware Fusion没有提供图形化的虚拟网络编辑器，当我们选用nat网络类型，我们需要端口转发的功能，那么我们需要如何设置呢？下面我们
+    
+    </summary>
+    
+      <category term="Mac" scheme="http://www.pisces.ml/categories/Mac/"/>
+    
+    
+      <category term="VMware Fusion" scheme="http://www.pisces.ml/tags/VMware-Fusion/"/>
+    
+      <category term="NAT" scheme="http://www.pisces.ml/tags/NAT/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Centos7网卡命名规则及修改</title>
+    <link href="http://www.pisces.ml/2017/03/26/Centos-7%E9%87%8D%E5%91%BD%E5%90%8D%E7%BD%91%E5%8D%A1/"/>
+    <id>http://www.pisces.ml/2017/03/26/Centos-7重命名网卡/</id>
+    <published>2017-03-26T09:10:58.000Z</published>
+    <updated>2018-05-10T10:15:44.128Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="网卡命名规则"><a href="#网卡命名规则" class="headerlink" title="网卡命名规则"></a>网卡命名规则</h1><p>传统的网络设备命名是eth[0123…]<br>Centos7提供了不同的命名规则，默认是基于固件、拓扑、位置信息来分配。这样做的优点是命名是全自动的、可预知的，缺点是比eth0、wlan0更难读。比如enoxxxxxx </p>
+<h2 id="命名规则策略"><a href="#命名规则策略" class="headerlink" title="命名规则策略"></a>命名规则策略</h2><p>默认的，systemd将根据下面的策略来命名接口，应用到支持的命名规则。</p>
+<p>规则1：对于板载设备命名合并固件或BIOS提供的索引号，如果来自固件或BIOS的信息可读就命名，比如 eno1，这种命名是比较常见的，否则使用规则2。<br>规则2：命名合并固件或BIOS提供的PCI-E热插拔口索引号，比如ens1，如果信息可读就使用，否则使用规则3。<br>规则3：命名合并硬件接口的物理位置，比如 enp2s0，可用就命名，失败直接到方案5。<br>规则4：命名合并接口的MAC地址，比如 enx78e7d1ea46da， 默认不使用，除非用户选择使用此方案。<br>规则5：使用传统的方案，如果所有的方案都失败，eth0。</p>
+<h1 id="修改网卡名称"><a href="#修改网卡名称" class="headerlink" title="修改网卡名称"></a>修改网卡名称</h1><p>centos7中默认使用了网卡的命名规则，对于我们的使用习惯，我们还是习惯将其改为ethx的命名方式。<br>我们可以看到系统网卡信息如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# ip a</div><div class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN qlen 1</div><div class="line"></div><div class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</div><div class="line">    inet 127.0.0.1/8 scope host lo</div><div class="line">       valid_lft forever preferred_lft forever</div><div class="line">    inet6 ::1/128 scope host</div><div class="line">       valid_lft forever preferred_lft forever</div><div class="line">2: eno16777736: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000</div><div class="line">    link/ether 00:0c:29:73:e5:56 brd ff:ff:ff:ff:ff:ff</div><div class="line">    inet 192.168.43.209/24 brd 192.168.43.255 scope global dynamic eno16777736</div><div class="line">       valid_lft 3388sec preferred_lft 3388sec</div><div class="line">    inet6 fe80::20c:29ff:fe73:e556/64 scope link</div><div class="line">       valid_lft forever preferred_lft forever</div></pre></td></tr></table></figure>
+<p>现在我们需要将名为eno16777736的网卡改成eth0，具体步骤如下所示：</p>
+<ol>
+<li><p>修改网卡配置文件/etc/sysconfig/network-scripts/ifcfg-eno16777736，将网卡配置文件NAME改为eth0,并将该文件重命名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">BOOTPROTO=&quot;dhcp&quot;</div><div class="line">DEFROUTE=&quot;yes&quot;</div><div class="line">PEERDNS=&quot;yes&quot;</div><div class="line">PEERROUTES=&quot;yes&quot;</div><div class="line">IPV4_FAILURE_FATAL=&quot;no&quot;</div><div class="line">IPV6INIT=&quot;yes&quot;</div><div class="line">IPV6_AUTOCONF=&quot;yes&quot;</div><div class="line">IPV6_DEFROUTE=&quot;yes&quot;</div><div class="line">IPV6_PEERDNS=&quot;yes&quot;</div><div class="line">IPV6_PEERROUTES=&quot;yes&quot;</div><div class="line">IPV6_FAILURE_FATAL=&quot;no&quot;</div><div class="line">NAME=&quot;eno16777736&quot; ----&gt; NAME=&quot;eth0&quot;</div><div class="line">UUID=&quot;5a87f740-b827-465b-abf8-7b864d7258c5&quot;</div><div class="line">DEVICE=&quot;eno16777736&quot; -----&gt; DEVICE=&quot;eth0&quot;</div><div class="line">ONBOOT=&quot;yes&quot;</div></pre></td></tr></table></figure>
+<p>重命名：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@localhost network-scripts]# mv ifcfg-eno16777736 ifcfg-eth0</div></pre></td></tr></table></figure>
+</li>
+<li><p>禁用该可预测命名规则，过编辑/etc/default/grub并加入“net.ifnames=0 biosdevname=0 ”到GRUBCMDLINELINUX变量来实现，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">GRUB_TIMEOUT=5</div><div class="line">GRUB_DISTRIBUTOR=&quot;$(sed &apos;s, release .*$,,g&apos; /etc/system-release)&quot;</div><div class="line">GRUB_DEFAULT=saved</div><div class="line">GRUB_DISABLE_SUBMENU=true</div><div class="line">GRUB_TERMINAL_OUTPUT=&quot;console&quot;</div><div class="line">GRUB_CMDLINE_LINUX=&quot;crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet net.ifnames=0 biosdevname=0&quot;</div><div class="line">GRUB_DISABLE_RECOVERY=&quot;true&quot;</div></pre></td></tr></table></figure>
+<p>如果需要修改多块网卡则需添加多个例如：“net.ifnames=0 biosdevname=0 net.ifnames=1 biosdevname=1 net.ifnames=2 biosdevname=2”</p>
+</li>
+<li><p>运行命令grub2-mkconfig -o /boot/grub2/grub.cfg 来重新生成GRUB配置并更新内核参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@localhost network-scripts]# grub2-mkconfig -o /boot/grub2/grub.cfg</div><div class="line">Generating grub configuration file ...</div><div class="line">Found linux image: /boot/vmlinuz-3.10.0-514.10.2.el7.x86_64</div><div class="line">Found initrd image: /boot/initramfs-3.10.0-514.10.2.el7.x86_64.img</div><div class="line">Found linux image: /boot/vmlinuz-3.10.0-327.el7.x86_64</div><div class="line">Found initrd image: /boot/initramfs-3.10.0-327.el7.x86_64.img</div><div class="line">Found linux image: /boot/vmlinuz-0-rescue-cb085392bd6345d69ab5a0e0fe3aa74f</div><div class="line">Found initrd image: /boot/initramfs-0-rescue-cb085392bd6345d69ab5a0e0fe3aa74f.img</div><div class="line">done</div></pre></td></tr></table></figure>
+</li>
+<li><p>如果以上步骤重启后没有效果，再修改系统net命名规则/etc/udev/rules.d/90-eno-fix.rules，修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SUBSYSTEM==&quot;net&quot;, ACTION==&quot;add&quot;, DRIVERS==&quot;?*&quot;, ATTR&#123;address&#125;==&quot;00:0c:29:73:e5:56&quot;, NAME=&quot;eth0&quot; ——&gt;将name修改为eth0</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>最后别忘记重启系统，到此修改结束😄。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;网卡命名规则&quot;&gt;&lt;a href=&quot;#网卡命名规则&quot; class=&quot;headerlink&quot; title=&quot;网卡命名规则&quot;&gt;&lt;/a&gt;网卡命名规则&lt;/h1&gt;&lt;p&gt;传统的网络设备命名是eth[0123…]&lt;br&gt;Centos7提供了不同的命名规则，默认是基于固件、拓扑、位
+    
+    </summary>
+    
+      <category term="Network" scheme="http://www.pisces.ml/categories/Network/"/>
+    
+    
+      <category term="运维" scheme="http://www.pisces.ml/tags/%E8%BF%90%E7%BB%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>关闭SELinux</title>
+    <link href="http://www.pisces.ml/2017/03/24/SELinux/"/>
+    <id>http://www.pisces.ml/2017/03/24/SELinux/</id>
+    <published>2017-03-24T03:53:03.000Z</published>
+    <updated>2018-05-10T10:24:40.348Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>  selinux（Security-Enhanced Linux）是一个在内核中实践的强制访问控制（MAC）安全性机制，目的在于明确的指明某个进程可以访问哪些类型的资源。开启selinux后，内核在执行系统调用前会询问 SELinux 是否获得了执行操作的授权</p>
+<h2 id="永久方法-–-需要重启服务器"><a href="#永久方法-–-需要重启服务器" class="headerlink" title="永久方法 – 需要重启服务器"></a>永久方法 – 需要重启服务器</h2><p>修改/etc/selinux/config文件中设置SELINUX=disabled ，然后重启服务器。</p>
+<h2 id="临时方法-–-设置系统参数"><a href="#临时方法-–-设置系统参数" class="headerlink" title="临时方法 – 设置系统参数"></a>临时方法 – 设置系统参数</h2><p>使用命令setenforce 0</p>
+<p><strong>附：</strong><br>setenforce 1 设置SELinux 成为enforcing模式<br>setenforce 0 设置SELinux 成为permissive模式</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;  selinux（Security-Enhanced Linux）是一个在内核中实践的强制访问控制（MAC）安全性机制，目的在于明确的指明
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://www.pisces.ml/categories/Linux/"/>
+    
+    
+      <category term="selinux" scheme="http://www.pisces.ml/tags/selinux/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>linux network namespace学习笔记</title>
+    <link href="http://www.pisces.ml/2017/03/15/linux-network-namespace%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://www.pisces.ml/2017/03/15/linux-network-namespace学习笔记/</id>
+    <published>2017-03-15T15:21:24.000Z</published>
+    <updated>2018-05-10T10:24:45.736Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>在专业的网络世界中，经常使用到Virtual Routing and Forwarding（VRF），比如Cisco，Alcatel-Lucent, Juniper 等。对于L2 switch，自从上世纪90年代就开始使用VLAN，一个物理交换机上可以使用多个广播域，如今大多数交换机都支持4K vlan。</p>
+<p>这个概念被引入到L3，如今很多网络设备支持VRF。这意味着，单个物理设备上可运行多个虚拟路由（L3 转发实例）。</p>
+<p>在linux中，VRF被叫做“network namespace”，当然了linux中还包括其他namespace，不过本文不讨论。</p>
+<p>每个network namespace拥有其对应的路由表（routing table）&amp; 其对应的iptables，并且运行程序运行其中。 为什么有人使用它？比如一个运行在linux上的 Firewall，将firewall的所有服务端口分配给一个network namespace，这样，默认的network namespace 和 Firewall network namespace就运行着不同的路由表。像SSH这样的application运行在默认的network namespace，但是不在Firewall network namespace。</p>
+<p>下面展示了其基本用法。</p>
+<h2 id="Basic-network-namespace-commands"><a href="#Basic-network-namespace-commands" class="headerlink" title="Basic network namespace commands"></a>Basic network namespace commands</h2><p>基本命令为“ip”，有些用户使用它来代替废弃的 ifconfig，route，netstat… 必须为root用户来使用它，这样才能更改network stack的配置。下面是ip命令和其他命令的映射：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ifconfig                                            --&gt; ip addr or just ip a</div><div class="line">ifconfig &lt;interface&gt; up/down                        --&gt; ip link set dev &lt;interface&gt; up/down</div><div class="line">ifconfig &lt;interface&gt; &lt;ip&gt; netmask &lt;netmask&gt;         --&gt; ip addr add &lt;ip&gt;/&lt;masklen&gt; dev &lt;interface&gt;</div><div class="line">netstat -rn                                         --&gt; ip route or just ip r</div><div class="line">route add -net &lt;net&gt; netmask &lt;netmask&gt; gw &lt;gateway&gt; --&gt; ip r add &lt;net&gt;/&lt;netmasklen&gt; via &lt;gateway&gt;</div></pre></td></tr></table></figure>
+<h2 id="Check-your-Linux-for-namespace-support"><a href="#Check-your-Linux-for-namespace-support" class="headerlink" title="Check your Linux for namespace support"></a>Check your Linux for namespace support</h2><p>使用前，先检查系统是否支持。</p>
+<h3 id="Creating-a-network-namespace"><a href="#Creating-a-network-namespace" class="headerlink" title="Creating a network namespace"></a>Creating a network namespace</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># add a new namespace</div><div class="line">ip netnas add &lt;network namespace name&gt;</div><div class="line">#Example:</div><div class="line">ip netns add nstest</div></pre></td></tr></table></figure>
+<h3 id="Listing-all-existing-network-namespaces-in-the-system"><a href="#Listing-all-existing-network-namespaces-in-the-system" class="headerlink" title="Listing all existing network namespaces in the system"></a>Listing all existing network namespaces in the system</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># list all namespaces</div><div class="line">ip netns list</div><div class="line">#will show the namespace from above</div><div class="line"></div><div class="line">nstest</div></pre></td></tr></table></figure>
+<h3 id="Deleting-a-network-namespace"><a href="#Deleting-a-network-namespace" class="headerlink" title="Deleting a network namespace"></a>Deleting a network namespace</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ip netns delete &lt;network namespace name&gt;</div></pre></td></tr></table></figure>
+<h3 id="Executing-a-command-in-a-network-namespace"><a href="#Executing-a-command-in-a-network-namespace" class="headerlink" title="Executing a command in a network namespace"></a>Executing a command in a network namespace</h3><p>下面展示了使程序运行在network namespace中的“黑魔法”。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># execute a command in a namespace</div><div class="line">ip netns exec &lt;network namespace name&gt; &lt;command&gt;</div><div class="line">#Example using the namespace from above:</div><div class="line">ip netns exec nstest ip addr</div></pre></td></tr></table></figure>
+<p>展示了在此network namespace中的所有的ip interface</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lo: &lt;LOOPBACK&gt; mtu 65536 qdisc noop state DOWN mode DEFAULT</div><div class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</div></pre></td></tr></table></figure>
+<p>一个脏技巧是在network namespace中运行shell：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ip netns exec &lt;network namespace name&gt; bash</div></pre></td></tr></table></figure>
+<p>现在，你已经“trapped”入namespace中了，exit退出。</p>
+<h3 id="Exploring-the-network-namespace"><a href="#Exploring-the-network-namespace" class="headerlink" title="Exploring the network namespace"></a>Exploring the network namespace</h3><p>当我们已经创建了network namespace，第一个task是bring up其中的lo interface。应该注意到的是，在创建了network namespace后，lo interface的状态是down。如果忽略了这个，可能会发生一些奇怪的事。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># set the link of lo in the namespace to up</div><div class="line">ip netns exec nstest ip link set dev lo up</div><div class="line"># list all interfaces and the state in the namespace</div><div class="line">ip netns exec nstest ip link</div></pre></td></tr></table></figure>
+<p>现在lo interface状态为up，现在，是时候将network namespace链接到外部空间。</p>
+<h3 id="Adding-interfaces-to-a-network-namespace"><a href="#Adding-interfaces-to-a-network-namespace" class="headerlink" title="Adding interfaces to a network namespace"></a>Adding interfaces to a network namespace</h3><p>将一个物理interface分配给network namespace是不可能的，而是使用 virtual interface来实现。所以，我们先创建一个virtual interface，同样使用 ip command：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ip link add veth-a type veth peer name veth-b</div></pre></td></tr></table></figure>
+<p>上述命令创建了两个virtual interface，分别为veth-a &amp; veth-b,他们之间通过一个virtual cable链接。ip link命令显示了在默认namespace下这两个interface的信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ip link</div><div class="line">veth-b: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000</div><div class="line"> link/ether 72:01:ad:c5:67:84 brd ff:ff:ff:ff:ff:ff</div><div class="line">veth-a: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000</div><div class="line"> link/ether 8e:8b:bd:b1:88:e5 brd ff:ff:ff:ff:ff:ff</div></pre></td></tr></table></figure>
+<p>下面我们将其中的一个interface添加入之前我们创建的namespace nstest：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ip link set veth-b netns nstest</div></pre></td></tr></table></figure>
+<p>现在veth-b不在默认的namespace下了，而出现在了nstest 中，使用如下命令验证：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># list all interfaces in the namespace nstest</div><div class="line">ip netns exec nstest ip link</div><div class="line"></div><div class="line">lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT</div><div class="line"> link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</div><div class="line">veth-b: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000</div><div class="line"> link/ether 72:01:ad:c5:67:84 brd ff:ff:ff:ff:ff:ff</div></pre></td></tr></table></figure>
+<p>现在，在network namespace nstest中，就拥有了两个interface。</p>
+<h3 id="Assign-ip-addresses-to-the-veth-interfaces"><a href="#Assign-ip-addresses-to-the-veth-interfaces" class="headerlink" title="Assign ip addresses to the veth interfaces"></a>Assign ip addresses to the veth interfaces</h3><p>现在是时候为这个veth interface分配ip并且使他的状态为up。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># default namespace</div><div class="line">ip addr add 10.0.0.1/24 dev veth-a</div><div class="line">ip link set dev veth-a up</div><div class="line">#</div><div class="line"># namespace nstest</div><div class="line">ip netns exec nstest ip addr add 10.0.0.2/24 dev veth-b</div><div class="line">ip netns exec nstest ip link set dev veth-b up</div></pre></td></tr></table></figure>
+<p>可通过“ip link”查看interface状态是否为up，使用“ip addr”查看interface的ip 地址，使用“ip route”查看其路由。</p>
+<p>现在可以在default namespace中，通过veth-a来ping通 位于 nstest中的veth-b。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ping 10.0.0.2</div><div class="line">PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.</div><div class="line">64 bytes from 10.0.0.2: icmp_req=1 ttl=64 time=0.054 ms</div><div class="line">64 bytes from 10.0.0.2: icmp_req=2 ttl=64 time=0.034 ms</div><div class="line">64 bytes from 10.0.0.2: icmp_req=3 ttl=64 time=0.039 ms</div><div class="line">64 bytes from 10.0.0.2: icmp_req=4 ttl=64 time=0.036 ms</div></pre></td></tr></table></figure>
+<p>以及在nstest network namespace中，通过veth-b来ping通 veth-a：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ip netns exec nstest ping 10.0.0.1</div><div class="line">PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.</div><div class="line">64 bytes from 10.0.0.1: icmp_req=1 ttl=64 time=0.064 ms</div><div class="line">64 bytes from 10.0.0.1: icmp_req=2 ttl=64 time=0.036 ms</div><div class="line">64 bytes from 10.0.0.1: icmp_req=3 ttl=64 time=0.039 ms</div></pre></td></tr></table></figure>
+<h2 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h2><p>下面一起来实现一个demo，最终实现如下的case：<br><img src="https://sfault-image.b0.upaiyun.com/236/693/2366931023-565947f5ddd8d_articlex" alt="img"></p>
+<p>首先，先建立对应的namespace：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ sudo ip netns add server</div><div class="line">$ sudo ip netns add gateway</div><div class="line">$ sudo ip netns add client</div><div class="line">$ ip netns list</div><div class="line">client</div><div class="line">gateway</div><div class="line">server</div></pre></td></tr></table></figure>
+<p>然后，启用gateway namespace中的ip forward功能，注意，操作全是在root权限下执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ip netns exec gateway sysctl net.ipv4.ip_forward=1</div><div class="line">net.ipv4.ip_forward = 1</div></pre></td></tr></table></figure>
+<p>下面我们来创建两对veth，用来连接不同的namespace：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ ip link add svr-veth type veth peer name svrgw-veth</div><div class="line">$ ip link add cli-veth type veth peer name cligw-veth</div><div class="line">$ ip link show | grep veth</div><div class="line">3: svrgw-veth:  mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000</div><div class="line">4: svr-veth:  mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000</div><div class="line">5: cligw-veth:  mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000</div><div class="line">6: cli-veth:  mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000</div></pre></td></tr></table></figure>
+<p>将veth对的两端加入对应的namespace中，这样在默认的default namespace中就看不到他们了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ ip link set svr-veth netns server</div><div class="line">$ ip link set svrgw-veth netns gateway</div><div class="line">$ ip link set cligw-veth netns gateway</div><div class="line">$ ip link set cli-veth netns client</div><div class="line">$ ip link show | grep veth</div></pre></td></tr></table></figure>
+<p>在指定的namespace上可以看到对应的interface：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ip netns exec server ip link show | grep veth</div><div class="line">4: svr-veth:  mtu 1500 qdisc noop state DOWN mode DEFAULT qlen 1000</div></pre></td></tr></table></figure>
+<p>为各个veth分配ip：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ ip netns exec server ifconfig svr-veth 192.168.100.1</div><div class="line">$ ip netns exec gateway ifconfig svrgw-veth 192.168.100.254</div><div class="line">$ ip netns exec gateway ifconfig cligw-veth 10.0.100.254</div><div class="line">$ ip netns exec client ifconfig cli-veth 10.0.100.1</div></pre></td></tr></table></figure>
+<p>在各个veth对中，通过ping来检查连通性：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ ip netns exec gateway ping 192.168.100.1 -I 192.168.100.254</div><div class="line">PING 192.168.100.1 (192.168.100.1) from 192.168.100.254 : 56(84) bytes of data.</div><div class="line">64 bytes from 192.168.100.1: icmp_req=1 ttl=64 time=0.044 ms</div><div class="line">64 bytes from 192.168.100.1: icmp_req=2 ttl=64 time=0.036 ms</div><div class="line">64 bytes from 192.168.100.1: icmp_req=3 ttl=64 time=0.040 ms</div><div class="line">^C</div><div class="line">--- 192.168.100.1 ping statistics ---</div><div class="line">3 packets transmitted, 3 received, 0% packet loss, time 1999ms</div><div class="line">rtt min/avg/max/mdev = 0.036/0.040/0.044/0.003 ms</div><div class="line"></div><div class="line">$ ip netns exec gateway ping 10.0.100.1 -I 10.0.100.254</div><div class="line">PING 10.0.100.1 (10.0.100.1) from 10.0.100.254 : 56(84) bytes of data.</div><div class="line">64 bytes from 10.0.100.1: icmp_req=1 ttl=64 time=0.107 ms</div><div class="line">64 bytes from 10.0.100.1: icmp_req=2 ttl=64 time=0.037 ms</div><div class="line">64 bytes from 10.0.100.1: icmp_req=3 ttl=64 time=0.037 ms</div><div class="line">^C</div><div class="line">--- 10.0.100.1 ping statistics ---</div><div class="line">3 packets transmitted, 3 received, 0% packet loss, time 1998ms</div><div class="line">rtt min/avg/max/mdev = 0.037/0.060/0.107/0.033 ms</div></pre></td></tr></table></figure>
+<p>接下来设定路由，将各namespace中的默认路由指向对应的veth ip：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ sudo ip netns exec client route add default gw 10.0.100.254</div><div class="line">$ sudo ip netns exec client netstat -rn</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface</div><div class="line">0.0.0.0         10.0.100.254    0.0.0.0         UG        0 0          0 cli-veth</div><div class="line">10.0.0.0        0.0.0.0         255.0.0.0       U         0 0          0 cli-veth</div><div class="line">$ ip netns exec server route add default gw 192.168.100.254</div><div class="line">$ ip netns exec server netstat -rn</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface</div><div class="line">0.0.0.0         192.168.100.254 0.0.0.0         UG        0 0          0 svr-veth</div><div class="line">192.168.100.0   0.0.0.0         255.255.255.0   U         0 0          0 svr-veth</div></pre></td></tr></table></figure>
+<p>最后我们尝试从client namespace 到 server namespace的网络连通性，通过ping命令来测试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ ip netns exec client ping 192.168.100.1 -I 10.0.100.1</div><div class="line">PING 192.168.100.1 (192.168.100.1) from 10.0.100.1 : 56(84) bytes of data.</div><div class="line">64 bytes from 192.168.100.1: icmp_req=1 ttl=63 time=0.106 ms</div><div class="line">64 bytes from 192.168.100.1: icmp_req=2 ttl=63 time=0.076 ms</div><div class="line">64 bytes from 192.168.100.1: icmp_req=3 ttl=63 time=0.050 ms</div><div class="line">^C</div><div class="line">--- 192.168.100.1 ping statistics ---</div><div class="line">3 packets transmitted, 3 received, 0% packet loss, time 1999ms</div><div class="line">rtt min/avg/max/mdev = 0.050/0.077/0.106/0.024 ms</div></pre></td></tr></table></figure>
+<p>原文转发自：<a href="https://segmentfault.com/a/1190000004059167" target="_blank" rel="external">https://segmentfault.com/a/1190000004059167</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;介绍&quot;&gt;&lt;a href=&quot;#介绍&quot; class=&quot;headerlink&quot; title=&quot;介绍&quot;&gt;&lt;/a&gt;介绍&lt;/h2&gt;&lt;p&gt;在专业的网络世界中，经常使用到Virtual Routing and Forwarding（VRF），比如Cisco，Alcatel-Luc
+    
+    </summary>
+    
+      <category term="Network" scheme="http://www.pisces.ml/categories/Network/"/>
+    
+    
+      <category term="namespace" scheme="http://www.pisces.ml/tags/namespace/"/>
+    
+      <category term="VRF" scheme="http://www.pisces.ml/tags/VRF/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Cleaning ‘Failed actions’ message in Pacemaker/Corosync cluster setup</title>
+    <link href="http://www.pisces.ml/2017/02/27/Cleaning-%E2%80%98Failed-actions%E2%80%99-message-in-Pacemaker-Corosync-cluster-setup/"/>
+    <id>http://www.pisces.ml/2017/02/27/Cleaning-‘Failed-actions’-message-in-Pacemaker-Corosync-cluster-setup/</id>
+    <published>2017-02-27T10:10:18.000Z</published>
+    <updated>2018-05-11T06:56:48.146Z</updated>
+    
+    <content type="html"><![CDATA[<p>Sometimes when using <a href="http://www.clusterlabs.org/" target="_blank" rel="external">Pacemaker</a>/<a href="http://www.corosync.org/doku.php?id=welcome" target="_blank" rel="external">Corosync</a>-based cluster you can see warning message in <strong>crm_mon</strong> output:</p>
+<blockquote>
+<p>Failed actions:<br>drbd_mysql:0_promote_0 (node=node2.cluster.org, call=11, rc=-2, status=Timed Out): unknown exec error</p>
+</blockquote>
+<p>﻿</p>
+<p>To clean it up you can use command <strong>crm_resource</strong> which checks health of resources:</p>
+<blockquote>
+<p>[root@node1 ~]# crm_resource -P<br>Waiting for 1 replies from the CRMd. OK<br>[root@node1 ~]#</p>
+</blockquote>
+<p>To check cluster’s status run <strong>crm_mon </strong>again, warning message should be gone.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Sometimes when using &lt;a href=&quot;http://www.clusterlabs.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Pacemaker&lt;/a&gt;/&lt;a href=&quot;http://www.corosync.org/
+    
+    </summary>
+    
+      <category term="Soft" scheme="http://www.pisces.ml/categories/Soft/"/>
+    
+    
+      <category term="Pacemaker" scheme="http://www.pisces.ml/tags/Pacemaker/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>linux磁盘分区以及格式化</title>
+    <link href="http://www.pisces.ml/2017/02/24/linux%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA%E4%BB%A5%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/"/>
+    <id>http://www.pisces.ml/2017/02/24/linux磁盘分区以及格式化/</id>
+    <published>2017-02-24T02:01:16.000Z</published>
+    <updated>2018-05-11T06:56:57.190Z</updated>
+    
+    <content type="html"><![CDATA[<p>此文将介绍裸盘的分区以及格式化，我们知道一块裸盘需要挂载到云主机中是需要进行分区以及格式化之后，才能mount到虚拟机中。本来将介绍如何操作。</p>
+<h1 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h1><p>（注意：以下操作都是在云平台中进行）</p>
+<ol>
+<li><p>首先准备一台虚拟机</p>
+</li>
+<li><p>申请一块10G云硬盘</p>
+</li>
+<li><p>将云硬盘挂载到虚拟机中</p>
+</li>
+</ol>
+<p>以上步骤准备完成后我们需要进入虚拟机，我们可以看到虚拟机中已经挂载了这么一块盘进来,如下图所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# lsblk</div><div class="line">NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sr0     11:0    1  422K  0 rom</div><div class="line">vda    252:0    0   20G  0 disk</div><div class="line">└─vda1 252:1    0   20G  0 part /</div><div class="line">vdb    252:16   0   10G  0 disk</div></pre></td></tr></table></figure>
+<p>由上图所示，我们可以看到有一块盘（vdb）已经挂在到虚拟机中。但是还没有进行分区和格式化，我们需要进行分区后再格式化才能正常使用。</p>
+<h1 id="磁盘分区"><a href="#磁盘分区" class="headerlink" title="磁盘分区"></a>磁盘分区</h1><p>linux中我们使用fdisk命令来进行磁盘分区，下面我们就使用该命令进行磁盘分区。</p>
+<p>首先我们可以使用帮助命令或者man来查看fdisk命令的帮助文档：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# fdisk -h</div><div class="line"></div><div class="line">用法：</div><div class="line"> fdisk [options] &lt;disk&gt;      change partition table</div><div class="line"> fdisk [options] -l [&lt;disk&gt;] list partition table(s)</div><div class="line"></div><div class="line">选项：</div><div class="line"> -b &lt;size&gt;         扇区大小(512, 1024, 2048 或 4096)</div><div class="line"> -c[=&lt;模式&gt;]       兼容模式：“dos”或“nondos”(默认)</div><div class="line"> -h                显示此帮助并退出</div><div class="line"> -c[=&lt;模式&gt;]       兼容模式：“dos”或“nondos”(默认)</div><div class="line"> -L[=&lt;何时&gt;]       彩色显示输出(auto自动，always总是或never从不)</div><div class="line"> -t &lt;类型&gt;         强制 disk 只重新识别特定的分区表类型</div><div class="line"> -u[=&lt;单位&gt;]       显示单位：“cylinders”柱面 或“sectors”扇区(默认)</div><div class="line"> -v                打印程序版本</div><div class="line"> -C &lt;数字&gt;         指定柱面数</div><div class="line"> -H &lt;数字&gt;         指定磁头数</div><div class="line"> -S &lt;数字&gt;         指定每条磁道的扇区数</div><div class="line"></div><div class="line">更多信息请参阅 fdisk(8)。</div></pre></td></tr></table></figure>
+<p>下面我们对盘vdb进行分区：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# fdisk /dev/vdb</div><div class="line"></div><div class="line">欢迎使用 fdisk (util-linux 2.24.2)。</div><div class="line">更改将停留在内存中，直到您决定将更改写入磁盘。</div><div class="line">使用写入命令前请三思。</div><div class="line"></div><div class="line">设备不包含可识别的分区表。</div><div class="line"></div><div class="line">Created a new DOS disklabel with disk identifier 0xf8fe1a5e.</div><div class="line"></div><div class="line">命令(输入 m 获取帮助)：n        输入n,创建分区</div><div class="line"></div><div class="line">分区类型：</div><div class="line">   p   主分区(0 个主分区，0 个扩展分区，4 空闲)</div><div class="line">   e   扩展分区</div><div class="line">请选择(默认为 p)：: p          输入p或者e选择分区类型：主分区／扩展分区</div><div class="line">分区号 (1-4, default 1): 1    输入分区号</div><div class="line">第一个扇区 (2048-20971519, default 2048):     输入柱头启始号</div><div class="line">上个扇区，+sectors 或 +size&#123;K,M,G,T,P&#125; (2048-20971519, default 20971519):   输入柱头结束号</div><div class="line"></div><div class="line">创建了一个新分区 1，类型为“Linux”，大小为 10 GiB。</div><div class="line"></div><div class="line">命令(输入 m 获取帮助)：w      输入w保存配置</div><div class="line">分区表已调整。</div><div class="line">将调用 ioctl() 来重新读分区表。</div><div class="line">正在同步磁盘。</div></pre></td></tr></table></figure>
+<p>通常分区可以根据个人需要将此盘分为多个分区，我们这里只分了一个示例分区，上面操作完成后，我们已经建立了分区表，我们可以通过lsblk命令查看分区，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# lsblk</div><div class="line">NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sr0     11:0    1  422K  0 rom</div><div class="line">vda    252:0    0   20G  0 disk</div><div class="line">└─vda1 252:1    0   20G  0 part /</div><div class="line">vdb    252:16   0   10G  0 disk</div><div class="line">└─vdb1 252:17   0   10G  0 part    新建的分区</div></pre></td></tr></table></figure>
+<p>我们可以看到vdb这块盘已经有了一个分区vdb1，但是我们还没有挂载到云主机中，下面我们就要用mkfs命令来对磁盘进行格式化</p>
+<h1 id="磁盘格式化"><a href="#磁盘格式化" class="headerlink" title="磁盘格式化"></a>磁盘格式化</h1><p>同样我们首先查看帮助文档：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# mkfs -h</div><div class="line">用法：</div><div class="line"> mkfs [选项] [-t &lt;类型&gt;] [文件系统选项] &lt;设备&gt; [&lt;大小&gt;]</div><div class="line"></div><div class="line">选项：</div><div class="line"> -t, --type=&lt;类型&gt;  文件系统类型；若不指定，将使用 ext2</div><div class="line">     fs-options     实际文件系统构建程序的参数</div><div class="line">     &lt;设备&gt;         要使用设备的路径</div><div class="line">     &lt;大小&gt;         要使用设备上的块数</div><div class="line"> -V, --verbose      解释正在进行的操作；</div><div class="line">                      多次指定 -V 将导致空运行(dry-run)</div><div class="line"> -V, --version      显示版本信息并退出</div><div class="line">                      将 -V 作为 --version 选项时必须是惟一选项</div><div class="line"> -h, --help         显示此帮助并退出</div><div class="line"></div><div class="line">更多信息请参阅 mkfs(8)。</div></pre></td></tr></table></figure>
+<p>分区创建好之后，还必须要经过格式化才能使用，格式化分区的主要目的是在分区中创建文件系统。Linux专用的文件系统是ext，包含ext2、ext3、ext4等诸多版本，在RHEL6中默认使用的是ext4。另外Linux也支持Windows中的FAT32文件系统，在Linux中表示为vfat。示例，我们将这块磁盘格式化为ext2格式，操作如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# mkfs -t ext2 /dev/vdb1</div><div class="line">mke2fs 1.42.12 (29-Aug-2014)</div><div class="line">Found a dos partition table in /dev/vdb1</div><div class="line">无论如何也要继续? (y,n) y</div><div class="line">Creating filesystem with 2621440 4k blocks and 655360 inodes</div><div class="line">Filesystem UUID: 893aedd2-f056-4b4f-9c86-9cef7f612ccf</div><div class="line">Superblock backups stored on blocks:</div><div class="line">	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632</div><div class="line"></div><div class="line">Allocating group tables: 完成</div><div class="line">正在写入inode表: 完成</div><div class="line">Writing superblocks and filesystem accounting information: 完成</div></pre></td></tr></table></figure>
+<h1 id="挂载磁盘"><a href="#挂载磁盘" class="headerlink" title="挂载磁盘"></a>挂载磁盘</h1><p>磁盘格式化完后我们需要将该磁盘挂载到一个目录中，这样我们就能往磁盘中写入数据了，首先我们建立一个文件夹，然后将该磁盘挂载到该目录下，具体操作如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# mkdir /var/test</div><div class="line">[root@test-fedora ~]# mount /dev/vdb1 /var/test/</div><div class="line">mount: /dev/vdb1 写保护，将以只读方式挂载</div><div class="line">mount: 文件系统类型错误、选项错误、/dev/vdb1 上有坏超级块、</div><div class="line">       缺少代码页或助手程序，或其他错误</div><div class="line"></div><div class="line">       有些情况下在 syslog 中可以找到一些有用信息- 请尝试</div><div class="line">       dmesg | tail  这样的命令看看。</div></pre></td></tr></table></figure>
+<p>挂载磁盘后通常我们需要手动设置开机自动挂载，否则下次系统启动是就需要手动进行挂载，这样很不方便。所以我们需要执行以下命令设置<strong>硬盘开机自动挂载</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]<span class="comment"># tail -1 /etc/mtab &gt;&gt; /etc/fstab</span></div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;此文将介绍裸盘的分区以及格式化，我们知道一块裸盘需要挂载到云主机中是需要进行分区以及格式化之后，才能mount到虚拟机中。本来将介绍如何操作。&lt;/p&gt;
+&lt;h1 id=&quot;前期准备&quot;&gt;&lt;a href=&quot;#前期准备&quot; class=&quot;headerlink&quot; title=&quot;前期准备&quot;
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://www.pisces.ml/categories/Linux/"/>
+    
+    
+      <category term="disk" scheme="http://www.pisces.ml/tags/disk/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>mysql分区表(转)</title>
+    <link href="http://www.pisces.ml/2017/01/13/mysql%E5%88%86%E5%8C%BA%E8%A1%A8/"/>
+    <id>http://www.pisces.ml/2017/01/13/mysql分区表/</id>
+    <published>2017-01-13T07:10:04.000Z</published>
+    <updated>2018-05-11T06:57:02.897Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="什么是表分区？"><a href="#什么是表分区？" class="headerlink" title="什么是表分区？"></a>什么是表分区？</h1><p>表分区，是指根据一定规则，将数据库中的一张表分解成多个更小的，容易管理的部分。从逻辑上看，只有一张表，但是底层却是由多个物理分区组成。</p>
+<h1 id="表分区与分表的区别"><a href="#表分区与分表的区别" class="headerlink" title="表分区与分表的区别"></a>表分区与分表的区别</h1><p>分表：指的是通过一定规则，将一张表分解成多张不同的表。比如将用户订单记录根据时间成多个表。 分表与分区的区别在于：分区从逻辑上来讲只有一张表，而分表则是将一张表分解成多张表。</p>
+<h1 id="表分区有什么好处？"><a href="#表分区有什么好处？" class="headerlink" title="表分区有什么好处？"></a>表分区有什么好处？</h1><ol>
+<li>分区表的数据可以分布在不同的物理设备上，从而高效地利用多个硬件设备。</li>
+<li>和单个磁盘或者文件系统相比，可以存储更多数据</li>
+<li>优化查询。在where语句中包含分区条件时，可以只扫描一个或多个分区表来提高查询效率；涉及sum和count语句时，也可以在多个分区上并行处理，最后汇总结果。</li>
+<li>分区表更容易维护。例如：想批量删除大量数据可以清除整个分区。</li>
+<li>可以使用分区表来避免某些特殊的瓶颈，例如InnoDB的单个索引的互斥访问，ext3问价你系统的inode锁竞争等。</li>
+</ol>
+<h1 id="分区表的限制因素"><a href="#分区表的限制因素" class="headerlink" title="分区表的限制因素"></a>分区表的限制因素</h1><ol>
+<li>一个表最多只能有1024个分区</li>
+<li>MySQL5.1中，分区表达式必须是整数，或者返回整数的表达式。在MySQL5.5中提供了非整数表达式分区的支持。</li>
+<li>如果分区字段中有主键或者唯一索引的列，那么多有主键列和唯一索引列都必须包含进来。即：分区字段要么不包含主键或者索引列，要么包含全部主键和索引列。</li>
+<li>分区表中无法使用外键约束</li>
+<li>MySQL的分区适用于一个表的所有数据和索引，不能只对表数据分区而不对索引分区，也不能只对索引分区而不对表分区，也不能只对表的一部分数据分区。</li>
+</ol>
+<h1 id="如何判断当前MySQL是否支持分区？"><a href="#如何判断当前MySQL是否支持分区？" class="headerlink" title="如何判断当前MySQL是否支持分区？"></a>如何判断当前MySQL是否支持分区？</h1><p>命令：show variables like ‘%partition%’ 运行结果:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mysql&gt; show variables like &apos;%partition%&apos;;</div><div class="line">+-------------------+-------+</div><div class="line">| Variable_name     | Value |</div><div class="line">+-------------------+-------+</div><div class="line">| have_partitioning | YES   |</div><div class="line">+-------------------+-------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure></p>
+<p>have_partintioning 的值为YES，表示支持分区。</p>
+<h1 id="MySQL支持的分区类型有哪些？"><a href="#MySQL支持的分区类型有哪些？" class="headerlink" title="MySQL支持的分区类型有哪些？"></a>MySQL支持的分区类型有哪些？</h1><p>1）RANGE分区：按照数据的区间范围分区<br>2）LIST分区：按照List中的值分区，与RANGE的区别是，range分区的区间范围值是连续的。<br>3）HASH分区: 基于给定的分区个数，将数据分配到不同的分区,HASH分区只能针对整数进行HASH，对于非整形的字段只能通过表达式将其转换成整数。支持常规HASH(HASH)和线性HASH()<br>4）KEY分区：在MySQL5.1版本中，RANGE,LIST,HASH分区要求分区键必须是INT类型，或者通过表达式返回INT类型。但KEY分区的时候，可以使用其他类型的列（BLOB，TEXT类型除外）作为分区键。</p>
+<h1 id="Range分区"><a href="#Range分区" class="headerlink" title="Range分区"></a>Range分区</h1><p>利用取值范围进行分区，区间要连续并且不能互相重叠。 语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">partition by range(exp)( //exp可以为列名或者表达式，比如to_date(created_date)</div><div class="line">    partition p0 values less than(num)</div><div class="line">    )</div></pre></td></tr></table></figure></p>
+<p>例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">mysql&gt; create table emp(</div><div class="line">    -&gt; id INT NOT null,</div><div class="line">    -&gt; store_id int not null</div><div class="line">    -&gt; )</div><div class="line">    -&gt; partition by range(store_id)(</div><div class="line">    -&gt;   partition p0 values less than(10),</div><div class="line">    -&gt;   partition p1 values less than(20)</div><div class="line">    -&gt; );</div></pre></td></tr></table></figure></p>
+<p>上面的语句创建了emp表，并根据store_id字段进行分区，小于10的值存在分区p0中，大于等于10，小于20的值存在分区p1中。 注意 每个分区都是按顺序定义的，从最低到最高。上面的语句，如果将less than(10) 和less than (20)的顺序颠倒过来，那么将报错，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ERROR 1493 (HY000): VALUES LESS THAN value must be strictly increasing for each partition</div></pre></td></tr></table></figure></p>
+<h2 id="RANGE分区存在的问题"><a href="#RANGE分区存在的问题" class="headerlink" title="RANGE分区存在的问题"></a>RANGE分区存在的问题</h2><p>1.range范围覆盖问题：当插入的记录中对应的分区键的值不在分区定义的范围中的时候，插入语句会失败。 上面的例子，如果我插入一条store_id = 30的记录会怎么样呢？ 我们上面分区的时候，最大值是20，如果插入一条超过20的记录，会报错:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mysql&gt; insert into emp(id,store_id) values(2,30);</div><div class="line">ERROR 1526 (HY000): Table has no partition for value 30</div></pre></td></tr></table></figure>
+<p>提示30这个值没有对应的分区。</p>
+<blockquote>
+<blockquote>
+<p><strong>解决办法</strong>:<br>  A. 预估分区键的值，及时新增分区。<br>  B. 设置分区的时候，使用values less than maxvalue 子句,MAXVALUE表示最大的可能的整数值。<br>  C. 尽量选择能够全部覆盖的字段作为分区键，比如一年的十二个月等。</p>
+</blockquote>
+</blockquote>
+<p>2.Range分区中，分区键的值如果是NULL，将被作为一个最小值来处理。</p>
+<h1 id="LIST分区"><a href="#LIST分区" class="headerlink" title="LIST分区"></a>LIST分区</h1><p>List分区是建立离散的值列表告诉数据库特定的值属于哪个分区。 语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">partition by list(exp)( //exp为列名或者表达式</div><div class="line">     partition p0 values in (3,5)  //值为3和5的在p0分区</div><div class="line"> )</div></pre></td></tr></table></figure></p>
+<p>与Range不同的是，list分区不必生命任何特定的顺序。例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">mysql&gt; create table emp1(</div><div class="line">    -&gt; id int not null,</div><div class="line">    -&gt; store_id int not null</div><div class="line">    -&gt; )</div><div class="line">    -&gt; partition by list(store_id)(</div><div class="line">    -&gt;   partition p0 values in (3,5),</div><div class="line">    -&gt;   partition p1 values in (2,6,7,9)</div><div class="line">    -&gt; );</div></pre></td></tr></table></figure></p>
+<blockquote>
+<blockquote>
+<p><strong>注意</strong> 如果插入的记录对应的分区键的值不在list分区指定的值中，将会插入失败。并且，list不能像range分区那样提供maxvalue。</p>
+</blockquote>
+</blockquote>
+<h1 id="Columns分区"><a href="#Columns分区" class="headerlink" title="Columns分区"></a>Columns分区</h1><p>MySQL5.5中引入的分区类型，解决了5.5版本之前range分区和list分区只支持整数分区的问题。 Columns分区可以细分为 range columns分区和 list columns分区，他们都支持整数，日期时间，字符串三大数据类型。（不支持text和blob类型作为分区键） columns分区还支持多列分区（这里不详细展开）。</p>
+<h1 id="Hash分区"><a href="#Hash分区" class="headerlink" title="Hash分区"></a>Hash分区</h1><p>Hash分区主要用来分散热点读，确保数据在预先确定个数的分区中尽可能平均分布。 MySQL支持两种Hash分区:常规Hash分区和线性Hash分区。<br>1.常规Hash分区:使用取模算法 语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">partition by hash(store_id) partitions 4;</div></pre></td></tr></table></figure></p>
+<p>上面的语句，根据store_id对4取模，决定记录存储位置。 比如store_id = 234的记录，MOD(234,4)=2,所以会被存储在第二个分区。<br><strong>常规Hash分区的优点和不足</strong></p>
+<p>  优点：能够使数据尽可能的均匀分布。<br>  缺点：不适合分区经常变动的需求。假如我要新增加两个分区，现在有6个分区，那么MOD(234,6)的结果与之前MOD(234,4)的结果就会出现不一致，这样大部分数据就需要重新计算分区。为解决此问题，MySQL提供了线性Hash分区。<br>2.线性Hash分区：分区函数是一个线性的2的幂的运算法则。 语法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">partition by LINER hash(store_id) partitions 4;</div></pre></td></tr></table></figure></p>
+<p>与常规Hash的不同在于，“Liner”关键字。 算法介绍: 假设要保存记录的分区编号为N,num为一个非负整数,表示分割成的分区的数量，那么N可以通过以下步骤得到：<br>Step 1. 找到一个大于等于num的2的幂，这个值为V，V可以通过下面公式得到：<br>    V = Power(2,Ceiling(Log(2,num)))<br>例如：刚才设置了4个分区，num=4，Log(2,4)=2,Ceiling(2)=2,power(2,2)=4,即V=4<br>Step 2. 设置N=F(column_list)&amp;(V-1)<br>例如：刚才V=4，store_id=234对应的N值，N = 234&amp;（4-1） =2<br>Step 3. 当N&gt;=num,设置V=Ceiling(V/2),N=N&amp;(V-1)<br>例如：store_id=234,N=2&lt;4,所以N就取值2，即可。<br>假设上面算出来的N=5，那么V=Ceiling(4/2)=2,N=5&amp;(2-1)=1,即在第一个分区。</p>
+<p><strong>线性Hash的优点和不足</strong><br>优点：在分区维护（增加，删除，合并，拆分分区）时，MySQL能够处理得更加迅速。<br>缺点：与常规Hash分区相比，线性Hash各个分区之间的数据分布不太均衡。</p>
+<h1 id="Key分区"><a href="#Key分区" class="headerlink" title="Key分区"></a>Key分区</h1><p>类似Hash分区，Hash分区允许使用用户自定义的表达式，但Key分区不允许使用用户自定义的表达式。Hash仅支持整数分区，而Key分区支持除了Blob和text的其他类型的列作为分区键。 语法:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">partition by key(exp) partitions 4;//exp是零个或多个字段名的列表</div></pre></td></tr></table></figure></p>
+<p>key分区的时候，exp可以为空，如果为空，则默认使用主键作为分区键，没有主键的时候，会选择非空惟一键作为分区键。</p>
+<h1 id="子分区"><a href="#子分区" class="headerlink" title="子分区"></a>子分区</h1><p>分区表中对每个分区再次分割，又成为复合分区。</p>
+<h1 id="分区对于NULL值的处理"><a href="#分区对于NULL值的处理" class="headerlink" title="分区对于NULL值的处理"></a>分区对于NULL值的处理</h1><p>MySQ允许分区键值为NULL，分区键可能是一个字段或者一个用户定义的表达式。一般情况下，MySQL在分区的时候会把NULL值当作零值或者一个最小值进行处理。</p>
+<p><strong>注意</strong><br>Range分区中：NULL值被当作最小值来处理<br>List分区中：NULL值必须出现在列表中，否则不被接受<br>Hash/Key分区中：NULL值会被当作零值来处理</p>
+<h1 id="分区管理"><a href="#分区管理" class="headerlink" title="分区管理"></a>分区管理</h1><p>分区管理包括对于分区的增加，删除，以及查询。<br>1.增加分区：<br>对于Range分区和LIst分区来说：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alter table table_name add partition (partition p0 values ...(exp))</div></pre></td></tr></table></figure></p>
+<p>values后面的内容根据分区的类型不同而不同。<br>对于Hash分区和Key分区来说：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alter table table_name add partition partitions 8;</div></pre></td></tr></table></figure></p>
+<p>上面的语句，指的是新增8个分区 。<br>2.删除分区<br>对于Range分区和List分区：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alter table table_name drop partition p0; //p0为要删除的分区名称</div></pre></td></tr></table></figure></p>
+<p>删除了分区，同时也将删除该分区中的所有数据。同时，如果删除了分区导致分区不能覆盖所有值，那么插入数据的时候会报错。<br>对于Hash和Key分区：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alter table table_name coalesce partition 2; //将分区缩减到2个</div></pre></td></tr></table></figure></p>
+<p>3.分区查询<br>1) 查询某张表一共有多少个分区<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">mysql&gt; select</div><div class="line"> -&gt;   partition_name,</div><div class="line"> -&gt;   partition_expression,</div><div class="line"> -&gt;   partition_description,</div><div class="line"> -&gt;   table_rows</div><div class="line"> -&gt; from</div><div class="line"> -&gt;   INFORMATION_SCHEMA.partitions</div><div class="line"> -&gt; where</div><div class="line"> -&gt;   table_schema=&apos;test&apos;</div><div class="line"> -&gt;   and table_name = &apos;emp&apos;;</div><div class="line">+----------------+----------------------+-----------------------+------------+</div><div class="line">| partition_name | partition_expression | partition_description | table_rows |</div><div class="line">+----------------+----------------------+-----------------------+------------+</div><div class="line">| p0             | store_id             | 10                    |          0 |</div><div class="line">| p1             | store_id             | 20                    |          1 |</div><div class="line">+----------------+----------------------+-----------------------+------------+</div></pre></td></tr></table></figure></p>
+<p>即，可以从information_schema.partitions表中查询。<br>2) 查看执行计划，判断查询数据是否进行了分区过滤<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">mysql&gt; explain partitions select * from emp where store_id=10 \G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">        id: 1</div><div class="line">select_type: SIMPLE</div><div class="line">     table: emp</div><div class="line">partitions: p1</div><div class="line">      type: system</div><div class="line">possible_keys: NULL</div><div class="line">       key: NULL</div><div class="line">   key_len: NULL</div><div class="line">       ref: NULL</div><div class="line">      rows: 1</div><div class="line">     Extra:</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure></p>
+<blockquote>
+<blockquote>
+<p>本文转自:<a href="https://my.oschina.net/jasonultimate/blog/548745" target="_blank" rel="external">https://my.oschina.net/jasonultimate/blog/548745</a><br>仅供学习实用</p>
+</blockquote>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;什么是表分区？&quot;&gt;&lt;a href=&quot;#什么是表分区？&quot; class=&quot;headerlink&quot; title=&quot;什么是表分区？&quot;&gt;&lt;/a&gt;什么是表分区？&lt;/h1&gt;&lt;p&gt;表分区，是指根据一定规则，将数据库中的一张表分解成多个更小的，容易管理的部分。从逻辑上看，只有一张表
+    
+    </summary>
+    
+      <category term="Database" scheme="http://www.pisces.ml/categories/Database/"/>
+    
+    
+      <category term="mysql" scheme="http://www.pisces.ml/tags/mysql/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>聊聊linux字符设备</title>
+    <link href="http://www.pisces.ml/2016/12/28/linux%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87/"/>
+    <id>http://www.pisces.ml/2016/12/28/linux字符设备/</id>
+    <published>2016-12-28T13:50:46.000Z</published>
+    <updated>2018-05-11T06:57:09.087Z</updated>
+    
+    <content type="html"><![CDATA[<p>这章将介绍Linux系统的设 备，这样我们才能清楚的知道应用程序和设备驱动程序是如何的工作的，或者说应用程序是如何控制驱动程序的，进而知道应用程序是如何通过驱动程序操作设备 的，另外会详细的介绍设备号及设备文件。</p>
+<h1 id="Linux设备分类"><a href="#Linux设备分类" class="headerlink" title="Linux设备分类"></a>Linux设备分类</h1><p>Linux下的设备通常分为三类，字符设备，块设备和网络设 备。</p>
+<h2 id="字符设备"><a href="#字符设备" class="headerlink" title="字符设备"></a>字符设备</h2><p>一个字符设 备是一种字节流设备，对设备的存取只能按顺序按字节的存取而不能随机访问，字符设备没有请求缓冲区，所有的访问请求都是按顺序执行的。Linux下的大多设备都是字符设备。应用程序是通过字符设备节点来访问 字符设备的。设备节点一般都由mknod命令都创 建在/dev目录下，下 面的例子显示了串口设备的设备节点。字符设备文件的第一个标志是前面的“c”标志。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">root<span class="comment">#ls -l /dev/ttyS[0-3]</span></div><div class="line">crw-rw----  1 root  root 4, 64 Feb 18 23:34 /dev/ttyS0</div><div class="line">crw-r-----  1 root  root 4, 65 Nov 17 10:26 /dev/ttyS1</div><div class="line">crw-rw----  1 root  root 4, 66 Jul  5  2000 /dev/ttyS2</div><div class="line">crw-rw----  1 root  root 4, 67 Jul  5  2000 /dev/ttyS3</div></pre></td></tr></table></figure>
+<p>字符设备是指那些只能按顺序一个字节一个字节读取的设备，但事实上现在一些高级 字符设备也可以从指定位置一次读取一块数据。字符设备是面向数据流的设备，每个字符设备都有一个设备号，设备号由主设备号和次设备号组成。同时Linux使用管理文件相同的方法来管理字符设备，所以每个字符设备在/dev/目录下都有一个对应的设备文件，即设备节点，它们包含了设备的 类型、主/次设备号以 及设备的访问权限控制等，系统通过设备文件来对字符设备进行操作，每个字符设备文件都有自己的与普通文件相同的文件操作函数组结构（struct file_operations）。字符设 备驱动通常至少需要实现文件操作函数组中的open、release、read和write四种操作方法。常见的字符设备有鼠标、键盘、串口、控制台等。</p>
+<h2 id="块设备"><a href="#块设备" class="headerlink" title="块设备"></a>块设备</h2><p>存储设备一 般属于块设备，块设备有请求缓冲区，并且支持随机访问而不必按照顺序去存取数据，比如你可以 先存取后面的数据，然后在存取前面的数据，这对字符设备来说是不可能的。Linux下的磁盘 设备都是块设备，尽管在Linux下有块设 备节点，但应用程序一般是通过文件系统及其高速缓存来访问块设备的,而不是直 接通过设备节点来读写块设备上的数据。块设备文件的第一个标志是前面的“b”标志。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">root<span class="comment"># ls -l /dev/hda[1-3]</span></div><div class="line">brw-rw----  1 root  root  3, 1 Jul  5  2000 /dev/hda1</div><div class="line">brw-rw----  1 root  root  3, 2 Jul  5  2000 /dev/hda2</div><div class="line">brw-rw----  1 root  root  3, 3 Jul  5  2000 /dev/hda3</div></pre></td></tr></table></figure>
+<p>块设备是指那些可以从设备的任意位置读取任意长度数据的设备。每个块设备同样有 一个设备号，设备号由主设备号和次设备号组成。同时Linux也使用管 理文件相同的方法来管理块设备，每个块设备在/dev/目录下都 有一个对应的设备文件，即设备节点，它们包含了设备的类型、主/次设备号 以及设备的访问权限控制等，系统通过设备文件来对块设备进行操作，每个块设备文件都有自己的与普通文件相同的文件操作函数组结构（struct file_operations）。但块设 备需要实现的操作方法远比字符设备的操作方法多得多，也难得多。块设备既可以作为普通的裸设备用来存放任意数据，也可以将块设备按某种文件系统类型的格式 进行格式化，然后按照该文件系统类型的格式来读取块设备上的数据，但不管哪种方式，最后访问设备上的数据都必须通过调用设备本身的操作方法实现，区别在于 前者直接调用块设备的操作方法，而后者则间接调用块设备的操作方法。常见的块设备有各种硬盘、flash磁盘、RAM磁盘等。</p>
+<h2 id="网络设备"><a href="#网络设备" class="headerlink" title="网络设备"></a>网络设备</h2><p>网络设备不 同于字符设备和块设备，它是面向报文的而不是面向流的，它不支持随机访问，也没有请求缓冲区。在Linux里一个网络设备也可以叫做一个网络接口，如eth0，应用程序是通过Socket而不是设备节点来访问网络设备，在系统里根本就不存在网络设备节点。</p>
+<p>网络接口用来与其他设备交换数据，它可以是硬件设备，也可以是纯软件设备，如loopback接口就是一个纯软件设备。网络接口由内核中的网络 子系统驱动，负责发送和接收数据包，但它不需要了解每项事务如何映射到实际传送的数据包，许多网络连接（尤其是使用TCP协议的连接）是面向流的，但网络设备围绕数据包的传输和接收设 计。网络驱动程序不需要知道各个连接的相关信息，它只需处理数据包。网络接口没有像字符设备和块设备一样的设备号，只有一个唯一的名字，如eth0、eth1等，而这个名字也不需要与设备文件节点对应。内核使用一套与数据 包传输相关的函数来与网络设备驱动程序通信，它们不同于字符设备和块设备的read()和write()方法。</p>
+<h1 id="设备节点、设备驱动及设备的关联"><a href="#设备节点、设备驱动及设备的关联" class="headerlink" title="设备节点、设备驱动及设备的关联"></a>设备节点、设备驱动及设备的关联</h1><p>当我们访问 一个设备节点是，系统是如果知道使用哪个设备驱动及访问哪个设备的呢？这个是通过设备号来实现的。当我们创建一个设备节点时需要指定主设备号和次设备号。 对于设备节点来说，名字不是重要的，设备号才是最重要的，它实际指定了对应的驱动程序和对应的设备。</p>
+<p>Linux的设备管理是和文件系统紧密结合的，各种设备都以文件的形式存 放在/dev目录下，称 为设备文件。应用程序可以打开、关闭和读写这些设备文件，完成对设备的操作，就像操作普通的数据文件一样。为了管理这些设备，系统为设备编了号，每个设备 号又分为主设备号和次设备号。主设备号用来区分不同种类的设备，而次设备号用来区分同一类型的多个设备。对于常用设备，Linux有约定俗成的编号，如硬盘的主设备号是3。</p>
+<p>Linux为所有的 设备文件都提供了统一的操作函数接口，方法是使用数据结构struct file_operations。这个数据结构中包括许多操作函数的指针，如open()、close()、read()和write()等，但由于外设的种类较多，操作方式各不相同。Struct file_operations结构体中的 成员为一系列的接口函数，如用于读/写的read/write函数和用于控制的ioctl等。打开一个文件就是调用这个文件file_operations中的open操作。不同类型的文件有不同的file_operations成员函数， 如普通的磁盘数据文件，接口函数完成磁盘数据块读写操作；而对于各种设备文件，则最终调用各自驱动程序中的I/O函数进行具体设备的操作。这样，应用程序根本不必考虑操作的是设 备还是普通文件，可一律当作文件处理，具有非常清晰统一的I/O接口。所 以file_operations是文件层 次的I/O接口。</p>
+<h2 id="主设备号"><a href="#主设备号" class="headerlink" title="主设备号"></a>主设备号</h2><p>驱动程序在 初始化时，会注册它的驱动及对应主设备号到系统中，这样当应用程序访问设备节点时，系统就知道它所访问的驱动程序了。你可以通过/proc/devices文件来驱动 系统设备的主设备号。</p>
+<h2 id="次设备号"><a href="#次设备号" class="headerlink" title="次设备号"></a>次设备号</h2><p>驱动程序遍历设备时，每发现一个它能驱动的设备，就创建一个设备对象，并为其分配一个次设备号以区分不同的设备。这样当应用程序访问设备节点时驱动程序就可以根据次 设备号知道它说访问的设备了。<br>系统中的每一个字符设备和块设备（网络接口没有设备号）都有一个设备号，传统的UNIX以及早期版本Linux中的设备号是16位的，主次设备号都是8位的，低8位为次设备号，高8位为主设备号，因此系统最多分别支持65536个字符设备和65536个块设备，这个限制已经不能满足当 前层出不穷的各种新设备的需要，所以Linux2.6中对设备号已经进行了扩展，一个设备 号为32位，主设备号为12位，次设备号为20位，但是这32位设备号的编码方式有新旧两种，旧的设备编号格式为：最高12位为主设备号，最低20位为次设备号；新的设备编号格式为：bit[19:8]是主设备号，bit[31:20]是次设备号的高12位，bit[7:0]是次设备号的低8位。如果知道了一个设备的主设备号major和次设备号minor，那么用MKDEV(major,minor)生成是该设备的旧格式的设备号，用new_encode_dev(MKDEV(major,minor))生成的则是新格式的设备号。Linux支持的各种设备的主设备号定义在include/linux/major.h文件中，而已经在官方注册的主设备号和次设备号在Documentation/devices.txt文件中可以找到。<br>老式16位设备号、32位旧格式设备号以及32位新格式设备号的转换操作函数如下：<br>new_encode_dev(dev_t dev)函数<br>将32位旧格式 设备号dev转换成32位新格式设备号。<br>new_decode_dev(u32 dev)函数<br>将32位新格式 设备号转换成32位旧格式设 备号。<br>old_encode_dev(dev_t dev)函数<br>将32位旧格式 设备号转换成老式16位设备号。<br>dev_t old_decode_dev(u16 val)函数<br>将老式16位设备号转换成32位旧格式设备号。<br>Linux中设备节点是通过“mknod”命令来创建 的。一个设备节点其实就是一个文件，Linux中称为设 备文件。有一点必要说明的是，在Linux中，所有 的设备访问都是通过文件的方式，一般的数据文件程序普通文件，设备节点称为设备文件。在Linux内核中网络设备也是通过文件操作的，称为网络设备文件，在用户空间是通过socket接口来访问的。socket号就是网络设备文件描述符。<br>如：mknod /dev/mydevice c 254 0<br>(c代表子都设备，254为主设备号，0为次设备号)<br>Open，close等操作/dev/下设备文件，内核根据文件的主设备号找到对应的设备驱动<br>主设备号可以分为动态和静态申请。</p>
+<h2 id="设备文件"><a href="#设备文件" class="headerlink" title="设备文件"></a>设备文件</h2><p>Linux使用对文 件一样管理方式来管理设备，所以对于系统中的每个字符设备或者块设备都必须为其创建一个设备文件，这个设备文件就是放在/dev/目录下的设备节点，它包含了该设备的设备类型（块设备或字符设 备）、设备号（主设备号和次设备号）以及设备访问控制属性等。设备文件可以通过手工用mknod命令生成也可以由udev用户工具 软件在系统启动后根据/sys目录下每个 设备的实际信息创建，使用后一种方式可以为每个设备动态分配设备号，而不必分配固定的设备号，如果系统中的设备不多，而且设备类型又是常见的，可以使用手 工方式生成设备文件，为常用设备创建一个已经分配号的设备号对应的设备文件，这样比较方便。如果系统很大，系统中的设备太多，那么最好动态分配设备号，由udev在系统启动之后根据设备实际信息自动创建设备文件。<br>Linux下的大部分驱动程序都是字符设备驱动程序，通过下面的学习我们将 会了解到字符设备是如何注册到系统中的，应用程序是如何访问驱动程序的数据的，及字符驱动程序是如何工作的。</p>
+<h2 id="设备号"><a href="#设备号" class="headerlink" title="设备号"></a>设备号</h2><p>通过前面的 学习我们知道应用程序是通过设备节点来访问驱动程序及设备的，其根本是通过设备节点的设备号（主设备号及从设备号）来关联驱动程序及设备的，字符设备也不 例外（其实字符设备只能这样访问）。这里我们详细讨论Linux内部如何管 理设备号的。</p>
+<h2 id="设备号类型"><a href="#设备号类型" class="headerlink" title="设备号类型"></a>设备号类型</h2><p>Linux内核里用“dev_t”来表示设备号，它是一个32位的无符号数，其高12位用来表示主设备号，低20位用来表示从设备号。它被定义在<linux types.h="">头文件里。 内核里提供了操作“dev_t”的函数，驱动 程序中通过这些函数（其实是宏，定义在<linux kdev_t.h="">文件中）来操作设备号。</linux></linux></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#define MINORBITS    20</span></div><div class="line"><span class="comment">#define MINORMASK    ((1U &lt;&lt; MINORBITS) - 1)</span></div><div class="line"><span class="comment">#define MAJOR(dev)    ((unsigned int) ((dev) &gt;&gt; MINORBITS))</span></div><div class="line"><span class="comment">#define MINOR(dev)    ((unsigned int) ((dev) &amp; MINORMASK))</span></div><div class="line"><span class="comment">#define MKDEV(ma,mi)    (((ma) &lt;&lt; MINORBITS) | (mi))</span></div></pre></td></tr></table></figure>
+<p>MAJOR（dev）用于获取主设备号，MINOR（dev）用于获取从设备号，而MKDEV（ma，mi）用于通过主设备号和从设备号构造”dev_t”数据。<br>另一点需要 说明的是，dev_t数据类型支持2^12个主设备号，每个主设备号（通常是一个设备驱动）可以支持2^20个设备，目前来说这已经足够大了，但谁又能说将来还能满足要求 呢？一个良好的编程习惯是不要依赖dev_t这个数据类 型，切记必须使用内核提供的操作设备号的函数。</p>
+<h2 id="字符设备号注册"><a href="#字符设备号注册" class="headerlink" title="字符设备号注册"></a>字符设备号注册</h2><p>内核提供了字符设备号管理的函数接口，作为一个良好的编程习惯，字符设备驱动程 序应该通过这些函数向系统注册或注销字符设备号。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">int register_chrdev_region(dev_t from, unsigned count, const char *name)</div><div class="line">int alloc_chrdev_region(dev_t *dev, unsigned baseminor, unsigned count,</div><div class="line">            const char *name)</div><div class="line">void unregister_chrdev_region(dev_t from, unsigned count)</div></pre></td></tr></table></figure></p>
+<p>register_chrdev_region用于向内核注册已知可用的设备号（次设备号通常是0）范围。由于历史的原因一些设备的设备号是固定的，你可以在内核源代码树的Documentation/devices.txt文件中找到这些静态分配的设备号。<br>alloc_chrdev_region用于动态分 配的设备号并注册到内核中，分配的设备号通过dev参数返回。 作为一个良好的内核开发习惯，我们推荐你使用动态分配的方式来生成设备号。<br>unregister_chrdev_region用于注销一 个不用的设备号区域，通常这个函数在驱动程序卸载时被调用。</p>
+<h2 id="字符设备-1"><a href="#字符设备-1" class="headerlink" title="字符设备"></a>字符设备</h2><p>Linux2.6内核使用“struct cdev”来记录字符设备的信息，内核也提供了相关的函数来操作“struct cdev”对象，他们定义在<linux cdev.h="">头文件中。 可见字符设备及其操作函数接口定义的很简单。</linux></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">struct cdev &#123;</div><div class="line">    struct kobject kobj;</div><div class="line">    struct module *owner;</div><div class="line">    const struct file_operations *ops;</div><div class="line">    struct list_head list;</div><div class="line">    dev_t dev;</div><div class="line">    unsigned int count;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">void cdev_init(struct cdev *, const struct file_operations *);</div><div class="line">struct cdev *cdev_alloc(void);</div><div class="line">void cdev_put(struct cdev *p);</div><div class="line">int cdev_add(struct cdev *, dev_t, unsigned);</div><div class="line">void cdev_del(struct cdev *);</div></pre></td></tr></table></figure>
+<p>对于Linux 2.6内核来说，struct cdev是内核字符设备的基础结构，用来表示一个字符设备，包含了字符设备需要的全部信息。</p>
+<ul>
+<li>kobj：struct kobject对象数据，用来描述设备的引用计数，是Linux设备模型的基础结构。我们在后面的“Linux设备模型”在做详细的介绍。</li>
+<li>owner：struct module对象数据，描述了模块的属主，指向拥有这个结构的模块的指针，显然它只有对编译为模块方式的驱动才由意义。一般赋值位“THIS_MODULE”。</li>
+<li>ops：struct file_operations对象数据，描述了字符设备的操作函数指针。对于设备驱动来说，这是一个很重要的数据成员，几乎所有的驱动都要用到这个对象，我们会在下面做详细介绍。</li>
+<li>dev：dev_t对象数据，描述了字符设备的设备号。<br>内核提供了操作字符设备对象“struct cdev”的函数，我们只能通过这些函数来操作字符设备，例如：初始化、注册、添加、移除字符设备。</li>
+<li><p>cdev_alloc：用于动态分配一个新的字符设备cdev对象，并对其进行初始化。采用cdev_alloc分配的cdev对象需要显示的初始化owner和ops对象。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">// 参考drivers/scsi/st.c:st_probe 函数</div><div class="line">struct cdev *cdev = NULL;</div><div class="line">cdev = cdev_alloc();</div><div class="line">// Error Processing</div><div class="line">cdev-&gt;owner = THIS_MODULE;</div><div class="line">cdev-&gt;ops = &amp;st_fops;</div></pre></td></tr></table></figure>
+</li>
+<li><p>cdev_init：用于初始化一个静态分配的cdev对象，一般这个对象会嵌入到其他的对象中。cdev_init会自动初始化ops数据，因此应用程序只需要显示的给owner对象赋值。cdev_init的功能与cdev_alloc基本相同，唯 一的区别是cdev_init初始化一个 已经存在的cdev对象，并且这个初始化会影响到字符设备删除函数（cdev_del）的行为， 请参考cdev_del函数。</p>
+</li>
+<li>cdev_add：向内核系统中添加一个新的字符设备cdev，并且使它立即可用。</li>
+<li>cdev_del：从内核系统中移除cdev字符设备。如 果字符设备是由cdev_alloc动态分配的，则会释放分配的内存。</li>
+<li>cdev_put：减少模块的引用计数，一般很少会有驱动程序直接调用这个函数。</li>
+</ul>
+<h1 id="文件操作对象"><a href="#文件操作对象" class="headerlink" title="文件操作对象"></a>文件操作对象</h1><p>Linux中的所有设备都是文件，内核中用“struct file”结构来表示一 个文件。尽管我们的驱动不会直接使用这个结构中的大部分对象，其中的一些数据成员还是很重要的，我们有必要在这里做一些介绍，具体的内容请参考内核源代码 树<linux fs.h="">头文件。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">// struct file 中的一些重要数据成员</div><div class="line">const struct file_operations    *f_op;</div><div class="line">unsigned int         f_flags;</div><div class="line">mode_t            f_mode;</div><div class="line">loff_t            f_pos;</div><div class="line">struct address_space    *f_mapping;</div></pre></td></tr></table></figure></linux></p>
+<p>这里我们不对struct file做过多的介绍，另一篇struct file将做详细介绍。这个结构中的f_ops成员是我们的驱动所关心的，它是一个struct file_operations结构。Linux里的struct file_operations结构描述了一 个文件操作需要的所有函数，它定义在<linux fs.h="">头文件中。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">struct file_operations &#123;</div><div class="line">    struct module *owner;</div><div class="line">    loff_t (*llseek) (struct file *, loff_t, int);</div><div class="line">    ssize_t (*<span class="built_in">read</span>) (struct file *, char __user *, size_t, loff_t *);</div><div class="line">    ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);</div><div class="line">    ssize_t (*aio_read) (struct kiocb *, const struct iovec *, unsigned long, loff_t);</div><div class="line">    ssize_t (*aio_write) (struct kiocb *, const struct iovec *, unsigned long, loff_t);</div><div class="line">    int (*readdir) (struct file *, void *, filldir_t);</div><div class="line">    unsigned int (*poll) (struct file *, struct poll_table_struct *);</div><div class="line">    int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);</div><div class="line">    long (*unlocked_ioctl) (struct file *, unsigned int, unsigned long);</div><div class="line">    long (*compat_ioctl) (struct file *, unsigned int, unsigned long);</div><div class="line">    int (*mmap) (struct file *, struct vm_area_struct *);</div><div class="line">    int (*open) (struct inode *, struct file *);</div><div class="line">    int (*flush) (struct file *, fl_owner_t id);</div><div class="line">    int (*release) (struct inode *, struct file *);</div><div class="line">    int (*fsync) (struct file *, struct dentry *, int datasync);</div><div class="line">    int (*aio_fsync) (struct kiocb *, int datasync);</div><div class="line">    int (*fasync) (int, struct file *, int);</div><div class="line">    int (*lock) (struct file *, int, struct file_lock *);</div><div class="line">    ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);</div><div class="line">    unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);</div><div class="line">    int (*check_flags)(int);</div><div class="line">    int (*dir_notify)(struct file *filp, unsigned long arg);</div><div class="line">    int (*flock) (struct file *, int, struct file_lock *);</div><div class="line">    ssize_t (*splice_write)(struct pipe_inode_info *, struct file *, loff_t *, size_t, unsigned int);</div><div class="line">    ssize_t (*splice_read)(struct file *, loff_t *, struct pipe_inode_info *, size_t, unsigned int);</div><div class="line">    int (*setlease)(struct file *, long, struct file_lock **);</div><div class="line">&#125;;</div></pre></td></tr></table></figure></linux></p>
+<p>这是一个很大的结构，包含了所有的设备操作函数指针。当然，对于一个驱动，不是所有的接口都需要来实现的。对于一个字符设备来说，一般实现open、release、read、write、mmap、ioctl这几个函数就足够了。<br>这里需要指出的是，open和release函数的第一个参数是一个struct inode对象。这是一个内核文件系统索引节点对象，它包含了内核在操作文件或目录是需要的全部信息。对于字符设备驱动来说，我们关心的是从struct inode对象中获取设备号（inode的i_rdev成员）内核提供了两个函数来做这件事。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">static inline unsigned iminor(const struct inode *inode)</div><div class="line">&#123;</div><div class="line">    <span class="built_in">return</span> MINOR(inode-&gt;i_rdev);</div><div class="line">&#125;</div><div class="line">static inline unsigned imajor(const struct inode *inode)</div><div class="line">&#123;</div><div class="line">    <span class="built_in">return</span> MAJOR(inode-&gt;i_rdev);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>尽管我们可以直接从inode-&gt;i_rdev获取设备号，但是尽量不要这样做。我们推荐你调用内核提供的函数来获取设备号，这样即使将来inode-&gt;i_rdev有所变化，我们的程序也会工作的很好。<br>字符设备驱动可以参考Linux 设备驱动程序第三版和linux设备驱动开发详解，其中linux设备驱动程序第三版中讲的：<br>主次编号<br>一些重要数据结构<br>字符设备注册<br>Open和release<br>读和写<br>一些头文件和结构体；<br>都非常经典， 都理解字符驱动设备很重要，很值得参考！</p>
+<blockquote>
+<blockquote>
+<font color="red">本文转自网络，仅做学习交流使用</font>
+</blockquote>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这章将介绍Linux系统的设 备，这样我们才能清楚的知道应用程序和设备驱动程序是如何的工作的，或者说应用程序是如何控制驱动程序的，进而知道应用程序是如何通过驱动程序操作设备 的，另外会详细的介绍设备号及设备文件。&lt;/p&gt;
+&lt;h1 id=&quot;Linux设备分类&quot;&gt;&lt;a href
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://www.pisces.ml/categories/Linux/"/>
+    
+    
+      <category term="linux device" scheme="http://www.pisces.ml/tags/linux-device/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ARP地址解析协议</title>
+    <link href="http://www.pisces.ml/2016/12/16/Address-Resolution-Protocol/"/>
+    <id>http://www.pisces.ml/2016/12/16/Address-Resolution-Protocol/</id>
+    <published>2016-12-16T03:55:09.000Z</published>
+    <updated>2018-05-11T06:57:27.773Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><a href="https://en.wikipedia.org/wiki/Address_Resolution_Protocol" target="_blank" rel="external"><font size="3">ARP协议</font></a>是处于<a href="https://en.wikipedia.org/wiki/OSI_model" target="_blank" rel="external">7层网络模型</a>中的网络层的协议，协议内容根据IP地址获取物理地址的一个TCP/IP协议。主机发送信息时将包含目标IP地址的ARP请求广播到网络上的所有主机，并接收返回消息，以此确定目标的物理地址；收到返回消息后将该IP地址和物理地址存入本机ARP缓存中并保留一定时间，下次请求时直接查询ARP缓存以节约资源。地址解析协议是建立在网络中各个主机互相信任的基础上的，网络上的主机可以自主发送ARP应答消息，其他主机收到应答报文时不会检测该报文的真实性就会将其记入本机ARP缓存；由此攻击者就可以向某一主机发送伪ARP应答报文，使其发送的信息无法到达预期的主机或到达错误的主机，这就构成了一个ARP欺骗。ARP命令可用于查询本机ARP缓存中IP地址和MAC地址的对应关系、添加或删除静态对应关系等。</p>
+<h1 id="ARP工作流程"><a href="#ARP工作流程" class="headerlink" title="ARP工作流程"></a>ARP工作流程</h1><p>举个例子，我们假设：<br>主机A的IP地址为192.168.0.1，mac地址为xx-xx-xx-xx-xx-01;<br>主机B的IP地址为192.168.0.2，mac地址为xx-xx-xx-xx-xx-02;<br>当主机A需要与主机B通信时，地址解析协议需要将主机B的IP地址解析成主机B的物理地址（即mac地址，我们知道所有设备都有一个<br>唯一的mac地址），这样根据实际的物理地址两个主机才能够相互通信。以下是工作流程：</p>
+<ol>
+<li>首先主机A会确定用于访问主机B的转发IP地址是192.168.0.2（根据本地解析，或者域名解析等）。然后A主机在自己的本地ARP缓存中检查主机B的匹配MAC地址。</li>
+<li>如果主机A在ARP缓存中没有找到映射，它将询问192.168.0.2的硬件地址，从而将ARP请求帧广播到本地网络上的所有主机。源主机A的IP地址和MAC地址都包括在ARP请求中。本地网络上的每台主机都接收到ARP请求并且检查是否与自己的IP地址匹配。如果主机发现请求的IP地址与自己的IP地址不匹配，它将丢弃ARP请求。</li>
+<li>主机B确定ARP请求中的IP地址与自己的IP地址匹配，则将主机A的IP地址和MAC地址映射添加到本地ARP缓存中。</li>
+<li>主机B将包含其MAC地址的ARP回复消息直接发送回主机A。</li>
+<li>当主机A收到从主机B发来的ARP回复消息时，会用主机B的IP和MAC地址映射更新ARP缓存。本机缓存是有生存期的，生存期结束后，将再次重复上面的过程。主机B的MAC地址一旦确定，主机A就能向主机B发送IP通信了。</li>
+</ol>
+<h1 id="ARP命令实用"><a href="#ARP命令实用" class="headerlink" title="ARP命令实用"></a>ARP命令实用</h1><p>查看arp命令帮助：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">man arp</div></pre></td></tr></table></figure></p>
+<p><font size="4"><strong><em>ARP常用命令选项</em></strong>：</font></p>
+<p><font size="3">arp -a / arp -g</font><br>查看地址缓存中的所有项目</p>
+<p><font size="3">arp -a IP</font><br>如果我们有多个网卡，那么使用arp -a加上接口的IP地址，就可以只显示与该接口相关的ARP缓存项目。</p>
+<p><font size="3">arp -s/-S IP ether_addr(物理地址)</font><br>配置本地ARP缓存，如果目标物理地址配置错误，将导致主机间无法通信。(可以尝试下如果配置一个错误地址是ping不通的), 参数-S含义是如果添加的地址已经存在，会将其先删除再添加</p>
+<p><font size="3">arp -d IP</font><br>删除一个ARP缓存条目</p>
+<blockquote>
+<p>更多使用方法可以通过帮助命令查看，非常全面。前提是英语得过关😅</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Address_Resolution_Protocol&quot; ta
+    
+    </summary>
+    
+      <category term="Network" scheme="http://www.pisces.ml/categories/Network/"/>
+    
+    
+      <category term="ARP" scheme="http://www.pisces.ml/tags/ARP/"/>
+    
+  </entry>
+  
+</feed>

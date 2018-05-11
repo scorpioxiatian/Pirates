@@ -1,0 +1,1204 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="keystone," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Pirates" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="简介Keystone(OpenStack Identity Service)是 OpenStack 框架中负责管理身份验证、服务规则和服务令牌功能等的模块。用户访问资源需要验证用户的身份与权限，服务执行操作也需要进行权限检测，这些都需要通过 Keystone 来处理。目前Keystone同时支持V2和V3版本．Keystone V3 版本做出了许多变化和改进，引入了 Domain 和 Group">
+<meta name="keywords" content="keystone">
+<meta property="og:type" content="article">
+<meta property="og:title" content="keystone架构和功能分析">
+<meta property="og:url" content="http://www.pisces.ml/2016/04/24/keystone-architecture/index.html">
+<meta property="og:site_name" content="Pirates">
+<meta property="og:description" content="简介Keystone(OpenStack Identity Service)是 OpenStack 框架中负责管理身份验证、服务规则和服务令牌功能等的模块。用户访问资源需要验证用户的身份与权限，服务执行操作也需要进行权限检测，这些都需要通过 Keystone 来处理。目前Keystone同时支持V2和V3版本．Keystone V3 版本做出了许多变化和改进，引入了 Domain 和 Group">
+<meta property="og:image" content="http://www.pisces.ml/images/relation_user_project_region.jpg">
+<meta property="og:image" content="http://www.pisces.ml/images/flow_chart.jpg">
+<meta property="og:image" content="http://www.pisces.ml/images/openstack.jpg">
+<meta property="og:image" content="http://www.pisces.ml/images/image2016-3-4%2016-57-3.png">
+<meta property="og:image" content="http://www.pisces.ml/images/RESTFul_API.jpg">
+<meta property="og:updated_time" content="2018-05-10T10:19:31.450Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="keystone架构和功能分析">
+<meta name="twitter:description" content="简介Keystone(OpenStack Identity Service)是 OpenStack 框架中负责管理身份验证、服务规则和服务令牌功能等的模块。用户访问资源需要验证用户的身份与权限，服务执行操作也需要进行权限检测，这些都需要通过 Keystone 来处理。目前Keystone同时支持V2和V3版本．Keystone V3 版本做出了许多变化和改进，引入了 Domain 和 Group">
+<meta name="twitter:image" content="http://www.pisces.ml/images/relation_user_project_region.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.pisces.ml/2016/04/24/keystone-architecture/"/>
+
+
+
+
+
+  <title> keystone架构和功能分析 | Pirates </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-89244963-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?72c93c3a5a0145d3a078592d8b7af890";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Pirates</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-love">
+          <a href="/romance/love.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br />
+            
+            爱之篇章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://www.pisces.ml/2016/04/24/keystone-architecture/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Summer Smith">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Pirates">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Pirates" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                keystone架构和功能分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-04-24T09:00:13+08:00">
+                2016-04-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Openstack/" itemprop="url" rel="index">
+                    <span itemprop="name">Openstack</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <a href="/2016/04/24/keystone-architecture/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/24/keystone-architecture/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/04/24/keystone-architecture/" class="leancloud_visitors" data-flag-title="keystone架构和功能分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Keystone(OpenStack Identity Service)是 OpenStack 框架中负责管理身份验证、服务规则和服务令牌功能等的模块。用户访问资源需要验证用户的身份与权限，服务执行操作也需要进行权限检测，这些都需要通过 Keystone 来处理。目前Keystone同时支持V2和V3版本．Keystone V3 版本做出了许多变化和改进，引入了 Domain 和 Group 等新概念．</p>
+<h2 id="keystone基本概念"><a href="#keystone基本概念" class="headerlink" title="keystone基本概念"></a>keystone基本概念</h2><p>Keystone 中主要涉及到如下几个概念：User、Project(v3)、Domain、Region、Role、Token。下面对这几个概念进行简要说明。</p>
+<ul>
+<li>User：即使用服务的用户，可以是人、服务或者是系统，只要是使用了 Openstack 服务的对象都可以称为用户。</li>
+<li>Project：项目或者理解为组织拥有的资源的合集。在一个项目中可以拥有很多个用户，这些用户可以根据权限的划分使用项目中的资源。</li>
+<li>Domain: 作用域，即项目的集合，在一个域内可以创建多个项目。</li>
+<li>Region: 作用范围，是域的集合，通过Region来划分区域，Region包括了所有的可用资源。</li>
+<li>Role角色:用于分配操作的权限。角色可以被指定给用户，使得该用户获得角色对应的操作权限。</li>
+<li>Credential 用户证据：用来证明用户身份的证据，可以是用户名和密码、用户名和API key，或者一个 Keystone 分配的身份token。</li>
+<li>Token令牌：指的是一串比特值或者字符串，用来作为访问资源的记号。Token 中含有可访问资源的范围和有效时间。</li>
+<li>Group组：分组可以跟项目或者域建立相应关系．同组的项目可以对项目或者域内享有相应的操作权限。</li>
+<li>Service 服务：一个 OpenStack 服务，比如Nova、Swift或者Glance等。每个服务提供一个或者多个 endpoint 供用户访问资源以及进行操作。</li>
+<li>Endpoint端点 ：一个网络可访问的服务地址，通过它你可以访问一个服务，通常是个 URL 地址。不同 region 有不同的service endpoint。endpoint告诉也可告诉 OpenStack service 去哪里访问特定的 servcie。比如，当 Nova 需要访问 Glance 服务去获取 image 时，Nova 通过访问 Keystone 拿到 Glance 的 endpoint，然后通过访问该 endpoint 去获取Glance服务。我们可以通过Endpoint的 region 属性去定义多个 region。Endpoint 该使用对象分为三类：<ol>
+<li>adminurl:提供给admin访问</li>
+<li>internalurl:该地址是给内部服务之间进行访问</li>
+<li>publicurl:公共用户可以访问的地址</li>
+</ol>
+</li>
+<li>Policy:OpenStack对用户的验证除了 OpenStack 的身份验证以外，还需要鉴别用户对某个服务是否有访问权限。Policy 机制就是用来控制某一个 User 在某个 Tenant 中某个操作的权限。这个 User 能执行什么操作，不能执行什么操作，就是通过 policy 机制来实现的。对于 Keystone 服务来说，policy 就是一个json 文件，默认是 /etc/keystone/policy.json。通过配置这个文件，Keystone Service 实现了对 User 的基于用户角色的权限管理。<h2 id="概念理解"><a href="#概念理解" class="headerlink" title="概念理解"></a>概念理解</h2><h3 id="账户关系"><a href="#账户关系" class="headerlink" title="账户关系"></a>账户关系</h3><img src="/images/relation_user_project_region.jpg" alt=""><br>从上图中，我们可以看出在一个 RegionOne中包含多个Domain，每个Domain共同使用Region所提供的资源。Domain1中包含 3 个 Projects,可以通过 Group1 将 Role admin直接赋予 Domain,那么 Group1 中的所有用户将会对 Domain1中的所有 Projects 都拥有admin权限。也可以通过 Group2 将 Role demo 只赋予 Project3,这样 Group2 中的 User 就只拥有对Project3有相应的权限，而不会影响其它 Projects。<h3 id="管理对象关系"><a href="#管理对象关系" class="headerlink" title="管理对象关系"></a>管理对象关系</h3><img src="/images/flow_chart.jpg" alt=""><br>从上图我们可以清晰的看到各个对象之间的总体关系，简单的说用户通过用户名密码登入（或者使用联合认证登入），验证成功keystone会返回相应的token(scope_token/unscope_token),scope_token中包含一系列的meta信息（包括端口／角色／项目），每次请求都会先验证token有效性，用户再拿这token去请求相应的资源，服务跟服务之间访问也是通过endpoint找到服务地址并进行请求资源信息，可见token在整个openstaqck家族起到了很重要的作用。另外需要提的是各个服务中的policy机制，policy是根据token中的角色信息来判断用户是否有相应的操作权限。<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><h3 id="整体架构图"><a href="#整体架构图" class="headerlink" title="整体架构图"></a>整体架构图</h3><img src="/images/openstack.jpg" alt=""><br>由上图可知keystone为各个模块提供认证服务，所以各个模块与keystone都有所交互。其中登录认证体现在用户访问各个组件的API时，调用了WSGI框架的authtoken filter，该filter最先调用keystoneclient ，最终通过keystone验证token，完成对用户的登录认证。如果认证失败，用户将不能访问该API。<h3 id="keystone架构"><a href="#keystone架构" class="headerlink" title="keystone架构"></a>keystone架构</h3><h4 id="keystone源码结构"><a href="#keystone源码结构" class="headerlink" title="keystone源码结构"></a>keystone源码结构</h4>目录结构<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">├── assignment</div><div class="line">│   ├── backends</div><div class="line">│   ├── controllers.py</div><div class="line">│   ├── controllers.pyc</div><div class="line">│   ├── core.py</div><div class="line">│   ├── core.pyc</div><div class="line">│   ├── __init__.py</div><div class="line">│   ├── __init__.pyc</div><div class="line">│   ├── role_backends</div><div class="line">│   ├── routers.py</div><div class="line">│   ├── routers.pyc</div><div class="line">│   ├── schema.py</div><div class="line">│   └── schema.pyc</div><div class="line">├── auth</div><div class="line">│   ├── controllers.py</div><div class="line">│   ├── controllers.pyc</div><div class="line">│   ├── core.py</div><div class="line">│   ├── core.pyc</div><div class="line">│   ├── __init__.py</div><div class="line">│   ├── __init__.pyc</div><div class="line">│   ├── plugins</div><div class="line">│   ├── routers.py</div><div class="line">│   └── routers.pyc</div><div class="line">├── backends.pyc</div><div class="line">├── catalog</div><div class="line">│   ├── backends</div><div class="line">│   ├── controllers.py</div><div class="line">│   ├── controllers.pyc</div><div class="line">│   ├── core.py</div><div class="line">│   ├── core.pyc</div><div class="line">│   ├── __init__.py</div><div class="line">│   ├── __init__.pyc</div><div class="line">│   ├── routers.py</div><div class="line">│   ├── routers.pyc</div><div class="line">│   ├── schema.py</div><div class="line">│   └── schema.pyc</div><div class="line">├── clean.pyc</div><div class="line">├── cli.pyc</div><div class="line">├── cmd</div><div class="line">│   ├── all.py</div><div class="line">│   ├── all.pyc</div><div class="line">│   ├── cli.py</div><div class="line">│   ├── cli.pyc</div><div class="line">│   ├── __init__.py</div><div class="line">│   ├── __init__.pyc</div><div class="line">│   ├── manage.py</div><div class="line">│   └── manage.pyc</div><div class="line">......</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<ol>
+<li>cmd目录下(主要存放命令行工具)：<ul>
+<li>keystone-all（本地启动服务监听35357和5000端口）</li>
+<li>keystone-manage（keystone综合管理工具<br>  a. db_sync:初始化数据库<br>  b. db_version：打印数据库迁移版本<br>  c. fernet_rotate：Rotate Fernet encryption keys。<br>  d. fernet_setup：Setup a key repository for Fernet tokens<br>  e. mapping_purge:清空mapping表<br>  f. pki_setup：初始化生成密钥对和证书文件<br>  g. saml_idp_metadata：生成Identity Provider的metadata<br>  h. ssl_setup ：为https链接生成密钥对和证书<br>  i. token_flush ：清除过期token</li>
+</ul>
+</li>
+<li>服务目录：<ul>
+<li>服务目录如identity,token,catalog等，他们的架构类似都是通过router进行url路由到相应的controller上，controller进行逻辑处理，通过指定的driver调用相应的后台处理。</li>
+</ul>
+</li>
+<li>server目录：<ul>
+<li>服务入口，主要是加载配置启动服务监听相应端口</li>
+</ul>
+</li>
+<li>middleware目录：<ul>
+<li>中间键支持，用于预处理request请求<h4 id="keystone服务启动"><a href="#keystone服务启动" class="headerlink" title="keystone服务启动"></a>keystone服务启动</h4><em>启动方式</em><br>keystone可以通过两种方式启动分别是本地开发模式和部署环境：<br>本地开发环境：keystone-all –configl-file /etc/keystone/keystone.conf<br>部署环境：主要是将应用跑在httpd上，可参考配置文档：<a href="http://docs.openstack.org/developer/keystone/apache-httpd.html" target="_blank" rel="external">http://docs.openstack.org/developer/keystone/apache-httpd.html</a><br><em>启动模式分析</em><br>keystone通过paste deploy组织app，会启动admin(监听35357端口)和main(监听5000端口),对应keystone-paste.ini中的[composite:main]和[composite:admin]，如下所示配置文件：<br><img src="/images/image2016-3-4 16-57-3.png" alt=""><br>从上面配置文件我们可以看出admin应用主要是提供管理员app，main主要提供了公共app。他们同时都支持v2和v3版本api，我们可以看出v3版本的api在admin和main中是没有差异的（在v3版本中都是使用api_v3），但是在v2版本中存在差异，在main用了public_api而在admin中用了admin_api（这就可以解释为何在v2版本中向不同的端口发送相同的请求却返回不同结果）。简单的说在v2版本中还区分admin和public，在v3版本中已经不区分，v3版本中就是按照RBAC即访问控制来决定用户是否对该api有操作权限。<br>具体的factory构造，包括路由的实现，以及中间件的处理，到最终的应用处理有兴趣可以看看源码的实现，这里就不多说了。<h4 id="keystone-RESful-Api架构"><a href="#keystone-RESful-Api架构" class="headerlink" title="keystone RESful Api架构"></a>keystone RESful Api架构</h4>架构图：<br><img src="/images/RESTFul_API.jpg" alt=""><br>keystone是基于python WSGI框架实现的web应用，通过paste组织web应用服务网络，对外提供REST Api，主要提供了提供 Identity、Token、Catalog 、Resource、Assignment和 Policy 服务：</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>Identity服务验证了身份验证凭证，并提供了所有相关的元数据。</li>
+<li>Token服务验证并管理用于验证请求身份的令牌。</li>
+<li>Catalog服务提供了可用于端点发现的服务注册表。</li>
+<li>Policy服务暴露了一个基于规则的身份验证引擎。</li>
+<li>Resource服务提供资源包括project/domain</li>
+<li>Assignment服务分配角色<br>每个 Keystone 功能都支持用于集成到异构环境并展示不同功能的后端插件。通过下表我们看下各个服务所管理的对象：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">| 组件名称 | 管理对象 | 类型/格式 | 服务后台 | 配置后台 |</div><div class="line">|:-----:|:-----:|:-----:|:-----:|:-----:|</div><div class="line">| identity | keystone.identity.controllers.Groupl3 keystone.identity.controllers.UserV3 | -- | ldap/sql | [identity] driver = sql|</div><div class="line">| Token | keystone.token.controllers.Auth | uuid/pki/pkiz/fernet | kvs/sql/memcache/memcache_pool | [token] provider = uuid/pki/pkiz/fernet driver = sql/memcache/memcache_pool |</div><div class="line">|Catalog  | keystone.catalog.controllers.EndpointV3 keystone.catalog.controllers.RegionV3 keystone.catalog.controllers.ServiceV3 | -- |  kvs/templated/sql | [catalog] driver=sql/kvs/templated |</div><div class="line">| Policy | keystone.policy.controllers.PolicyV3 | -- | sql | [policy] driver=sql |</div><div class="line">| Resource | keystone.resource.controllers.DomainV3 keystone.resource.controllers.ProjectV3 | -- | ldap/sql | [resource] driver=ldap/sql |</div><div class="line">| Assignment | keystone.assignment.controllers.GrantAssignmentV3 keystone.assignment.controllers.ProjectAssignmentV3 keystone.assignment.controllers.TenantAssignment keystone.assignment.controllers.Role keystone.assignment.controllers.RoleAssignmentV2 keystone.assignment.controllers.RoleAssignmentV3 keystone.assignment.controllers.RoleV3 | -- | sql/ldap | [assignment] driver=sql/ldap |</div><div class="line">| Authentication | keystone.auth.controllers.Auth | password/saml2/token/oauth1 | -- | [auth] methods=external,password,token,oauth1 password=keystone.auth.plugins.password.Password token=keystone.auth.plugins.token.Token |</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="安装配置"><a href="#安装配置" class="headerlink" title="安装配置"></a>安装配置</h2><h3 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h3><p>可以通过两种方式安装keystone:</p>
+<ul>
+<li>源码安装</li>
+<li>软件包安装<br><em>源码安装（本地环境）</em>:<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git clone https://git.openstack.org/openstack/keystone.git　#拷贝源码</div><div class="line">$ cd keystone/ &amp;&amp; virtualenv .venv #进入软件包，创建本地隔离环境</div><div class="line">$ source .venv/bin/activate</div><div class="line">$ pip install -r requirements.txt　＃安装软件依赖包</div><div class="line">$ python setup.py install/develop　＃可以根据需要选择已哪种方式安装，系统安装／开发者模式安装</div><div class="line">$ vim /etc/keystone/keystone.conf　＃根据具体需求配置keystone，可参考官方配置文档：http://docs.openstack.org/developer/keystone/configuration.html</div><div class="line"># 初始化数据库: keystone-manage --config-file etc/keystone.conf db_sync</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><em>软件包安装</em>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">＃Ubuntu</div><div class="line">$ sudo apt-get install keystone</div><div class="line"># Fedora</div><div class="line">$ sudo yum install openstack-keystone</div><div class="line"># 配置keystone配置文件keystone.conf</div><div class="line"># 初始化数据库: keystone-manage --config-file etc/keystone.conf db_sync</div></pre></td></tr></table></figure></p>
+<h3 id="配置说明"><a href="#配置说明" class="headerlink" title="配置说明"></a>配置说明</h3><p>keystone代码的etc/目录下含有keystone的配置文件</p>
+<ul>
+<li>keystone.conf 主要配置文件</li>
+<li>keystone-paste.ini paste配置文件, 可以通过修改此文件增减keystone运行时加载的扩展(contrib).</li>
+<li>default_catalog.templates 定义service catalog的语法文件, 如果keystone的catalog driver 定义为keystone.catalog.backends.templated.Catalog 则会从文本文件中读取endpoint信息(严格注意语法, 空格等), 定义成keystone.catalog.backends.sql.Catalog 则会从数据库中加载endpoint.</li>
+<li>policy.json keystone的接口权限控制定义.</li>
+<li>policy.v3cloudsample.json keystone 官方的多domain部署方式中的权限控制example文件,我们没有使用.<br>keystone.conf 中主要配置选项说明:<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">[DEFAULT]</div><div class="line">   admin_token = ADMIN   # 定义一个超级管理员的token, 使用此token可以绕过权限检查直接操作所有接口, 此参数应该只在安装完keystone后创建初始账户时使用, 生产环境中应该被禁用, 禁用方法为: 在keystone-paste.ini中将所有pipeline中的admin_token_auth这个filter删掉.</div><div class="line">debug = False # 打印debug级别的日志</div><div class="line">verbose = False  # 打印info级别的日志 ,</div><div class="line">   &quot;&quot;&quot;</div><div class="line">   日志级别控制的逻辑为:</div><div class="line">    if CONF.debug:</div><div class="line">        log_root.setLevel(logging.DEBUG)</div><div class="line">    elif CONF.verbose:</div><div class="line">        log_root.setLevel(logging.INFO)</div><div class="line">    else:</div><div class="line">        log_root.setLevel(logging.WARNING)</div><div class="line">&quot;&quot;&quot;</div><div class="line">log_file = /var/log/keystone.log   # 指定将log打到哪个日志文件中, 不设置,日志会打印到屏幕</div><div class="line"># 和rabbitmq相关的主要参数</div><div class="line">rabbit_host = localhost</div><div class="line">rabbit_port = 5672</div><div class="line">rabbit_userid = openstack</div><div class="line">rabbit_password = testing</div><div class="line">rabbit_virtual_host = /</div><div class="line">rabbit_ha_queues = True</div><div class="line">amqp_durable_queues = True  # 为true的话,所有rabbitmq相关的消息,queue,exchange都会变成持久化的.</div><div class="line">control_exchange  = keystone  # keystone 发送的 消息都会发到该 exchange</div><div class="line">[auth]</div><div class="line">methods = password, token   # 开启的认证方式</div><div class="line">password = keystone.auth.plugins.password.Password  # methods中每个定义的认证方法都需要在下方定义</div><div class="line">token = keystone.auth.plugins.token.Token</div><div class="line">[catalog]</div><div class="line">template_file = default_catalog.templates   # 如果driver为templated, 则此选项生效</div><div class="line">driver = keystone.catalog.backends.sql.Catalog</div><div class="line">[token]</div><div class="line">expiration = 3600  # token的过期时间, 按s计算,默认3600s</div><div class="line">provider = keystone.token.provider.uuid.Provider  # 使用的token格式, uuid/pki/pkiz/fernet</div><div class="line">[database]</div><div class="line">connection = mysql://root:root@localhost/keystone  # 定义数据库连接, 如果使用sqlite,则可以修改为sqlite:///keystone.db</div><div class="line">[os_inherit]</div><div class="line">enabled = True  # 日否开启os_inherit 扩展, 官方对此扩展的说明文档: https://github.com/openstack/identity-api/blob/master/v3/src/markdown/identity-api-v3-os-inherit-ext.md</div><div class="line">所有参数的默认值定义都在keystone/common/config.py中</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="FQA"><a href="#FQA" class="headerlink" title="FQA"></a>FQA</h2><p>Ｑ：keystone的35357和5000端口有什么区别?<br>Ａ：在keystone的 v3 api中35357 和5000 没有任何区别, 建议统一只使用35357端口, 在v2.0的api中, 5000是public api的端口,35357是admin api的端口, 两者提供api的具体差别可以看keystone-paste.ini中的[pipeline:public_api] 和[pipeline:admin_api].<br>Ｑ：如何开启一个默认未启用的扩展?<br>Ａ：keystone的扩展,都以filter的形式在keystone-paste.ini中定义, 需要开启只需要将其加入相应的pipeline中,注意的是有些扩展还依赖一些数据库表, 这些表默认安装是不会生成的, 需要用keystone-manage 命令额外初始化.<br>比如要启用oauth1扩展, 此扩展有自己的数据库表:<br>oauth1在keystone-paste.ini中的定义为[filter:oauth1_extension], 将其加入[pipeline:api_v3], 顺序最好放在service_v3之前. PS: 有些扩展只支持v2.0 api,有些只支持v3 api,实际情况可以查看它们的实现,比如oauth1: keystone.contrib.oauth1.controllers, 其中所有的controller都是继承自V3Controller, 则此api只能在v3下使用. keystone-manage –config-file etc/keystone.conf db_sync –extension oauth1 接下来即可使用oauth1扩展定义的api了.</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="http://docs.openstack.org/developer/keystone/" target="_blank" rel="external">http://docs.openstack.org/developer/keystone/</a><br><a href="http://docs.openstack.org/developer/keystone/architecture.html#application-construction" target="_blank" rel="external">http://docs.openstack.org/developer/keystone/architecture.html#application-construction</a><br><a href="http://docs.openstack.org/developer/keystone/installing.html" target="_blank" rel="external">http://docs.openstack.org/developer/keystone/installing.html</a><br><a href="http://docs.openstack.org/developer/keystone/developing.html" target="_blank" rel="external">http://docs.openstack.org/developer/keystone/developing.html</a><br><a href="http://www.ibm.com/developerworks/cn/cloud/library/cl-openstack-keystone/index.html" target="_blank" rel="external">http://www.ibm.com/developerworks/cn/cloud/library/cl-openstack-keystone/index.html</a><br><a href="https://www.ibm.com/developerworks/cn/cloud/library/cl-openstack-pythonapis/" target="_blank" rel="external">https://www.ibm.com/developerworks/cn/cloud/library/cl-openstack-pythonapis/</a><br><a href="http://www.cnblogs.com/sammyliu/p/4272611.html" target="_blank" rel="external">http://www.cnblogs.com/sammyliu/p/4272611.html</a><br><a href="http://blog.csdn.net/hzrandd/article/details/10834381" target="_blank" rel="external">http://blog.csdn.net/hzrandd/article/details/10834381</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/liantu.png" alt="Summer Smith wechat" style="width: 200px; max-width: 100%;"/>
+    <div>扫一扫，用手机访问本站😆</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/keystone/" rel="tag"># keystone</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/22/tcpdump-usage/" rel="next" title="tcpdump命令详解">
+                <i class="fa fa-chevron-left"></i> tcpdump命令详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/27/articles/linux/2016328/" rel="prev" title="linux病毒扫描软件ClamAV安装于使用">
+                linux病毒扫描软件ClamAV安装于使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Summer Smith" />
+          <p class="site-author-name" itemprop="name">Summer Smith</p>
+          <p class="site-description motion-element" itemprop="description">“任何傻瓜都能写出计算机可以理解的代码。 好的程序员能写出人能读懂的代码” ——Martin Fowler</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">32</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+            <a href='javascript:(function(){function h(){var e=document.createElement("link");e.setAttribute("type","text/css");e.setAttribute("rel","stylesheet");e.setAttribute("href",l);e.setAttribute("class",c);document.body.appendChild(e)}function p(){var e=document.getElementsByClassName(c);for(var t=0;t<e.length;t++){document.body.removeChild(e[t])}}function d(){var e=document.createElement("div");e.setAttribute("class",f);document.body.appendChild(e);setTimeout(function(){document.body.removeChild(e)},100)}function v(e){return{height:e.offsetHeight,width:e.offsetWidth}}function m(i){var s=v(i);return s.height>e&&s.height<n&&s.width>t&&s.width<r}function g(e){var t=e;var n=0;while(!!t){n+=t.offsetTop;t=t.offsetParent}return n}function y(){var e=document.documentElement;if(!!window.innerWidth){return window.innerHeight}else if(e&&!isNaN(e.clientHeight)){return e.clientHeight}return 0}function b(){if(window.pageYOffset){return window.pageYOffset}return Math.max(document.documentElement.scrollTop,document.body.scrollTop)}function S(e){var t=g(e);return t>=E&&t<=w+E}function x(){var e=document.createElement("audio");e.setAttribute("class",c);e.src=i;e.loop=false;var t=false,n=false,r=false;e.addEventListener("timeupdate",function(){var i=e.currentTime,s=D,o=s.length,u;if(i>=.5&&!t){t=true;T(_)}if(i>=15.5&&!n){n=true;k();d();for(u=0;u<o;u++){N(s[u])}}if(e.currentTime>=28.4&&!r){r=true;C()}},true);e.addEventListener("ended",function(){k();p()},true);e.innerHTML="<p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p>p>";document.body.appendChild(e);e.play()}function T(e){e.className+=" "+s+" "+u}function N(e){e.className+=" "+s+" "+a[Math.floor(Math.random()*a.length)]}function C(){var e=document.getElementsByClassName(s);for(var t=0;t<e.length;){e[t].className=e[t].className.replace(s,o)}s=o}function k(){var e=document.getElementsByClassName(s);var t=new RegExp("\\b"+s+"\\b");for(var n=0;n<e.length;){e[n].className=e[n].className.replace(t,"")}}var e=30;var t=30;var n=350;var r=350;var i="//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake.ogg";var s="mw-harlem_shake_me";var o="mw-harlem_shake_slow";var u="im_first";var a=["im_drunk","im_baked","im_trippin","im_blown"];var f="mw-strobe_light";var l="//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";var c="mw_added_css";var w=y();var E=b();var L=document.getElementsByTagName("*"),A=L.length,O,M;var _=null;for(O=0;O<A;O++){M=L[O];if(m(M)){if(S(M)){_=M;break}}}if(M===null){console.warn("Could not find a node of the right size. Please try a different page.");return}h();x();var D=[];for(O=0;O<A;O++){M=L[O];if(m(M)){D.push(M)}}})()' rel="alternate">
+              <i class="fa fa-music"></i>
+              HOT_DANCE
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/scorpioxiatian" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2508185000/profile?topnav=1&wvr=6&is_all=1" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mytrix.me/" title="MatheMatrix[PG]'s blog'" target="_blank">MatheMatrix[PG]'s blog'</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.coderzh.com/" title="CoderZH Blog" target="_blank">CoderZH Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://way4ever.com/" title="Way Forever" target="_blank">Way Forever</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wklken.me/" title="wklken" target="_blank">wklken</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://bingotree.cn/" title="BINGOTREE" target="_blank">BINGOTREE</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://adam.younglogic.com/" title="Adam Young’s Blog" target="_blank">Adam Young’s Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://seanlook.com/" title="Sean's Notes" target="_blank">Sean's Notes</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wsfdl.com/" title="koala bear" target="_blank">koala bear</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://int32bit.me/" title="int32bit" target="_blank">int32bit</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://bellard.org/" title="bellard" target="_blank">bellard</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wklken.me/" title="WKLKEN" target="_blank">WKLKEN</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.biaodianfu.com/" title="标点符" target="_blank">标点符</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wuxubj.cn/" title="务虚笔记" target="_blank">务虚笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://tonybai.com/" title="Tony Bai(go)" target="_blank">Tony Bai(go)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://foofish.net" title="PYTHON之禅" target="_blank">PYTHON之禅</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keystone基本概念"><span class="nav-number">2.</span> <span class="nav-text">keystone基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#概念理解"><span class="nav-number">3.</span> <span class="nav-text">概念理解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#账户关系"><span class="nav-number">3.1.</span> <span class="nav-text">账户关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#管理对象关系"><span class="nav-number">3.2.</span> <span class="nav-text">管理对象关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#架构"><span class="nav-number">4.</span> <span class="nav-text">架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#整体架构图"><span class="nav-number">4.1.</span> <span class="nav-text">整体架构图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#keystone架构"><span class="nav-number">4.2.</span> <span class="nav-text">keystone架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#keystone源码结构"><span class="nav-number">4.2.1.</span> <span class="nav-text">keystone源码结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#keystone服务启动"><span class="nav-number">4.2.2.</span> <span class="nav-text">keystone服务启动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#keystone-RESful-Api架构"><span class="nav-number">4.2.3.</span> <span class="nav-text">keystone RESful Api架构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装配置"><span class="nav-number">5.</span> <span class="nav-text">安装配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#软件安装"><span class="nav-number">5.1.</span> <span class="nav-text">软件安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置说明"><span class="nav-number">5.2.</span> <span class="nav-text">配置说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FQA"><span class="nav-number">6.</span> <span class="nav-text">FQA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文档"><span class="nav-number">7.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Summer Smith</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'disqusscorpio';
+      var disqus_identifier = '2016/04/24/keystone-architecture/';
+
+      var disqus_title = "keystone架构和功能分析";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fXdOUjFW97HzqFyh6Niz0SpV-gzGzoHsz", "wwiBgXuaoFBvop4a0EtnLE2i");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+
+</body>
+</html>

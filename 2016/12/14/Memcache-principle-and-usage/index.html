@@ -1,0 +1,1207 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Memcache," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Pirates" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Memcached简介Memcached是LiveJournal旗下等Danga Interactive公司等Brad Fitzpatric为首开发等一款开源的、高性能、分布式软件。通过系统内存管理的缓存机制，将数据缓存到内存中，这么做的目的是目的是为了通过缓存数据库的查询命中减少数据库压力、提高应用响应速度、提高可扩展性。memcached存储数据方式：key-valueMemcached有哪">
+<meta name="keywords" content="Memcache">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Memcache 篇">
+<meta property="og:url" content="http://www.pisces.ml/2016/12/14/Memcache-principle-and-usage/index.html">
+<meta property="og:site_name" content="Pirates">
+<meta property="og:description" content="Memcached简介Memcached是LiveJournal旗下等Danga Interactive公司等Brad Fitzpatric为首开发等一款开源的、高性能、分布式软件。通过系统内存管理的缓存机制，将数据缓存到内存中，这么做的目的是目的是为了通过缓存数据库的查询命中减少数据库压力、提高应用响应速度、提高可扩展性。memcached存储数据方式：key-valueMemcached有哪">
+<meta property="og:image" content="https://memcached.org/images/memcached_banner75.jpg">
+<meta property="og:image" content="http://www.pisces.ml/images/memcached-distribution.jpg">
+<meta property="og:updated_time" content="2018-05-11T06:57:33.777Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Memcache 篇">
+<meta name="twitter:description" content="Memcached简介Memcached是LiveJournal旗下等Danga Interactive公司等Brad Fitzpatric为首开发等一款开源的、高性能、分布式软件。通过系统内存管理的缓存机制，将数据缓存到内存中，这么做的目的是目的是为了通过缓存数据库的查询命中减少数据库压力、提高应用响应速度、提高可扩展性。memcached存储数据方式：key-valueMemcached有哪">
+<meta name="twitter:image" content="https://memcached.org/images/memcached_banner75.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.pisces.ml/2016/12/14/Memcache-principle-and-usage/"/>
+
+
+
+
+
+  <title> Memcache 篇 | Pirates </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-89244963-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?72c93c3a5a0145d3a078592d8b7af890";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Pirates</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-love">
+          <a href="/romance/love.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heart"></i> <br />
+            
+            爱之篇章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://www.pisces.ml/2016/12/14/Memcache-principle-and-usage/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Summer Smith">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Pirates">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Pirates" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Memcache 篇
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-14T13:52:51+08:00">
+                2016-12-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Cache/" itemprop="url" rel="index">
+                    <span itemprop="name">Cache</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <a href="/2016/12/14/Memcache-principle-and-usage/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/14/Memcache-principle-and-usage/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/12/14/Memcache-principle-and-usage/" class="leancloud_visitors" data-flag-title="Memcache 篇">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://memcached.org/images/memcached_banner75.jpg"></p>
+<h2 id="Memcached简介"><a href="#Memcached简介" class="headerlink" title="Memcached简介"></a>Memcached简介</h2><p>Memcached是LiveJournal旗下等Danga Interactive公司等Brad Fitzpatric为首开发等一款开源的、高性能、分布式<br>软件。通过系统内存管理的缓存机制，将数据缓存到内存中，这么做的目的是目的是为了通过缓存数据库的查询命<br>中减少数据库压力、提高应用响应速度、提高可扩展性。<br>memcached存储数据方式：key-value<br>Memcached有哪些优点：</p>
+<ul>
+<li>完全开源的项目</li>
+<li>memcache服务类似于一张大的哈希表</li>
+<li>通过内存缓存大大减少数据库压力</li>
+<li>支持分布式缓存</li>
+<li>是client-server类型的应用通过TCP或者UDP协议传输</li>
+</ul>
+<h2 id="Memcached原理分析"><a href="#Memcached原理分析" class="headerlink" title="Memcached原理分析"></a>Memcached原理分析</h2><p>Memcached提供了一个缓存机制，首先我们需要明白他的缓存原理，这有助于我们跟好的理解Memcached。</p>
+<h3 id="内存管理方式"><a href="#内存管理方式" class="headerlink" title="内存管理方式"></a>内存管理方式</h3><p>Memcached采用名为<a href="https://en.wikipedia.org/wiki/Slab_allocation" target="_blank" rel="external">Slab Allocation</a>的机制分配管理内存.<br>Slab Allocation的原理是将分配的内存分割成各种尺寸的块（chunk）(具体是根据什么机制来分割的？是根据数据<br>存储大小分割？)，并把尺寸相同的块分成组（chunk的集合），每个chunk集合被称为slab。一些概念理解：</p>
+<ul>
+<li>Page :分配给Slab 的内存空间，默认是1MB。分配给Slab 之后根据slab 的大小切分成chunk.</li>
+<li>Chunk : 用于缓存记录的内存空间.</li>
+<li>Slab Class:特定大小的chunk 的组.</li>
+</ul>
+<h3 id="memcached分布式原理"><a href="#memcached分布式原理" class="headerlink" title="memcached分布式原理"></a>memcached分布式原理</h3><p>首先需要注意memcached是不相互通信的分布式，即一个节点down了那么该节点上的缓存就丢了，不会在其它<br>节点上找到该缓存信息。memcached的分布式实现主要依赖客户端实现:<br><img src="/images/memcached-distribution.jpg" alt=""><br>如上图所示，当数据到达客户端，客户端实现的算法就会根据“键”来决定保存的memcached服务器，服务器选定<br>后，命令他保存数据。取的时候也一样，客户端根据“键”选择服务器，使用保存时候的相同算法就能保证选中和<br>存的时候相同的服务器。<br>分布式存储支持多种算法：</p>
+<ul>
+<li>余数计算分散法</li>
+<li>Consistent Hashing算法</li>
+</ul>
+<p>如果对算法感兴趣可以深入研究下😄.</p>
+<h2 id="memcached连接查询"><a href="#memcached连接查询" class="headerlink" title="memcached连接查询"></a>memcached连接查询</h2><p>我们可以通过telnet命令连接到Memcached服务，并执行增删改查到操作。<br>语法：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">telnet HOST PORT</div></pre></td></tr></table></figure></p>
+<p>命令中的 HOST 和 PORT 为运行 Memcached 服务的 IP 和 端口。</p>
+<h3 id="memcached存储命令"><a href="#memcached存储命令" class="headerlink" title="memcached存储命令"></a>memcached存储命令</h3><p>以下所有命令参数说明如下：</p>
+<ul>
+<li>key：键值 key-value 结构中的 key，用于查找缓存值。</li>
+<li>flags：可以包括键值对的整型参数，客户机使用它存储关于键值对的额外信息 。</li>
+<li>exptime：在缓存中保存键值对的时间长度（以秒为单位，0 表示永远）</li>
+<li>bytes：在缓存中存储的字节数</li>
+<li>noreply（可选）： 该参数告知服务器不需要返回数据</li>
+<li>value：存储的值（始终位于第二行）（可直接理解为key-value结构中的value）</li>
+</ul>
+<h4 id="Memcached-set-命令"><a href="#Memcached-set-命令" class="headerlink" title="Memcached set 命令"></a><strong><em>Memcached set 命令</em></strong></h4><p>Memcached set 命令用于将<strong><em>value(数据值) </em></strong>存储在指定的 <strong><em>key(键)</em></strong> 中。<br>如果set的key已经存在，该命令可以更新该key所对应的原来的数据，也就是实现更新的作用。</p>
+<p><font size="4">语法：</font><br>set 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">set</span> key flags exptime bytes [noreply]</div><div class="line">value</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-add-命令"><a href="#Memcached-add-命令" class="headerlink" title="Memcached add 命令"></a><strong><em>Memcached add 命令</em></strong></h4><p>Memcached add 命令用于将 <strong><em>value(数据值)</em></strong> 存储在指定的 <strong><em>key(键)</em></strong> 中。<br>如果 add 的 key 已经存在，则不会更新数据，之前的值将仍然保持相同，并且您将获得响应 NOT_STORED。</p>
+<p><font size="4">语法：</font><br>add 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">add key flags exptime bytes [noreply]</div><div class="line">value</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-replace-命令"><a href="#Memcached-replace-命令" class="headerlink" title="Memcached replace 命令"></a><strong><em>Memcached replace 命令</em></strong></h4><p>Memcached replace 命令用于替换已存在的 <strong><em>key(键)</em></strong> 的 <strong><em>value(数据值)</em></strong>。<br>如果 key 不存在，则替换失败，并且您将获得响应 NOT_STORED。</p>
+<p><font size="4">语法：</font><br>replace 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">replace key flags exptime bytes [noreply]</div><div class="line">value</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-append-命令"><a href="#Memcached-append-命令" class="headerlink" title="Memcached append 命令"></a><strong><em>Memcached append 命令</em></strong></h4><p>Memcached append 命令用于向已存在<strong><em>key(键)</em></strong> 的<strong><em>value(数据值)</em></strong> 后面追加数据 。</p>
+<p><font size="4">语法：</font><br>append 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">append key flags exptime bytes [noreply]</div><div class="line">value</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-prepend-命令"><a href="#Memcached-prepend-命令" class="headerlink" title="Memcached prepend 命令"></a><strong><em>Memcached prepend 命令</em></strong></h4><p>Memcached prepend 命令用于向已存在 <strong><em>key(键)</em></strong> 的<strong><em>value(数据值)</em></strong> 前面追加数据 。</p>
+<p><font size="4">语法：</font><br>prepend 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">prepend key flags exptime bytes [noreply]</div><div class="line">value</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-CAS-命令"><a href="#Memcached-CAS-命令" class="headerlink" title="Memcached CAS 命令"></a><strong><em>Memcached CAS 命令</em></strong></h4><p>Memcached CAS（Check-And-Set 或 Compare-And-Swap） 命令用于执行一个”检查并设置”的操作<br>它仅在当前客户端最后一次取值后，该key 对应的值没有被其他客户端修改的情况下， 才能够将值写入。<br>检查是通过cas_token参数进行的， 这个参数是Memcach指定给已经存在的元素的一个唯一的64位值。</p>
+<p><font size="4">语法：</font><br>CAS 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cas key flags exptime bytes unique_cas_token [noreply]</div><div class="line">value</div></pre></td></tr></table></figure></p>
+<h3 id="Memcached查找命令"><a href="#Memcached查找命令" class="headerlink" title="Memcached查找命令"></a>Memcached查找命令</h3><p>1.#### <strong><em>Memcached get 命令</em></strong><br>Memcached get 命令获取存储在<strong><em>key(键)</em></strong>中的<strong><em>value(数据值)</em></strong> ，如果 key 不存在，则返回空。</p>
+<p><font size="4">语法：</font><br>get 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">get key</div></pre></td></tr></table></figure></p>
+<p>多个 key 使用空格隔开，如下:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">get key1 key2 key3</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-gets-命令"><a href="#Memcached-gets-命令" class="headerlink" title="Memcached gets 命令"></a><strong><em>Memcached gets 命令</em></strong></h4><p>Memcached gets 命令获取带有 CAS 令牌存 的<strong><em>value(数据值)</em></strong> ，如果 key 不存在，则返回空。</p>
+<p><font size="4">语法：</font><br>gets 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gets key</div></pre></td></tr></table></figure></p>
+<p>多个 key 使用空格隔开，如下:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gets key1 key2 key3</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-delete-命令"><a href="#Memcached-delete-命令" class="headerlink" title="Memcached delete 命令"></a><strong><em>Memcached delete 命令</em></strong></h4><p>Memcached delete 命令用于删除已存在的<strong><em>key(键)</em></strong>。</p>
+<p><font size="4">语法：</font><br>delete 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">delete key [noreply]</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-incr-decr-命令"><a href="#Memcached-incr-decr-命令" class="headerlink" title="Memcached incr/decr 命令"></a><strong><em>Memcached incr/decr 命令</em></strong></h4><p>Memcached incr 与 decr 命令用于对已存在的<strong><em>key(键)</em></strong> 的数字值进行自增或自减操作。<br>incr 与 decr 命令操作的数据必须是十进制的32位无符号整数。<br>如果 key 不存在返回 NOT_FOUND，如果键的值不为数字，则返回 CLIENT_ERROR，其他错误返回 ERROR。</p>
+<p><font size="5">incr 命令</font></p>
+<p><font size="4">语法：</font><br>incr 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">incr key increment_value</div></pre></td></tr></table></figure></p>
+<p>参数说明如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">key：键值 key-value 结构中的 key，用于查找缓存值。</div><div class="line">increment_value： 增加的数值。</div></pre></td></tr></table></figure></p>
+<p><font size="5">decr 命令</font><br>decr 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">decr key decrement_value</div></pre></td></tr></table></figure></p>
+<p>参数说明如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">key：键值 key-value 结构中的 key，用于查找缓存值。</div><div class="line">decrement_value： 减少的数值。</div></pre></td></tr></table></figure></p>
+<h3 id="Memcached-统计命令"><a href="#Memcached-统计命令" class="headerlink" title="Memcached 统计命令"></a>Memcached 统计命令</h3><h4 id="Memcached-stats-命令"><a href="#Memcached-stats-命令" class="headerlink" title="Memcached stats 命令"></a><strong><em>Memcached stats 命令</em></strong></h4><p>Memcached stats 命令用于返回统计信息例如 PID(进程号)、版本号、连接数等。</p>
+<p><font size="4">语法：</font><br>stats 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">stats</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-stats-items-命令"><a href="#Memcached-stats-items-命令" class="headerlink" title="Memcached stats items 命令"></a><strong><em>Memcached stats items 命令</em></strong></h4><p>Memcached stats items 命令用于显示各个 slab 中 item 的数目和存储时长(最后一次访问距离现在的秒数)。</p>
+<p><font size="4">语法：</font><br>stats items 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">stats items</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-stats-slabs-命令"><a href="#Memcached-stats-slabs-命令" class="headerlink" title="Memcached stats slabs 命令"></a><strong><em>Memcached stats slabs 命令</em></strong></h4><p>Memcached stats slabs 命令用于显示各个slab的信息，包括chunk的大小、数目、使用情况等。</p>
+<p><font size="4">语法：</font><br>stats slabs 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">stats slabs</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-stats-sizes-命令"><a href="#Memcached-stats-sizes-命令" class="headerlink" title="Memcached stats sizes 命令"></a><strong><em>Memcached stats sizes 命令</em></strong></h4><p>Memcached stats sizes 命令用于显示所有item的大小和个数。<br>该信息返回两列，第一列是 item 的大小，第二列是 item 的个数。</p>
+<p><font size="4">语法：</font><br>stats sizes 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">stats sizes</div></pre></td></tr></table></figure></p>
+<h4 id="Memcached-stats-flush-all-命令"><a href="#Memcached-stats-flush-all-命令" class="headerlink" title="Memcached stats flush_all 命令"></a><strong><em>Memcached stats flush_all 命令</em></strong></h4><p>Memcached flush_all 命令用于用于清理缓存中的所有key=&gt;value(键=&gt;值) 对。<br>该命令提供了一个可选参数 time，用于在制定的时间后执行清理缓存操作。</p>
+<p><font size="4">语法：</font><br>flush_all 命令的基本语法格式如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">flush_all [time] [noreply]</div></pre></td></tr></table></figure></p>
+<h3 id="如何查询memcached中某个slab-id-中的Items的key"><a href="#如何查询memcached中某个slab-id-中的Items的key" class="headerlink" title="如何查询memcached中某个slab id 中的Items的key?"></a><strong><em>如何查询memcached中某个slab id 中的Items的key?</em></strong></h3><p>首先用命令stats items查看items信息如下所示：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">stats items</div><div class="line">STAT items:1:number 1</div><div class="line">STAT items:1:age 10</div><div class="line">STAT items:1:evicted 0</div><div class="line">STAT items:1:evicted_nonzero 0</div><div class="line">STAT items:1:evicted_time 0</div><div class="line">STAT items:1:outofmemory 0</div><div class="line">STAT items:1:tailrepairs 0</div><div class="line">STAT items:1:reclaimed 0</div><div class="line">STAT items:1:expired_unfetched 0</div><div class="line">STAT items:1:evicted_unfetched 0</div><div class="line">STAT items:1:crawler_reclaimed 0</div><div class="line">STAT items:1:crawler_items_checked 0</div><div class="line">STAT items:1:lrutail_reflocked 0</div><div class="line">END</div></pre></td></tr></table></figure></p>
+<p>从上面输出信息，在’items’后即是slab id ，我们知道了slab id就能查看这个slab中的items，如下所示：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">stats cachedump 1 100</div><div class="line">ITEM scorpio [5 b; 1481607870 s]</div><div class="line">END</div></pre></td></tr></table></figure></p>
+<p>从上面命令我们得到了所cache的key值，我们就可以通过该key值用stats get命令查询该key的值.</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://memcached.org/" target="_blank" rel="external">https://memcached.org/</a><br><a href="https://www.tutorialspoint.com/memcached/memcached_replace_data.htm" target="_blank" rel="external">https://www.tutorialspoint.com/memcached/memcached_replace_data.htm</a><br><a href="http://blog.jobbole.com/101226/" target="_blank" rel="external">http://blog.jobbole.com/101226/</a><br><a href="http://www.cnblogs.com/sunniest/p/4437806.html" target="_blank" rel="external">http://www.cnblogs.com/sunniest/p/4437806.html</a><br><a href="http://stackoverflow.com/questions/19560150/get-all-keys-set-in-memcached" target="_blank" rel="external">http://stackoverflow.com/questions/19560150/get-all-keys-set-in-memcached</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/liantu.png" alt="Summer Smith wechat" style="width: 200px; max-width: 100%;"/>
+    <div>扫一扫，用手机访问本站😆</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Memcache/" rel="tag"># Memcache</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/16/Address-Resolution-Protocol/" rel="next" title="ARP地址解析协议">
+                <i class="fa fa-chevron-left"></i> ARP地址解析协议
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/13/Iterm2-keyboard-shortcut/" rel="prev" title="Iterm2 快捷键大全">
+                Iterm2 快捷键大全 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Summer Smith" />
+          <p class="site-author-name" itemprop="name">Summer Smith</p>
+          <p class="site-description motion-element" itemprop="description">“任何傻瓜都能写出计算机可以理解的代码。 好的程序员能写出人能读懂的代码” ——Martin Fowler</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">32</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+            <a href='javascript:(function(){function h(){var e=document.createElement("link");e.setAttribute("type","text/css");e.setAttribute("rel","stylesheet");e.setAttribute("href",l);e.setAttribute("class",c);document.body.appendChild(e)}function p(){var e=document.getElementsByClassName(c);for(var t=0;t<e.length;t++){document.body.removeChild(e[t])}}function d(){var e=document.createElement("div");e.setAttribute("class",f);document.body.appendChild(e);setTimeout(function(){document.body.removeChild(e)},100)}function v(e){return{height:e.offsetHeight,width:e.offsetWidth}}function m(i){var s=v(i);return s.height>e&&s.height<n&&s.width>t&&s.width<r}function g(e){var t=e;var n=0;while(!!t){n+=t.offsetTop;t=t.offsetParent}return n}function y(){var e=document.documentElement;if(!!window.innerWidth){return window.innerHeight}else if(e&&!isNaN(e.clientHeight)){return e.clientHeight}return 0}function b(){if(window.pageYOffset){return window.pageYOffset}return Math.max(document.documentElement.scrollTop,document.body.scrollTop)}function S(e){var t=g(e);return t>=E&&t<=w+E}function x(){var e=document.createElement("audio");e.setAttribute("class",c);e.src=i;e.loop=false;var t=false,n=false,r=false;e.addEventListener("timeupdate",function(){var i=e.currentTime,s=D,o=s.length,u;if(i>=.5&&!t){t=true;T(_)}if(i>=15.5&&!n){n=true;k();d();for(u=0;u<o;u++){N(s[u])}}if(e.currentTime>=28.4&&!r){r=true;C()}},true);e.addEventListener("ended",function(){k();p()},true);e.innerHTML="<p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p>p>";document.body.appendChild(e);e.play()}function T(e){e.className+=" "+s+" "+u}function N(e){e.className+=" "+s+" "+a[Math.floor(Math.random()*a.length)]}function C(){var e=document.getElementsByClassName(s);for(var t=0;t<e.length;){e[t].className=e[t].className.replace(s,o)}s=o}function k(){var e=document.getElementsByClassName(s);var t=new RegExp("\\b"+s+"\\b");for(var n=0;n<e.length;){e[n].className=e[n].className.replace(t,"")}}var e=30;var t=30;var n=350;var r=350;var i="//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake.ogg";var s="mw-harlem_shake_me";var o="mw-harlem_shake_slow";var u="im_first";var a=["im_drunk","im_baked","im_trippin","im_blown"];var f="mw-strobe_light";var l="//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";var c="mw_added_css";var w=y();var E=b();var L=document.getElementsByTagName("*"),A=L.length,O,M;var _=null;for(O=0;O<A;O++){M=L[O];if(m(M)){if(S(M)){_=M;break}}}if(M===null){console.warn("Could not find a node of the right size. Please try a different page.");return}h();x();var D=[];for(O=0;O<A;O++){M=L[O];if(m(M)){D.push(M)}}})()' rel="alternate">
+              <i class="fa fa-music"></i>
+              HOT_DANCE
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/scorpioxiatian" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/2508185000/profile?topnav=1&wvr=6&is_all=1" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mytrix.me/" title="MatheMatrix[PG]'s blog'" target="_blank">MatheMatrix[PG]'s blog'</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.coderzh.com/" title="CoderZH Blog" target="_blank">CoderZH Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://way4ever.com/" title="Way Forever" target="_blank">Way Forever</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wklken.me/" title="wklken" target="_blank">wklken</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://bingotree.cn/" title="BINGOTREE" target="_blank">BINGOTREE</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://adam.younglogic.com/" title="Adam Young’s Blog" target="_blank">Adam Young’s Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://seanlook.com/" title="Sean's Notes" target="_blank">Sean's Notes</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wsfdl.com/" title="koala bear" target="_blank">koala bear</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://int32bit.me/" title="int32bit" target="_blank">int32bit</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://bellard.org/" title="bellard" target="_blank">bellard</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wklken.me/" title="WKLKEN" target="_blank">WKLKEN</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.biaodianfu.com/" title="标点符" target="_blank">标点符</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wuxubj.cn/" title="务虚笔记" target="_blank">务虚笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://tonybai.com/" title="Tony Bai(go)" target="_blank">Tony Bai(go)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://foofish.net" title="PYTHON之禅" target="_blank">PYTHON之禅</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Memcached简介"><span class="nav-number">1.</span> <span class="nav-text">Memcached简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memcached原理分析"><span class="nav-number">2.</span> <span class="nav-text">Memcached原理分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存管理方式"><span class="nav-number">2.1.</span> <span class="nav-text">内存管理方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memcached分布式原理"><span class="nav-number">2.2.</span> <span class="nav-text">memcached分布式原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#memcached连接查询"><span class="nav-number">3.</span> <span class="nav-text">memcached连接查询</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#memcached存储命令"><span class="nav-number">3.1.</span> <span class="nav-text">memcached存储命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-set-命令"><span class="nav-number">3.1.1.</span> <span class="nav-text">Memcached set 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-add-命令"><span class="nav-number">3.1.2.</span> <span class="nav-text">Memcached add 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-replace-命令"><span class="nav-number">3.1.3.</span> <span class="nav-text">Memcached replace 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-append-命令"><span class="nav-number">3.1.4.</span> <span class="nav-text">Memcached append 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-prepend-命令"><span class="nav-number">3.1.5.</span> <span class="nav-text">Memcached prepend 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-CAS-命令"><span class="nav-number">3.1.6.</span> <span class="nav-text">Memcached CAS 命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memcached查找命令"><span class="nav-number">3.2.</span> <span class="nav-text">Memcached查找命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-gets-命令"><span class="nav-number">3.2.1.</span> <span class="nav-text">Memcached gets 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-delete-命令"><span class="nav-number">3.2.2.</span> <span class="nav-text">Memcached delete 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-incr-decr-命令"><span class="nav-number">3.2.3.</span> <span class="nav-text">Memcached incr/decr 命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memcached-统计命令"><span class="nav-number">3.3.</span> <span class="nav-text">Memcached 统计命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-stats-命令"><span class="nav-number">3.3.1.</span> <span class="nav-text">Memcached stats 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-stats-items-命令"><span class="nav-number">3.3.2.</span> <span class="nav-text">Memcached stats items 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-stats-slabs-命令"><span class="nav-number">3.3.3.</span> <span class="nav-text">Memcached stats slabs 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-stats-sizes-命令"><span class="nav-number">3.3.4.</span> <span class="nav-text">Memcached stats sizes 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Memcached-stats-flush-all-命令"><span class="nav-number">3.3.5.</span> <span class="nav-text">Memcached stats flush_all 命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何查询memcached中某个slab-id-中的Items的key"><span class="nav-number">3.4.</span> <span class="nav-text">如何查询memcached中某个slab id 中的Items的key?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Summer Smith</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'disqusscorpio';
+      var disqus_identifier = '2016/12/14/Memcache-principle-and-usage/';
+
+      var disqus_title = "Memcache 篇";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fXdOUjFW97HzqFyh6Niz0SpV-gzGzoHsz", "wwiBgXuaoFBvop4a0EtnLE2i");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+
+</body>
+</html>
