@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.pisces.ml/"/>
-  <updated>2018-08-01T03:46:41.195Z</updated>
+  <updated>2018-08-07T07:15:07.676Z</updated>
   <id>http://www.pisces.ml/</id>
   
   <author>
@@ -20,18 +20,19 @@
     <link href="http://www.pisces.ml/2018/07/27/%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95/"/>
     <id>http://www.pisces.ml/2018/07/27/系统运维记录/</id>
     <published>2018-07-27T03:29:57.000Z</published>
-    <updated>2018-08-01T03:46:41.195Z</updated>
+    <updated>2018-08-07T07:15:07.676Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="硬盘"><a href="#硬盘" class="headerlink" title="硬盘"></a>硬盘</h1><p>查看硬盘信息：</p>
+    <content type="html"><![CDATA[<h1 id="硬盘"><a href="#硬盘" class="headerlink" title="硬盘"></a>硬盘</h1><p>1.查看硬盘信息</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">/opt/storcli/storcli64 /c0/e8/s6 show all</div><div class="line"># or</div><div class="line">smartctl --all /dev/sdx</div></pre></td></tr></table></figure>
-<h1 id="系统"><a href="#系统" class="headerlink" title="系统"></a>系统</h1><p>ssh连接慢问题，处理方法：</p>
+<h1 id="系统"><a href="#系统" class="headerlink" title="系统"></a>系统</h1><p>1.ssh连接慢问题：</p>
 <p>重启systemd-logind.service服务</p>
+<p>本文用于记录日常系统运维，持续更新中………………</p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;h1 id=&quot;硬盘&quot;&gt;&lt;a href=&quot;#硬盘&quot; class=&quot;headerlink&quot; title=&quot;硬盘&quot;&gt;&lt;/a&gt;硬盘&lt;/h1&gt;&lt;p&gt;查看硬盘信息：&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutt
+      &lt;h1 id=&quot;硬盘&quot;&gt;&lt;a href=&quot;#硬盘&quot; class=&quot;headerlink&quot; title=&quot;硬盘&quot;&gt;&lt;/a&gt;硬盘&lt;/h1&gt;&lt;p&gt;1.查看硬盘信息&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gut
     
     </summary>
     
