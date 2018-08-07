@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.pisces.ml/"/>
-  <updated>2018-05-11T06:53:56.754Z</updated>
+  <updated>2018-08-01T03:46:41.195Z</updated>
   <id>http://www.pisces.ml/</id>
   
   <author>
@@ -16,11 +16,38 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>系统运维记录</title>
+    <link href="http://www.pisces.ml/2018/07/27/%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95/"/>
+    <id>http://www.pisces.ml/2018/07/27/系统运维记录/</id>
+    <published>2018-07-27T03:29:57.000Z</published>
+    <updated>2018-08-01T03:46:41.195Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="硬盘"><a href="#硬盘" class="headerlink" title="硬盘"></a>硬盘</h1><p>查看硬盘信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">/opt/storcli/storcli64 /c0/e8/s6 show all</div><div class="line"># or</div><div class="line">smartctl --all /dev/sdx</div></pre></td></tr></table></figure>
+<h1 id="系统"><a href="#系统" class="headerlink" title="系统"></a>系统</h1><p>ssh连接慢问题，处理方法：</p>
+<p>重启systemd-logind.service服务</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;硬盘&quot;&gt;&lt;a href=&quot;#硬盘&quot; class=&quot;headerlink&quot; title=&quot;硬盘&quot;&gt;&lt;/a&gt;硬盘&lt;/h1&gt;&lt;p&gt;查看硬盘信息：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutt
+    
+    </summary>
+    
+      <category term="linux" scheme="http://www.pisces.ml/categories/linux/"/>
+    
+    
+      <category term="运维" scheme="http://www.pisces.ml/tags/%E8%BF%90%E7%BB%B4/"/>
+    
+  </entry>
+  
+  <entry>
     <title>linux常用shell脚本记录（附带脚本解析）</title>
     <link href="http://www.pisces.ml/2018/05/10/linux%E5%B8%B8%E7%94%A8shell%E8%84%9A%E6%9C%AC%E8%AE%B0%E5%BD%95/"/>
     <id>http://www.pisces.ml/2018/05/10/linux常用shell脚本记录/</id>
     <published>2018-05-10T08:09:08.000Z</published>
-    <updated>2018-05-11T06:53:56.754Z</updated>
+    <updated>2018-05-11T07:14:39.631Z</updated>
     
     <content type="html"><![CDATA[<p>由于工作中经常会用到一些shell来统计或者做一些批量操作，一些shell用的少，突然用的时候可能会忘记。本文用于记录工作中用到shell命令，以便日后备用。好记性不如烂笔头嘛！！！</p>
 <h3 id="统计服务器socket连接数"><a href="#统计服务器socket连接数" class="headerlink" title="统计服务器socket连接数"></a>统计服务器socket连接数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">netstat -n | awk &apos;/^tcp/ &#123;++S[$NF]&#125; END &#123;for(a in S) print a, S[a]&#125;&apos;</div></pre></td></tr></table></figure>
@@ -48,7 +75,7 @@
     <link href="http://www.pisces.ml/2018/05/08/python%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E2%80%94%E2%80%94%E8%A3%85%E9%A5%B0%E5%99%A8%E7%AF%87/"/>
     <id>http://www.pisces.ml/2018/05/08/python基础知识——装饰器篇/</id>
     <published>2018-05-08T09:49:50.000Z</published>
-    <updated>2018-05-11T06:53:26.783Z</updated>
+    <updated>2018-05-11T07:14:39.626Z</updated>
     
     <content type="html"><![CDATA[<p>​    本篇文章主要来总结下python中的几种常用的装饰器用法。我们知道在python编程中经常会用到装饰器，因为使用装饰器，我们可以简化代码，避免重复造轮子，使得代码看着更加整洁，增强代码可读性。</p>
 <p>​    说到装饰器的用法，不得不提下装饰器在openstack中的应用。本人入行已有三年之久，现在专注于云计算开发运维，编程习惯以及编码风格受了openstack社区极大影响，社区大牛多之前就看了keystone的源码，你会发现刚开始看的时候一脸懵逼，静下心好好看看你会发现真的是匠心之作。基本上将装饰器应用到了极致，社区为了简化代码用了很多嵌套的装饰器（真的是层层嵌套），毕竟在设计上许多功能是需要重复使用的，所以其中也大量的用到了装饰器，并且是使用了模块化的层层嵌套，将许多功能封装成许多装饰器，又通过装饰器的组合嵌套来使用，这样一方面避免了代码冗余，另外还实现了代码的组合使用类似于模块化组件，使得代码更加简洁。</p>
@@ -93,7 +120,7 @@
     <link href="http://www.pisces.ml/2018/03/24/linux-%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%91%BD%E4%BB%A4%E9%9B%86%E9%94%A6/"/>
     <id>http://www.pisces.ml/2018/03/24/linux-常用软件包命令集锦/</id>
     <published>2018-03-24T01:55:44.000Z</published>
-    <updated>2018-05-11T06:53:08.298Z</updated>
+    <updated>2018-05-11T07:14:39.622Z</updated>
     
     <content type="html"><![CDATA[<p>本篇用于记录常用linux操作系统软件包安装命令集锦</p>
 <h2 id="查询rpm包的依赖关系"><a href="#查询rpm包的依赖关系" class="headerlink" title="查询rpm包的依赖关系"></a>查询rpm包的依赖关系</h2><p><strong><em>查询未安装软件包的依赖关系</em></strong></p>
@@ -136,7 +163,7 @@
     <link href="http://www.pisces.ml/2017/09/22/openstack%E2%80%94%E2%80%94%E4%BA%91%E7%A1%AC%E7%9B%98%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D/"/>
     <id>http://www.pisces.ml/2017/09/22/openstack——云硬盘的备份与恢复/</id>
     <published>2017-09-22T06:51:35.000Z</published>
-    <updated>2018-05-10T10:23:25.976Z</updated>
+    <updated>2018-05-11T07:14:39.617Z</updated>
     
     <content type="html"><![CDATA[<p>本文会讲述如何进行跨平台云硬盘的备份与恢复，cinder提供的backup功能目前支持多种后端driver备份，比如：nfs、swift、ceph、tsm等等，可见目前常见的存储后端都是支持的。cinder在很早就已经支持备份，主要有以下优势：</p>
 <ol>
@@ -221,7 +248,7 @@
     <link href="http://www.pisces.ml/2017/09/15/Mac-OS-X-%E4%B8%8B%E6%96%87%E4%BB%B6%E5%90%8D%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
     <id>http://www.pisces.ml/2017/09/15/Mac-OS-X-下文件名乱码问题解决/</id>
     <published>2017-09-15T07:47:16.000Z</published>
-    <updated>2018-05-10T10:12:27.219Z</updated>
+    <updated>2018-05-11T07:14:39.613Z</updated>
     
     <content type="html"><![CDATA[<p>​    在 GB2312 等编码环境下的 zip 格式压缩包在 Mac OS X 环境下解压，或者从各种奇怪编码格式的 ftp 下载文件，以及从各种生产环境竟然不是utf-8的古代论坛下载到附件之类的事情之后，文件名很可能会变成乱码。这些乱码是由于 GB2312 编码（或者其它编码）下的文字的binary形式被错误地使用 utf-8 方式解码产生的。</p>
 <p>​    mac系统默认用归档实用工具打开zip格式压缩包mac，系统自带的归档实用工具只能用utf-8的方式解码，且不能配置解码格式，所以当我们用归档实用工具打开的zip压缩文件会显示错误编码格式（此处只想吐槽）</p>
@@ -248,7 +275,7 @@
     <link href="http://www.pisces.ml/2017/08/22/Mac%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%BB%88%E7%AB%AF%E4%B8%8B%E4%BD%BF%E7%94%A8shadowsocks%E7%BF%BB%E5%A2%99/"/>
     <id>http://www.pisces.ml/2017/08/22/Mac命令行终端下使用shadowsocks翻墙/</id>
     <published>2017-08-22T08:19:30.000Z</published>
-    <updated>2018-05-10T10:11:23.391Z</updated>
+    <updated>2018-05-11T07:14:39.609Z</updated>
     
     <content type="html"><![CDATA[<p>原文转自：<a href="http://www.cashqian.net/blog/001486989831982332565298e4942a2bb8f56b08f9d2475000" target="_blank" rel="external">http://www.cashqian.net/blog/001486989831982332565298e4942a2bb8f56b08f9d2475000</a> 仅供学习使用</p>
 <p>配置好shadowsocks服务器端后，安装对应系统的客户端，浏览器安装相应插件就可以翻墙上网了，这都很简单。</p>
@@ -310,7 +337,7 @@
     <link href="http://www.pisces.ml/2017/08/02/Linux%E7%B3%BB%E7%BB%9F%E5%A5%87%E6%80%AA%E7%9A%84%E7%A3%81%E7%9B%98%E5%8D%A0%E7%94%A8%E8%A7%A3%E5%86%B3%E8%AE%B0%E5%BD%95-%E8%BD%AC%E8%BD%BD/"/>
     <id>http://www.pisces.ml/2017/08/02/Linux系统奇怪的磁盘占用解决记录-转载/</id>
     <published>2017-08-02T02:54:19.000Z</published>
-    <updated>2018-05-10T10:23:50.342Z</updated>
+    <updated>2018-05-11T07:14:39.605Z</updated>
     
     <content type="html"><![CDATA[<p>原文转自：<a href="http://davidaq.com/technique/2015/07/18/linux-weird-disk-usage.html" target="_blank" rel="external">http://davidaq.com/technique/2015/07/18/linux-weird-disk-usage.html</a></p>
 <p>近日我所维护的一台服务器运行出现了异常，翻开程序运行日志，初步发现问题是某个过程无法创建新临时文件。 再仔细阅读日志，看到了Java报出的<code>Java.io.IOException; there is not enough space on the disk</code>。</p>
@@ -339,7 +366,7 @@
     <link href="http://www.pisces.ml/2017/07/27/%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8Dssh%E6%9C%AA%E7%9F%A5%E8%8A%82%E7%82%B9%E4%B8%BB%E6%9C%BA%E8%AE%A4%E8%AF%81%EF%BC%9F/"/>
     <id>http://www.pisces.ml/2017/07/27/如何避免ssh未知节点主机认证？/</id>
     <published>2017-07-27T01:56:21.000Z</published>
-    <updated>2018-05-10T10:23:55.815Z</updated>
+    <updated>2018-05-11T07:14:39.602Z</updated>
     
     <content type="html"><![CDATA[<p>通常情况下，ssh连接到新的节点会显示如下确认信息：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">The authenticity of host &apos;111.222.333.444 (111.222.333.444)&apos; can&apos;t be established.</div><div class="line">RSA key fingerprint is f3:cf:58:ae:71:0b:c8:04:6f:34:a3:b2:e4:1e:0c:8b.</div><div class="line">Are you sure you want to continue connecting (yes/no)?</div></pre></td></tr></table></figure>
@@ -367,7 +394,7 @@
     <link href="http://www.pisces.ml/2017/07/25/%E6%B5%85%E8%B0%88redis/"/>
     <id>http://www.pisces.ml/2017/07/25/浅谈redis/</id>
     <published>2017-07-25T06:29:52.000Z</published>
-    <updated>2018-05-11T06:32:04.871Z</updated>
+    <updated>2018-05-11T07:14:39.598Z</updated>
     
     <content type="html"><![CDATA[<p>​    最近工作用到了redis做数据缓存，于是乎花了点时间研究了下redis。各种语言对redis都有相应的支持，我们可以在官网上看到：<a href="https://redis.io/clients，足以见的redis的广泛适用性。" target="_blank" rel="external">https://redis.io/clients，足以见的redis的广泛适用性。</a></p>
 <p>​    针对python的client，看了下redis-py用的人比较多，果断用redis-py做应用开发（这可不是从众心理哦）。简单的看了下，client已经将redis接口封装了一次，仅仅提供了简单易用的接口，对于使用者无需关心底层调用，只需关心接口使用即可。</p>
@@ -408,7 +435,7 @@
     <link href="http://www.pisces.ml/2017/06/17/%E5%A6%82%E4%BD%95%E5%88%B6%E4%BD%9Crpm%E5%AE%89%E8%A3%85%E5%8C%85/"/>
     <id>http://www.pisces.ml/2017/06/17/如何制作rpm安装包/</id>
     <published>2017-06-17T06:59:45.000Z</published>
-    <updated>2018-05-10T10:14:54.223Z</updated>
+    <updated>2018-05-11T07:14:39.594Z</updated>
     
     <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>安装部署软件包，大部分我们都是通过rpm来完成。通常情况我们根据源码包，来制作rpm安装包，再将安装包放到yum仓库里。这样安装一个软件我们就可以直接通过yum命令来安装了。</p>
 <h1 id="RPM基础知识"><a href="#RPM基础知识" class="headerlink" title="RPM基础知识"></a>RPM基础知识</h1><p>若要构建一个标准的 RPM 包，您需要创建 <strong>.spec</strong> 文件，其中包含软件打包的全部信息。然后，对此文件执行 <strong>rpmbuild</strong> 命令，经过这一步，系统会按照步骤生成最终的 RPM 包。</p>
@@ -551,7 +578,7 @@
     <link href="http://www.pisces.ml/2017/06/13/python-%E6%97%B6%E9%97%B4%E6%88%B3%E5%A4%84%E7%90%86/"/>
     <id>http://www.pisces.ml/2017/06/13/python-时间戳处理/</id>
     <published>2017-06-13T03:38:34.000Z</published>
-    <updated>2018-05-10T10:15:04.968Z</updated>
+    <updated>2018-05-11T07:14:39.590Z</updated>
     
     <content type="html"><![CDATA[<h1 id="python-时间戳处理"><a href="#python-时间戳处理" class="headerlink" title="python 时间戳处理"></a>python 时间戳处理</h1><p><a href="http://funhacks.net/2015/04/29/Unix-timestamp/" target="_blank" rel="external">Unix 时间戳</a>根据精度的不同，有 10 位（秒级），13 位（毫秒级），16 位（微妙级）和 19 位（纳秒级）。在 python 中，我们可以将一个整数的时间戳转换为字符串格式，如 <code>&#39;2016-02-25 20:21:04&#39;</code>，也可以将其转换为 python 中的 <a href="https://docs.python.org/2/library/datetime.html" target="_blank" rel="external">datetime</a> 格式。反之，也可以将整数的时间戳转换为字符串格式和 datetime 格式。用图展示如下：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">             +------------+</div><div class="line">             | timestamp  |</div><div class="line">       +----&gt;|            |&lt;-----+</div><div class="line">       |     +------------+      |</div><div class="line">       |                         |</div><div class="line">       |                         |</div><div class="line">       |                         |</div><div class="line">       v                         v</div><div class="line">+------------+            +------------+</div><div class="line">|  datetime  |            |   string   |</div><div class="line">|            |&lt;----------&gt;|            |</div><div class="line">+------------+            +------------+</div></pre></td></tr></table></figure>
@@ -581,7 +608,7 @@
     <link href="http://www.pisces.ml/2017/04/13/VMware-Fusion-%E8%AE%BE%E7%BD%AE%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/"/>
     <id>http://www.pisces.ml/2017/04/13/VMware-Fusion-设置端口转发/</id>
     <published>2017-04-13T08:06:00.000Z</published>
-    <updated>2018-05-11T06:32:24.368Z</updated>
+    <updated>2018-05-11T07:14:39.586Z</updated>
     
     <content type="html"><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>VMware Fusion没有提供图形化的虚拟网络编辑器，当我们选用nat网络类型，我们需要端口转发的功能，那么我们需要如何设置呢？下面我们就介绍下如何在mac系统中设置虚拟机端口转发。</p>
 <h1 id="配置方法"><a href="#配置方法" class="headerlink" title="配置方法"></a>配置方法</h1><p>虽然VMware Fusion没有提供图形化界面来支持端口转发的功能，但是我们可以通过修改网络配置文件来达到该目的。原理很简单我们只需要修改相应的网络配置文件，然后重启网络服务即可。下面我们将介绍具体的操作步骤：</p>
@@ -625,7 +652,7 @@
     <link href="http://www.pisces.ml/2017/03/26/Centos-7%E9%87%8D%E5%91%BD%E5%90%8D%E7%BD%91%E5%8D%A1/"/>
     <id>http://www.pisces.ml/2017/03/26/Centos-7重命名网卡/</id>
     <published>2017-03-26T09:10:58.000Z</published>
-    <updated>2018-05-10T10:15:44.128Z</updated>
+    <updated>2018-05-11T07:14:39.582Z</updated>
     
     <content type="html"><![CDATA[<h1 id="网卡命名规则"><a href="#网卡命名规则" class="headerlink" title="网卡命名规则"></a>网卡命名规则</h1><p>传统的网络设备命名是eth[0123…]<br>Centos7提供了不同的命名规则，默认是基于固件、拓扑、位置信息来分配。这样做的优点是命名是全自动的、可预知的，缺点是比eth0、wlan0更难读。比如enoxxxxxx </p>
 <h2 id="命名规则策略"><a href="#命名规则策略" class="headerlink" title="命名规则策略"></a>命名规则策略</h2><p>默认的，systemd将根据下面的策略来命名接口，应用到支持的命名规则。</p>
@@ -671,7 +698,7 @@
     <link href="http://www.pisces.ml/2017/03/24/SELinux/"/>
     <id>http://www.pisces.ml/2017/03/24/SELinux/</id>
     <published>2017-03-24T03:53:03.000Z</published>
-    <updated>2018-05-10T10:24:40.348Z</updated>
+    <updated>2018-05-11T07:14:39.578Z</updated>
     
     <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>  selinux（Security-Enhanced Linux）是一个在内核中实践的强制访问控制（MAC）安全性机制，目的在于明确的指明某个进程可以访问哪些类型的资源。开启selinux后，内核在执行系统调用前会询问 SELinux 是否获得了执行操作的授权</p>
 <h2 id="永久方法-–-需要重启服务器"><a href="#永久方法-–-需要重启服务器" class="headerlink" title="永久方法 – 需要重启服务器"></a>永久方法 – 需要重启服务器</h2><p>修改/etc/selinux/config文件中设置SELINUX=disabled ，然后重启服务器。</p>
@@ -697,7 +724,7 @@
     <link href="http://www.pisces.ml/2017/03/15/linux-network-namespace%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     <id>http://www.pisces.ml/2017/03/15/linux-network-namespace学习笔记/</id>
     <published>2017-03-15T15:21:24.000Z</published>
-    <updated>2018-05-10T10:24:45.736Z</updated>
+    <updated>2018-05-11T07:14:39.574Z</updated>
     
     <content type="html"><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>在专业的网络世界中，经常使用到Virtual Routing and Forwarding（VRF），比如Cisco，Alcatel-Lucent, Juniper 等。对于L2 switch，自从上世纪90年代就开始使用VLAN，一个物理交换机上可以使用多个广播域，如今大多数交换机都支持4K vlan。</p>
 <p>这个概念被引入到L3，如今很多网络设备支持VRF。这意味着，单个物理设备上可运行多个虚拟路由（L3 转发实例）。</p>
@@ -778,7 +805,7 @@
     <link href="http://www.pisces.ml/2017/02/27/Cleaning-%E2%80%98Failed-actions%E2%80%99-message-in-Pacemaker-Corosync-cluster-setup/"/>
     <id>http://www.pisces.ml/2017/02/27/Cleaning-‘Failed-actions’-message-in-Pacemaker-Corosync-cluster-setup/</id>
     <published>2017-02-27T10:10:18.000Z</published>
-    <updated>2018-05-11T06:56:48.146Z</updated>
+    <updated>2018-05-11T07:14:39.570Z</updated>
     
     <content type="html"><![CDATA[<p>Sometimes when using <a href="http://www.clusterlabs.org/" target="_blank" rel="external">Pacemaker</a>/<a href="http://www.corosync.org/doku.php?id=welcome" target="_blank" rel="external">Corosync</a>-based cluster you can see warning message in <strong>crm_mon</strong> output:</p>
 <blockquote>
@@ -810,7 +837,7 @@
     <link href="http://www.pisces.ml/2017/02/24/linux%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA%E4%BB%A5%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/"/>
     <id>http://www.pisces.ml/2017/02/24/linux磁盘分区以及格式化/</id>
     <published>2017-02-24T02:01:16.000Z</published>
-    <updated>2018-05-11T06:56:57.190Z</updated>
+    <updated>2018-05-11T07:14:39.566Z</updated>
     
     <content type="html"><![CDATA[<p>此文将介绍裸盘的分区以及格式化，我们知道一块裸盘需要挂载到云主机中是需要进行分区以及格式化之后，才能mount到虚拟机中。本来将介绍如何操作。</p>
 <h1 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h1><p>（注意：以下操作都是在云平台中进行）</p>
@@ -862,7 +889,7 @@
     <link href="http://www.pisces.ml/2017/01/13/mysql%E5%88%86%E5%8C%BA%E8%A1%A8/"/>
     <id>http://www.pisces.ml/2017/01/13/mysql分区表/</id>
     <published>2017-01-13T07:10:04.000Z</published>
-    <updated>2018-05-11T06:57:02.897Z</updated>
+    <updated>2018-05-11T07:14:39.561Z</updated>
     
     <content type="html"><![CDATA[<h1 id="什么是表分区？"><a href="#什么是表分区？" class="headerlink" title="什么是表分区？"></a>什么是表分区？</h1><p>表分区，是指根据一定规则，将数据库中的一张表分解成多个更小的，容易管理的部分。从逻辑上看，只有一张表，但是底层却是由多个物理分区组成。</p>
 <h1 id="表分区与分表的区别"><a href="#表分区与分表的区别" class="headerlink" title="表分区与分表的区别"></a>表分区与分表的区别</h1><p>分表：指的是通过一定规则，将一张表分解成多张不同的表。比如将用户订单记录根据时间成多个表。 分表与分区的区别在于：分区从逻辑上来讲只有一张表，而分表则是将一张表分解成多张表。</p>
@@ -944,7 +971,7 @@
     <link href="http://www.pisces.ml/2016/12/28/linux%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87/"/>
     <id>http://www.pisces.ml/2016/12/28/linux字符设备/</id>
     <published>2016-12-28T13:50:46.000Z</published>
-    <updated>2018-05-11T06:57:09.087Z</updated>
+    <updated>2018-05-11T07:14:39.556Z</updated>
     
     <content type="html"><![CDATA[<p>这章将介绍Linux系统的设 备，这样我们才能清楚的知道应用程序和设备驱动程序是如何的工作的，或者说应用程序是如何控制驱动程序的，进而知道应用程序是如何通过驱动程序操作设备 的，另外会详细的介绍设备号及设备文件。</p>
 <h1 id="Linux设备分类"><a href="#Linux设备分类" class="headerlink" title="Linux设备分类"></a>Linux设备分类</h1><p>Linux下的设备通常分为三类，字符设备，块设备和网络设 备。</p>
@@ -1007,46 +1034,6 @@
     
     
       <category term="linux device" scheme="http://www.pisces.ml/tags/linux-device/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ARP地址解析协议</title>
-    <link href="http://www.pisces.ml/2016/12/16/Address-Resolution-Protocol/"/>
-    <id>http://www.pisces.ml/2016/12/16/Address-Resolution-Protocol/</id>
-    <published>2016-12-16T03:55:09.000Z</published>
-    <updated>2018-05-11T06:57:27.773Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><a href="https://en.wikipedia.org/wiki/Address_Resolution_Protocol" target="_blank" rel="external"><font size="3">ARP协议</font></a>是处于<a href="https://en.wikipedia.org/wiki/OSI_model" target="_blank" rel="external">7层网络模型</a>中的网络层的协议，协议内容根据IP地址获取物理地址的一个TCP/IP协议。主机发送信息时将包含目标IP地址的ARP请求广播到网络上的所有主机，并接收返回消息，以此确定目标的物理地址；收到返回消息后将该IP地址和物理地址存入本机ARP缓存中并保留一定时间，下次请求时直接查询ARP缓存以节约资源。地址解析协议是建立在网络中各个主机互相信任的基础上的，网络上的主机可以自主发送ARP应答消息，其他主机收到应答报文时不会检测该报文的真实性就会将其记入本机ARP缓存；由此攻击者就可以向某一主机发送伪ARP应答报文，使其发送的信息无法到达预期的主机或到达错误的主机，这就构成了一个ARP欺骗。ARP命令可用于查询本机ARP缓存中IP地址和MAC地址的对应关系、添加或删除静态对应关系等。</p>
-<h1 id="ARP工作流程"><a href="#ARP工作流程" class="headerlink" title="ARP工作流程"></a>ARP工作流程</h1><p>举个例子，我们假设：<br>主机A的IP地址为192.168.0.1，mac地址为xx-xx-xx-xx-xx-01;<br>主机B的IP地址为192.168.0.2，mac地址为xx-xx-xx-xx-xx-02;<br>当主机A需要与主机B通信时，地址解析协议需要将主机B的IP地址解析成主机B的物理地址（即mac地址，我们知道所有设备都有一个<br>唯一的mac地址），这样根据实际的物理地址两个主机才能够相互通信。以下是工作流程：</p>
-<ol>
-<li>首先主机A会确定用于访问主机B的转发IP地址是192.168.0.2（根据本地解析，或者域名解析等）。然后A主机在自己的本地ARP缓存中检查主机B的匹配MAC地址。</li>
-<li>如果主机A在ARP缓存中没有找到映射，它将询问192.168.0.2的硬件地址，从而将ARP请求帧广播到本地网络上的所有主机。源主机A的IP地址和MAC地址都包括在ARP请求中。本地网络上的每台主机都接收到ARP请求并且检查是否与自己的IP地址匹配。如果主机发现请求的IP地址与自己的IP地址不匹配，它将丢弃ARP请求。</li>
-<li>主机B确定ARP请求中的IP地址与自己的IP地址匹配，则将主机A的IP地址和MAC地址映射添加到本地ARP缓存中。</li>
-<li>主机B将包含其MAC地址的ARP回复消息直接发送回主机A。</li>
-<li>当主机A收到从主机B发来的ARP回复消息时，会用主机B的IP和MAC地址映射更新ARP缓存。本机缓存是有生存期的，生存期结束后，将再次重复上面的过程。主机B的MAC地址一旦确定，主机A就能向主机B发送IP通信了。</li>
-</ol>
-<h1 id="ARP命令实用"><a href="#ARP命令实用" class="headerlink" title="ARP命令实用"></a>ARP命令实用</h1><p>查看arp命令帮助：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">man arp</div></pre></td></tr></table></figure></p>
-<p><font size="4"><strong><em>ARP常用命令选项</em></strong>：</font></p>
-<p><font size="3">arp -a / arp -g</font><br>查看地址缓存中的所有项目</p>
-<p><font size="3">arp -a IP</font><br>如果我们有多个网卡，那么使用arp -a加上接口的IP地址，就可以只显示与该接口相关的ARP缓存项目。</p>
-<p><font size="3">arp -s/-S IP ether_addr(物理地址)</font><br>配置本地ARP缓存，如果目标物理地址配置错误，将导致主机间无法通信。(可以尝试下如果配置一个错误地址是ping不通的), 参数-S含义是如果添加的地址已经存在，会将其先删除再添加</p>
-<p><font size="3">arp -d IP</font><br>删除一个ARP缓存条目</p>
-<blockquote>
-<p>更多使用方法可以通过帮助命令查看，非常全面。前提是英语得过关😅</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Address_Resolution_Protocol&quot; ta
-    
-    </summary>
-    
-      <category term="Network" scheme="http://www.pisces.ml/categories/Network/"/>
-    
-    
-      <category term="ARP" scheme="http://www.pisces.ml/tags/ARP/"/>
     
   </entry>
   
