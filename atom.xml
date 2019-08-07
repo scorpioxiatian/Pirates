@@ -838,7 +838,7 @@
     <link href="http://www.pisces.ml/2017/02/24/linux%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA%E4%BB%A5%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/"/>
     <id>http://www.pisces.ml/2017/02/24/linux磁盘分区以及格式化/</id>
     <published>2017-02-24T02:01:16.000Z</published>
-    <updated>2018-05-11T07:14:39.566Z</updated>
+    <updated>2019-03-21T10:00:11.030Z</updated>
     
     <content type="html"><![CDATA[<p>此文将介绍裸盘的分区以及格式化，我们知道一块裸盘需要挂载到云主机中是需要进行分区以及格式化之后，才能mount到虚拟机中。本来将介绍如何操作。</p>
 <h1 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h1><p>（注意：以下操作都是在云平台中进行）</p>

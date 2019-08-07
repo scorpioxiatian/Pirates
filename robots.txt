@@ -12,4 +12,4 @@ Disallow: /css/
 Disallow: /js/
 Disallow: /lib/
 
-Sitemap: http://www.pisces.ml/sitemap.xml
+Sitemap: http://www.pisces.ink/sitemap.xml
