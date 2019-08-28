@@ -4,6 +4,49 @@
   
     
     <entry>
+      <title><![CDATA[centos源码安装vim]]></title>
+      <url>http://www.pisces.ml/2019/08/28/centos%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85vim/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>记录vim源码安装，由于开发环境中系统自带的vim版本旧，以及现有的vim特性无法满足需求。故需要通过手动从源码编译安装vim。以下记录整个无坑安装部署过程。</p>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><p>操作系统：CentOS Linux release 7.6.1810 (Core)</p>
+<p>shell: zsh</p>
+<h1 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h1><ol>
+<li><p>移除系统自带vim</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum remove -y vim-filesystem-7.4.160-4.el7.x86_64 vim-common-7.4.160-4.el7.x86_64 vim-enhanced-7.4.160-4.el7.x86_64</div></pre></td></tr></table></figure>
+</li>
+<li><p>克隆vim源码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/vim/vim.git</div></pre></td></tr></table></figure>
+</li>
+<li><p>安装vim依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install -y ruby ruby-devel lua lua-devel luajit luajit-devel ctags git python python-devel python3 python3-devel tcl-devel perl perl-devel perl-ExtUtils-ParseXS perl-ExtUtils-XSpp perl-ExtUtils-CBuilder perl-ExtUtils-Embed ncurses-devel</div></pre></td></tr></table></figure>
+</li>
+<li><p>进入vim项目中根据自己需求切换到相应版，并执行如下命令生成Makefile</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">./configure --with-features=huge \</div><div class="line">        --enable-multibyte \</div><div class="line">        --enable-rubyinterp=yes \</div><div class="line">        --enable-python3interp=yes \</div><div class="line">        --with-python-config-dir=/usr/lib64/python2.7/config \</div><div class="line">        --enable-perlinterp=yes \</div><div class="line">        --enable-luainterp=yes \</div><div class="line">        --enable-gui=gtk2 \</div><div class="line">        --enable-cscope \</div><div class="line">        --prefix=/usr/local</div></pre></td></tr></table></figure>
+</li>
+<li><p>编译文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">make VIMRUNTIMEDIR=/usr/local/share/vim/vim81</div></pre></td></tr></table></figure>
+</li>
+<li><p>安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">make install</div></pre></td></tr></table></figure>
+</li>
+</ol>
+]]></content>
+      
+        <categories>
+            
+            <category> Linux </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> linux </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[系统运维记录]]></title>
       <url>http://www.pisces.ml/2018/07/27/%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%E8%AE%B0%E5%BD%95/</url>
       <content type="html"><![CDATA[<h1 id="硬盘"><a href="#硬盘" class="headerlink" title="硬盘"></a>硬盘</h1><p>1.查看硬盘信息</p>
@@ -1974,12 +2017,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[分类]]></title>
-      <url>http://www.pisces.ml/categories/index.html</url>
-      <content type="html"></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[about]]></title>
       <url>http://www.pisces.ml/about/index.html</url>
       <content type="html"><![CDATA[<h2 id="知识整理"><a href="#知识整理" class="headerlink" title="知识整理"></a>知识整理</h2><h3 id="zabbix"><a href="#zabbix" class="headerlink" title="zabbix"></a>zabbix</h3><ol>
@@ -2001,6 +2038,12 @@
 <li><a href="https://cloud.smartdraw.com/" target="_blank" rel="external">smartdraw</a>  推荐指数：✨✨✨✨✨</li>
 </ol>
 ]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[分类]]></title>
+      <url>http://www.pisces.ml/categories/index.html</url>
+      <content type="html"></content>
     </entry>
     
     <entry>
