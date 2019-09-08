@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.pisces.ml/"/>
-  <updated>2019-09-08T06:21:34.619Z</updated>
+  <updated>2019-09-08T06:28:13.677Z</updated>
   <id>http://www.pisces.ml/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://www.pisces.ml/2019/09/08/tmux%E6%94%AF%E6%8C%81color-256%E9%97%AE%E9%A2%98/"/>
     <id>http://www.pisces.ml/2019/09/08/tmux支持color-256问题/</id>
     <published>2019-09-08T06:06:19.000Z</published>
-    <updated>2019-09-08T06:21:34.619Z</updated>
+    <updated>2019-09-08T06:28:13.677Z</updated>
     
     <content type="html"><![CDATA[<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>操作系统：centOS Linux release 7.6.1819 (Core)</p>
 <p>shell: zsh</p>
@@ -29,7 +29,10 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">set-option -g default-terminal &quot;screen-256color&quot;</div></pre></td></tr></table></figure>
 <p>步骤二：修改~/.zshrc配置文件，添加如下配置：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alias tmux=&quot;tmux -2&quot;</div></pre></td></tr></table></figure>
-<p>执行完以上步骤验证即可。。。。。。</p>
+<p>步骤三： source zshrc 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">source ~/.zshrc</div></pre></td></tr></table></figure>
+<p>执行完以上步骤重新打开tmux验证即可。。。。。。</p>
+<p>以上仅此记录，用于开发环境搭建（vim + tmux党）</p>
 ]]></content>
     
     <summary type="html">

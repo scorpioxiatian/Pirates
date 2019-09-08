@@ -13,7 +13,10 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">set-option -g default-terminal &quot;screen-256color&quot;</div></pre></td></tr></table></figure>
 <p>步骤二：修改~/.zshrc配置文件，添加如下配置：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alias tmux=&quot;tmux -2&quot;</div></pre></td></tr></table></figure>
-<p>执行完以上步骤验证即可。。。。。。</p>
+<p>步骤三： source zshrc 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">source ~/.zshrc</div></pre></td></tr></table></figure>
+<p>执行完以上步骤重新打开tmux验证即可。。。。。。</p>
+<p>以上仅此记录，用于开发环境搭建（vim + tmux党）</p>
 ]]></content>
       
         <categories>
