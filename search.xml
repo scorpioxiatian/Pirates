@@ -4,6 +4,36 @@
   
     
     <entry>
+      <title><![CDATA[KVM虚拟机磁盘挂载]]></title>
+      <url>http://www.pisces.ml/2020/09/23/KVM%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%A3%81%E7%9B%98%E6%8C%82%E8%BD%BD/</url>
+      <content type="html"><![CDATA[<p>KVM磁盘挂载，主要用于物理机向虚拟机传输文件使用</p>
+<p>具体步骤如下：</p>
+<ol>
+<li><p>生成磁盘img文件：<br><code>qemu-img create -f raw /opt/share.img 10G</code></p>
+</li>
+<li><p>格式化磁盘<br><code>mkfs.ext4 /opt/share.img</code></p>
+</li>
+<li><p>编辑KVM xml文件，增加磁盘信息<br>virsh edit ${domain_id}</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;disk type=&apos;file&apos; device=&apos;disk&apos;&gt;</div><div class="line">   &lt;driver name=&apos;qemu&apos; type=&apos;raw&apos; cache=&apos;none&apos;/&gt;</div><div class="line">   &lt;source file=&apos;/opt/share.img&apos;/&gt;</div><div class="line">   &lt;target dev=&apos;vdb&apos; bus=&apos;virtio&apos;/&gt;</div><div class="line">   &lt;address type=&apos;pci&apos; domain=&apos;0x0000&apos; bus=&apos;0x00&apos; slot=&apos;0x06&apos; function=&apos;0x0&apos;/&gt;</div><div class="line"> &lt;/disk&gt;</div></pre></td></tr></table></figure>
+</li>
+<li><p>重启KVM机器</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">virsh shutdown $&#123;domain_id&#125;</div><div class="line">virsh start $&#123;domain_id&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>进去KVM机器挂载磁盘<br>mount /dev/vdb share/</p>
+</li>
+</ol>
+]]></content>
+      
+        <categories>
+            
+            <category> Openstack </category>
+            
+        </categories>
+        
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[tmux支持color 256问题]]></title>
       <url>http://www.pisces.ml/2019/09/08/tmux%E6%94%AF%E6%8C%81color-256%E9%97%AE%E9%A2%98/</url>
       <content type="html"><![CDATA[<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>操作系统：centOS Linux release 7.6.1819 (Core)</p>
@@ -2048,6 +2078,36 @@
     </entry>
     
     <entry>
+      <title><![CDATA[about]]></title>
+      <url>http://www.pisces.ml/about/index.html</url>
+      <content type="html"><![CDATA[<h2 id="知识整理"><a href="#知识整理" class="headerlink" title="知识整理"></a>知识整理</h2><h3 id="zabbix"><a href="#zabbix" class="headerlink" title="zabbix"></a>zabbix</h3><ol>
+<li><a href="https://www.zifangsky.cn/627.html" target="_blank" rel="external">zabbix自定义脚本实现短信报警提醒</a></li>
+</ol>
+<h3 id="kvm虚拟机"><a href="#kvm虚拟机" class="headerlink" title="kvm虚拟机"></a>kvm虚拟机</h3><ol>
+<li><a href="http://my.oschina.net/u/3062408/blog/803865" target="_blank" rel="external">KVM的虚拟机网络配置</a></li>
+</ol>
+<h3 id="运维知识学习"><a href="#运维知识学习" class="headerlink" title="运维知识学习"></a>运维知识学习</h3><ol>
+<li><a href="http://ansible-tran.readthedocs.io/en/latest/docs/intro_installation.html" target="_blank" rel="external">Ansible中文权威指南</a></li>
+<li><a href="https://access.redhat.com/documentation/zh-CN/Red_Hat_Enterprise_Linux/7/html/High_Availability_Add-On_Reference/ch-overview-HAAR.html" target="_blank" rel="external">Pacemaker使用指南</a></li>
+</ol>
+<h3 id="git技能提升"><a href="#git技能提升" class="headerlink" title="git技能提升"></a>git技能提升</h3><ol>
+<li><a href="https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request" target="_blank" rel="external">How to Rebase a Pull Request</a></li>
+</ol>
+<h3 id="开发工具"><a href="#开发工具" class="headerlink" title="开发工具"></a>开发工具</h3><ol>
+<li><a href="http://www.kancloud.cn/kancloud/tmux/62459" target="_blank" rel="external">tmux: Productive Mouse-Free Development</a></li>
+<li><a href="https://wolfpaulus.com/mac/tomcat/" target="_blank" rel="external">Installing Tomcat on macOS 10.12 Sierra</a></li>
+<li><a href="https://cloud.smartdraw.com/" target="_blank" rel="external">smartdraw</a>  推荐指数：✨✨✨✨✨</li>
+</ol>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[分类]]></title>
+      <url>http://www.pisces.ml/categories/index.html</url>
+      <content type="html"></content>
+    </entry>
+    
+    <entry>
       <title></title>
       <url>http://www.pisces.ml/romance/love.html</url>
       <content type="html"><![CDATA[<!doctype html>
@@ -2135,6 +2195,12 @@
     </entry>
     
     <entry>
+      <title><![CDATA[All tags]]></title>
+      <url>http://www.pisces.ml/tags/index.html</url>
+      <content type="html"></content>
+    </entry>
+    
+    <entry>
       <title></title>
       <url>http://www.pisces.ml/romance/photo_wall.html</url>
       <content type="html"><![CDATA[<!doctype html>
@@ -2207,42 +2273,6 @@
 
 </body>
 </html>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[All tags]]></title>
-      <url>http://www.pisces.ml/tags/index.html</url>
-      <content type="html"></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[分类]]></title>
-      <url>http://www.pisces.ml/categories/index.html</url>
-      <content type="html"></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[about]]></title>
-      <url>http://www.pisces.ml/about/index.html</url>
-      <content type="html"><![CDATA[<h2 id="知识整理"><a href="#知识整理" class="headerlink" title="知识整理"></a>知识整理</h2><h3 id="zabbix"><a href="#zabbix" class="headerlink" title="zabbix"></a>zabbix</h3><ol>
-<li><a href="https://www.zifangsky.cn/627.html" target="_blank" rel="external">zabbix自定义脚本实现短信报警提醒</a></li>
-</ol>
-<h3 id="kvm虚拟机"><a href="#kvm虚拟机" class="headerlink" title="kvm虚拟机"></a>kvm虚拟机</h3><ol>
-<li><a href="http://my.oschina.net/u/3062408/blog/803865" target="_blank" rel="external">KVM的虚拟机网络配置</a></li>
-</ol>
-<h3 id="运维知识学习"><a href="#运维知识学习" class="headerlink" title="运维知识学习"></a>运维知识学习</h3><ol>
-<li><a href="http://ansible-tran.readthedocs.io/en/latest/docs/intro_installation.html" target="_blank" rel="external">Ansible中文权威指南</a></li>
-<li><a href="https://access.redhat.com/documentation/zh-CN/Red_Hat_Enterprise_Linux/7/html/High_Availability_Add-On_Reference/ch-overview-HAAR.html" target="_blank" rel="external">Pacemaker使用指南</a></li>
-</ol>
-<h3 id="git技能提升"><a href="#git技能提升" class="headerlink" title="git技能提升"></a>git技能提升</h3><ol>
-<li><a href="https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request" target="_blank" rel="external">How to Rebase a Pull Request</a></li>
-</ol>
-<h3 id="开发工具"><a href="#开发工具" class="headerlink" title="开发工具"></a>开发工具</h3><ol>
-<li><a href="http://www.kancloud.cn/kancloud/tmux/62459" target="_blank" rel="external">tmux: Productive Mouse-Free Development</a></li>
-<li><a href="https://wolfpaulus.com/mac/tomcat/" target="_blank" rel="external">Installing Tomcat on macOS 10.12 Sierra</a></li>
-<li><a href="https://cloud.smartdraw.com/" target="_blank" rel="external">smartdraw</a>  推荐指数：✨✨✨✨✨</li>
-</ol>
 ]]></content>
     </entry>
     

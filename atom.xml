@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.pisces.ml/"/>
-  <updated>2019-09-08T06:28:13.677Z</updated>
+  <updated>2020-09-23T08:18:39.520Z</updated>
   <id>http://www.pisces.ml/</id>
   
   <author>
@@ -14,6 +14,47 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>KVM虚拟机磁盘挂载</title>
+    <link href="http://www.pisces.ml/2020/09/23/KVM%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%A3%81%E7%9B%98%E6%8C%82%E8%BD%BD/"/>
+    <id>http://www.pisces.ml/2020/09/23/KVM虚拟机磁盘挂载/</id>
+    <published>2020-09-23T07:42:15.000Z</published>
+    <updated>2020-09-23T08:18:39.520Z</updated>
+    
+    <content type="html"><![CDATA[<p>KVM磁盘挂载，主要用于物理机向虚拟机传输文件使用</p>
+<p>具体步骤如下：</p>
+<ol>
+<li><p>生成磁盘img文件：<br><code>qemu-img create -f raw /opt/share.img 10G</code></p>
+</li>
+<li><p>格式化磁盘<br><code>mkfs.ext4 /opt/share.img</code></p>
+</li>
+<li><p>编辑KVM xml文件，增加磁盘信息<br>virsh edit ${domain_id}</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;disk type=&apos;file&apos; device=&apos;disk&apos;&gt;</div><div class="line">   &lt;driver name=&apos;qemu&apos; type=&apos;raw&apos; cache=&apos;none&apos;/&gt;</div><div class="line">   &lt;source file=&apos;/opt/share.img&apos;/&gt;</div><div class="line">   &lt;target dev=&apos;vdb&apos; bus=&apos;virtio&apos;/&gt;</div><div class="line">   &lt;address type=&apos;pci&apos; domain=&apos;0x0000&apos; bus=&apos;0x00&apos; slot=&apos;0x06&apos; function=&apos;0x0&apos;/&gt;</div><div class="line"> &lt;/disk&gt;</div></pre></td></tr></table></figure>
+</li>
+<li><p>重启KVM机器</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">virsh shutdown $&#123;domain_id&#125;</div><div class="line">virsh start $&#123;domain_id&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>进去KVM机器挂载磁盘<br>mount /dev/vdb share/</p>
+</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;KVM磁盘挂载，主要用于物理机向虚拟机传输文件使用&lt;/p&gt;
+&lt;p&gt;具体步骤如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;生成磁盘img文件：&lt;br&gt;&lt;code&gt;qemu-img create -f raw /opt/share.img 10G&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;
+    
+    </summary>
+    
+      <category term="Openstack" scheme="http://www.pisces.ml/categories/Openstack/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>tmux支持color 256问题</title>
@@ -909,58 +950,6 @@
     
     
       <category term="Pacemaker" scheme="http://www.pisces.ml/tags/Pacemaker/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>linux磁盘分区以及格式化</title>
-    <link href="http://www.pisces.ml/2017/02/24/linux%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA%E4%BB%A5%E5%8F%8A%E6%A0%BC%E5%BC%8F%E5%8C%96/"/>
-    <id>http://www.pisces.ml/2017/02/24/linux磁盘分区以及格式化/</id>
-    <published>2017-02-24T02:01:16.000Z</published>
-    <updated>2019-03-21T10:00:11.030Z</updated>
-    
-    <content type="html"><![CDATA[<p>此文将介绍裸盘的分区以及格式化，我们知道一块裸盘需要挂载到云主机中是需要进行分区以及格式化之后，才能mount到虚拟机中。本来将介绍如何操作。</p>
-<h1 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h1><p>（注意：以下操作都是在云平台中进行）</p>
-<ol>
-<li><p>首先准备一台虚拟机</p>
-</li>
-<li><p>申请一块10G云硬盘</p>
-</li>
-<li><p>将云硬盘挂载到虚拟机中</p>
-</li>
-</ol>
-<p>以上步骤准备完成后我们需要进入虚拟机，我们可以看到虚拟机中已经挂载了这么一块盘进来,如下图所示：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# lsblk</div><div class="line">NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sr0     11:0    1  422K  0 rom</div><div class="line">vda    252:0    0   20G  0 disk</div><div class="line">└─vda1 252:1    0   20G  0 part /</div><div class="line">vdb    252:16   0   10G  0 disk</div></pre></td></tr></table></figure>
-<p>由上图所示，我们可以看到有一块盘（vdb）已经挂在到虚拟机中。但是还没有进行分区和格式化，我们需要进行分区后再格式化才能正常使用。</p>
-<h1 id="磁盘分区"><a href="#磁盘分区" class="headerlink" title="磁盘分区"></a>磁盘分区</h1><p>linux中我们使用fdisk命令来进行磁盘分区，下面我们就使用该命令进行磁盘分区。</p>
-<p>首先我们可以使用帮助命令或者man来查看fdisk命令的帮助文档：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# fdisk -h</div><div class="line"></div><div class="line">用法：</div><div class="line"> fdisk [options] &lt;disk&gt;      change partition table</div><div class="line"> fdisk [options] -l [&lt;disk&gt;] list partition table(s)</div><div class="line"></div><div class="line">选项：</div><div class="line"> -b &lt;size&gt;         扇区大小(512, 1024, 2048 或 4096)</div><div class="line"> -c[=&lt;模式&gt;]       兼容模式：“dos”或“nondos”(默认)</div><div class="line"> -h                显示此帮助并退出</div><div class="line"> -c[=&lt;模式&gt;]       兼容模式：“dos”或“nondos”(默认)</div><div class="line"> -L[=&lt;何时&gt;]       彩色显示输出(auto自动，always总是或never从不)</div><div class="line"> -t &lt;类型&gt;         强制 disk 只重新识别特定的分区表类型</div><div class="line"> -u[=&lt;单位&gt;]       显示单位：“cylinders”柱面 或“sectors”扇区(默认)</div><div class="line"> -v                打印程序版本</div><div class="line"> -C &lt;数字&gt;         指定柱面数</div><div class="line"> -H &lt;数字&gt;         指定磁头数</div><div class="line"> -S &lt;数字&gt;         指定每条磁道的扇区数</div><div class="line"></div><div class="line">更多信息请参阅 fdisk(8)。</div></pre></td></tr></table></figure>
-<p>下面我们对盘vdb进行分区：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# fdisk /dev/vdb</div><div class="line"></div><div class="line">欢迎使用 fdisk (util-linux 2.24.2)。</div><div class="line">更改将停留在内存中，直到您决定将更改写入磁盘。</div><div class="line">使用写入命令前请三思。</div><div class="line"></div><div class="line">设备不包含可识别的分区表。</div><div class="line"></div><div class="line">Created a new DOS disklabel with disk identifier 0xf8fe1a5e.</div><div class="line"></div><div class="line">命令(输入 m 获取帮助)：n        输入n,创建分区</div><div class="line"></div><div class="line">分区类型：</div><div class="line">   p   主分区(0 个主分区，0 个扩展分区，4 空闲)</div><div class="line">   e   扩展分区</div><div class="line">请选择(默认为 p)：: p          输入p或者e选择分区类型：主分区／扩展分区</div><div class="line">分区号 (1-4, default 1): 1    输入分区号</div><div class="line">第一个扇区 (2048-20971519, default 2048):     输入柱头启始号</div><div class="line">上个扇区，+sectors 或 +size&#123;K,M,G,T,P&#125; (2048-20971519, default 20971519):   输入柱头结束号</div><div class="line"></div><div class="line">创建了一个新分区 1，类型为“Linux”，大小为 10 GiB。</div><div class="line"></div><div class="line">命令(输入 m 获取帮助)：w      输入w保存配置</div><div class="line">分区表已调整。</div><div class="line">将调用 ioctl() 来重新读分区表。</div><div class="line">正在同步磁盘。</div></pre></td></tr></table></figure>
-<p>通常分区可以根据个人需要将此盘分为多个分区，我们这里只分了一个示例分区，上面操作完成后，我们已经建立了分区表，我们可以通过lsblk命令查看分区，如下所示：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# lsblk</div><div class="line">NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sr0     11:0    1  422K  0 rom</div><div class="line">vda    252:0    0   20G  0 disk</div><div class="line">└─vda1 252:1    0   20G  0 part /</div><div class="line">vdb    252:16   0   10G  0 disk</div><div class="line">└─vdb1 252:17   0   10G  0 part    新建的分区</div></pre></td></tr></table></figure>
-<p>我们可以看到vdb这块盘已经有了一个分区vdb1，但是我们还没有挂载到云主机中，下面我们就要用mkfs命令来对磁盘进行格式化</p>
-<h1 id="磁盘格式化"><a href="#磁盘格式化" class="headerlink" title="磁盘格式化"></a>磁盘格式化</h1><p>同样我们首先查看帮助文档：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# mkfs -h</div><div class="line">用法：</div><div class="line"> mkfs [选项] [-t &lt;类型&gt;] [文件系统选项] &lt;设备&gt; [&lt;大小&gt;]</div><div class="line"></div><div class="line">选项：</div><div class="line"> -t, --type=&lt;类型&gt;  文件系统类型；若不指定，将使用 ext2</div><div class="line">     fs-options     实际文件系统构建程序的参数</div><div class="line">     &lt;设备&gt;         要使用设备的路径</div><div class="line">     &lt;大小&gt;         要使用设备上的块数</div><div class="line"> -V, --verbose      解释正在进行的操作；</div><div class="line">                      多次指定 -V 将导致空运行(dry-run)</div><div class="line"> -V, --version      显示版本信息并退出</div><div class="line">                      将 -V 作为 --version 选项时必须是惟一选项</div><div class="line"> -h, --help         显示此帮助并退出</div><div class="line"></div><div class="line">更多信息请参阅 mkfs(8)。</div></pre></td></tr></table></figure>
-<p>分区创建好之后，还必须要经过格式化才能使用，格式化分区的主要目的是在分区中创建文件系统。Linux专用的文件系统是ext，包含ext2、ext3、ext4等诸多版本，在RHEL6中默认使用的是ext4。另外Linux也支持Windows中的FAT32文件系统，在Linux中表示为vfat。示例，我们将这块磁盘格式化为ext2格式，操作如下所示：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# mkfs -t ext2 /dev/vdb1</div><div class="line">mke2fs 1.42.12 (29-Aug-2014)</div><div class="line">Found a dos partition table in /dev/vdb1</div><div class="line">无论如何也要继续? (y,n) y</div><div class="line">Creating filesystem with 2621440 4k blocks and 655360 inodes</div><div class="line">Filesystem UUID: 893aedd2-f056-4b4f-9c86-9cef7f612ccf</div><div class="line">Superblock backups stored on blocks:</div><div class="line">	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632</div><div class="line"></div><div class="line">Allocating group tables: 完成</div><div class="line">正在写入inode表: 完成</div><div class="line">Writing superblocks and filesystem accounting information: 完成</div></pre></td></tr></table></figure>
-<h1 id="挂载磁盘"><a href="#挂载磁盘" class="headerlink" title="挂载磁盘"></a>挂载磁盘</h1><p>磁盘格式化完后我们需要将该磁盘挂载到一个目录中，这样我们就能往磁盘中写入数据了，首先我们建立一个文件夹，然后将该磁盘挂载到该目录下，具体操作如下所示：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]# mkdir /var/test</div><div class="line">[root@test-fedora ~]# mount /dev/vdb1 /var/test/</div><div class="line">mount: /dev/vdb1 写保护，将以只读方式挂载</div><div class="line">mount: 文件系统类型错误、选项错误、/dev/vdb1 上有坏超级块、</div><div class="line">       缺少代码页或助手程序，或其他错误</div><div class="line"></div><div class="line">       有些情况下在 syslog 中可以找到一些有用信息- 请尝试</div><div class="line">       dmesg | tail  这样的命令看看。</div></pre></td></tr></table></figure>
-<p>挂载磁盘后通常我们需要手动设置开机自动挂载，否则下次系统启动是就需要手动进行挂载，这样很不方便。所以我们需要执行以下命令设置<strong>硬盘开机自动挂载</strong>：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@test-fedora ~]<span class="comment"># tail -1 /etc/mtab &gt;&gt; /etc/fstab</span></div></pre></td></tr></table></figure>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;此文将介绍裸盘的分区以及格式化，我们知道一块裸盘需要挂载到云主机中是需要进行分区以及格式化之后，才能mount到虚拟机中。本来将介绍如何操作。&lt;/p&gt;
-&lt;h1 id=&quot;前期准备&quot;&gt;&lt;a href=&quot;#前期准备&quot; class=&quot;headerlink&quot; title=&quot;前期准备&quot;
-    
-    </summary>
-    
-      <category term="Linux" scheme="http://www.pisces.ml/categories/Linux/"/>
-    
-    
-      <category term="disk" scheme="http://www.pisces.ml/tags/disk/"/>
     
   </entry>
   
